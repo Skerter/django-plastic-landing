@@ -1,0 +1,48 @@
+{% comment %}
+  Sticky-шапка. Активный пункт передаётся переменной `active`:
+  "home" | "katalog" | "dostavka" | "o-kompanii" | "kontakty".
+  «Каталог» ведёт на страницу-хаб category_list (/catalog/).
+{% endcomment %}
+<header class="sticky top-0 z-50 bg-white border-b border-line">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 lg:h-[72px] gap-4">
+      <a href="{% url 'home' %}" class="flex items-center shrink-0 group" aria-label="DemoPlast — на главную">
+        <span class="inline-flex items-center justify-center bg-brand h-11 px-3.5 rounded">{% include "partials/logo.html" %}</span>
+      </a>
+
+      <nav class="hidden lg:flex items-center gap-8 text-[15px]">
+        <a href="{% url 'home' %}" class="nav-lk{% if active == 'home' %} nav-lk--active{% endif %}">Главная</a>
+        <a href="{% url 'category_list' %}" class="nav-lk{% if active == 'katalog' %} nav-lk--active{% endif %}">Каталог</a>
+        <a href="{% url 'dostavka' %}" class="nav-lk{% if active == 'dostavka' %} nav-lk--active{% endif %}">Доставка</a>
+        <a href="{% url 'o_kompanii' %}" class="nav-lk{% if active == 'o-kompanii' %} nav-lk--active{% endif %}">О компании</a>
+        <a href="{% url 'kontakty' %}" class="nav-lk{% if active == 'kontakty' %} nav-lk--active{% endif %}">Контакты</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="tel:{{ site_settings.phone_sales_tel }}" class="hidden md:flex flex-col items-end leading-tight group">
+          <span class="font-mono text-[10px] text-muted tracking-widest uppercase">Отдел продаж</span>
+          <span class="font-bold text-[16px] text-ink group-hover:text-brand transition-colors tnum">{{ site_settings.phone_sales }}</span>
+        </a>
+        <a href="#callback" data-modal-open class="btn btn-primary btn-sm hidden sm:inline-flex">Заказать звонок</a>
+        <button id="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="mobileMenu" class="lg:hidden grid place-items-center w-11 h-11 border border-line rounded text-ink hover:border-brand hover:text-brand transition-colors">
+          <span data-burger-open>{% include "partials/icon.html" with name="menu" class="w-5 h-5" %}</span>
+          <span data-burger-close class="hidden">{% include "partials/icon.html" with name="x" class="w-5 h-5" %}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mobileMenu" class="hidden lg:hidden border-t border-line bg-white">
+    <nav class="max-w-7xl mx-auto px-5 sm:px-6 py-2 flex flex-col">
+      <a href="{% url 'home' %}" class="py-3.5 border-b border-line font-medium text-[17px]{% if active == 'home' %} text-brand{% endif %}">Главная</a>
+      <a href="{% url 'category_list' %}" class="py-3.5 border-b border-line font-medium text-[17px]{% if active == 'katalog' %} text-brand{% endif %}">Каталог</a>
+      <a href="{% url 'dostavka' %}" class="py-3.5 border-b border-line font-medium text-[17px]{% if active == 'dostavka' %} text-brand{% endif %}">Доставка</a>
+      <a href="{% url 'o_kompanii' %}" class="py-3.5 border-b border-line font-medium text-[17px]{% if active == 'o-kompanii' %} text-brand{% endif %}">О компании</a>
+      <a href="{% url 'kontakty' %}" class="py-3.5 border-b border-line font-medium text-[17px]{% if active == 'kontakty' %} text-brand{% endif %}">Контакты</a>
+      <div class="flex flex-col gap-3 pt-4 pb-3">
+        <a href="tel:{{ site_settings.phone_sales_tel }}" class="flex items-center gap-2 font-bold text-[17px] tnum">{% include "partials/icon.html" with name="phone" class="w-4 h-4 text-brand" %}{{ site_settings.phone_sales }}</a>
+        <a href="#callback" data-modal-open class="btn btn-primary">Заказать звонок</a>
+      </div>
+    </nav>
+  </div>
+</header>

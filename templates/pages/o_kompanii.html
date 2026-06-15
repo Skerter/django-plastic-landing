@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}О компании — завод пластиковой тары ДемоПласт, Москва с 1994{% endblock %}
+{% block meta_description %}ООО «ДемоПласт» — производство пластиковой тары в Москве с 1994 года. Импортное оборудование, контроль качества, сертифицированная продукция, окраска и логотип по заказу.{% endblock %}
+
+{% block content %}
+<!-- PAGE HEAD -->
+<section class="border-b border-line">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-7 lg:pt-9 pb-10 lg:pb-12">
+    <nav class="flex items-center gap-2 font-mono text-[12px] uppercase tracking-wider text-muted flex-wrap" aria-label="Хлебные крошки">
+      <a href="{% url 'home' %}" class="hover:text-brand transition-colors">Главная</a>
+      <span class="text-line">/</span>
+      <span class="text-ink">О компании</span>
+    </nav>
+    <div class="mt-7">
+      <h1 class="font-display font-extrabold text-[clamp(2.4rem,6vw,3.6rem)] tracking-tight leading-[1.03]">О компании</h1>
+      <p class="mt-5 text-[17px] text-muted leading-relaxed text-pretty max-w-3xl">Компания ООО «ДемоПласт» основана в 1994 году. Мы изготавливаем и продаём высококачественную пластмассовую тару. Производство расположено в Москве и оснащено современным оборудованием.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STORY + PHOTO -->
+<section class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 lg:py-20">
+  <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+    <div class="space-y-5 text-[17px] text-ink leading-relaxed">
+      <p>Производственные мощности и большой опыт работы позволяют нам выпускать <a href="{% url 'category_detail' 'kanistry' %}" class="text-brand underline underline-offset-2 hover:text-brand-700">пластиковые канистры</a> и <a href="{% url 'category_detail' 'kryshki' %}" class="text-brand underline underline-offset-2 hover:text-brand-700">крышки</a> в любых объёмах с соблюдением всех технологий.</p>
+      <p>Канистры изготавливаются из прочного и долговечного пластика, который обеспечивает надёжную защиту содержимого от утечек, ударов и иных внешних воздействий.</p>
+      <p>Тара различного объёма имеет удобную форму и прочные ручки для переноски. Изделия оснащены надёжными крышками, которые герметично закрывают канистру.</p>
+      <p>Вся продукция оборачивается в чёрный рукав, который предотвращает выцветание цветных изделий под воздействием солнечных лучей при хранении на улице.</p>
+    </div>
+    <div class="ph ph-marks aspect-[4/3] grid place-items-center">
+      <span class="ph-tag px-4 text-center">[ ФОТО · производственный цех ]</span>
+    </div>
+  </div>
+</section>
+
+<!-- CERTIFICATES -->
+{% if certificates %}
+<section class="bg-surface border-y border-line">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 lg:py-20">
+    <div class="flex flex-wrap items-end justify-between gap-5 mb-8">
+      <div class="max-w-2xl">
+        <h2 class="font-display font-extrabold text-[clamp(1.8rem,4vw,2.4rem)] tracking-tight">Сертификаты</h2>
+        <p class="mt-4 text-muted text-[17px]">Продукция сертифицирована и соответствует всем необходимым стандартам. Копии документов предоставляем по запросу.</p>
+      </div>
+      <a href="#callback" data-modal-open class="inline-flex items-center gap-2 font-display font-bold text-[14px] uppercase tracking-wider text-brand hover:text-brand-700 transition-colors">Запросить копии {% include "partials/icon.html" with name="arrow-right" class="w-4 h-4" %}</a>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px grid-rule border border-line">
+      {% for cert in certificates %}
+      <div class="aspect-[3/4] grid place-items-center overflow-hidden border border-line">
+        <img src="{{ cert.image.url }}" alt="{{ cert.title }}" loading="lazy" class="w-full h-full object-cover">
+      </div>
+      {% endfor %}
+      <a href="#callback" data-modal-open class="aspect-[3/4] grid place-items-center bg-brand text-white text-center hover:bg-brand-700 transition-colors p-4">
+        <span class="flex flex-col items-center">
+          {% include "partials/icon.html" with name="file-text" class="w-7 h-7" %}
+          <span class="block font-mono text-[11px] uppercase tracking-widest text-[#C3D2EC] mt-3 leading-relaxed">Запросить<br>документы</span>
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- KEY FACTS -->
+<section class="bg-brand-900 text-white relative overflow-hidden">
+  <div class="absolute inset-0 tech-grid opacity-70"></div>
+  <div class="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 lg:py-20">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-8">
+      <div>
+        <div class="font-display font-extrabold text-[clamp(2.6rem,6vw,3.6rem)] leading-none tnum">30<span class="text-accent">+</span></div>
+        <div class="mt-3 text-[15px] text-[#C3D2EC] leading-snug">лет на рынке<br>с 1994 года</div>
+      </div>
+      <div>
+        <div class="font-display font-extrabold text-[clamp(2.6rem,6vw,3.6rem)] leading-none tnum">6</div>
+        <div class="mt-3 text-[15px] text-[#C3D2EC] leading-snug">объёмов канистр<br>от 1 до 30 литров</div>
+      </div>
+      <div>
+        <div class="font-display font-extrabold text-[clamp(2.6rem,6vw,3.6rem)] leading-none text-white/30 tnum">000</div>
+        <div class="mt-3 text-[15px] text-[#C3D2EC] leading-snug">м² производственных площадей</div>
+        <div class="mt-1.5 font-mono text-[11px] uppercase tracking-widest text-accent">[ нужны данные ]</div>
+      </div>
+      <div>
+        <div class="font-display font-extrabold text-[clamp(2.6rem,6vw,3.6rem)] leading-none text-white/30 tnum">00</div>
+        <div class="mt-3 text-[15px] text-[#C3D2EC] leading-snug">регионов поставок</div>
+        <div class="mt-1.5 font-mono text-[11px] uppercase tracking-widest text-accent">[ нужны данные ]</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTION GALLERY -->
+<section class="bg-surface border-y border-line">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 lg:py-20">
+    <h2 class="font-display font-extrabold text-[clamp(1.8rem,4vw,2.4rem)] tracking-tight">Производство</h2>
+    <p class="mt-4 text-muted text-[17px]">Собственная площадка, парк современных станков и налаженные процессы выпуска тары.</p>
+    <div class="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-px grid-rule border border-line">
+      <div class="ph ph-marks aspect-[4/3] grid place-items-center"><span class="ph-tag">[ ВИДЕО · линия ]</span></div>
+      <div class="ph ph-marks aspect-[4/3] grid place-items-center"><span class="ph-tag">[ ФОТО · цех ]</span></div>
+      <div class="ph ph-marks aspect-[4/3] grid place-items-center"><span class="ph-tag">[ ФОТО · склад ]</span></div>
+      <div class="ph ph-marks aspect-[4/3] grid place-items-center"><span class="ph-tag">[ ФОТО · отгрузка ]</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ADVANTAGES -->
+<section class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 lg:py-20">
+  <h2 class="font-display font-extrabold text-[clamp(1.8rem,4vw,2.4rem)] tracking-tight">Наши преимущества</h2>
+  <div class="mt-8 border-t border-line">
+    <div class="grid grid-cols-[3rem_1fr] lg:grid-cols-[5rem_18rem_1fr] gap-x-5 gap-y-1 items-baseline py-6 lg:py-7 border-b border-line hover:bg-surface transition-colors">
+      <span class="font-mono text-[15px] text-brand">01</span><h3 class="font-display font-bold text-[18px] text-ink leading-snug">Современное оборудование</h3><p class="col-start-2 lg:col-start-3 text-[16px] text-muted leading-relaxed">Производство организовано на современном импортном оборудовании.</p>
+    </div>
+    <div class="grid grid-cols-[3rem_1fr] lg:grid-cols-[5rem_18rem_1fr] gap-x-5 gap-y-1 items-baseline py-6 lg:py-7 border-b border-line hover:bg-surface transition-colors">
+      <span class="font-mono text-[15px] text-brand">02</span><h3 class="font-display font-bold text-[18px] text-ink leading-snug">Контроль качества</h3><p class="col-start-2 lg:col-start-3 text-[16px] text-muted leading-relaxed">Специалисты компании ведут постоянный контроль качества выпускаемой продукции.</p>
+    </div>
+    <div class="grid grid-cols-[3rem_1fr] lg:grid-cols-[5rem_18rem_1fr] gap-x-5 gap-y-1 items-baseline py-6 lg:py-7 border-b border-line hover:bg-surface transition-colors">
+      <span class="font-mono text-[15px] text-brand">03</span><h3 class="font-display font-bold text-[18px] text-ink leading-snug">Проверенное сырьё</h3><p class="col-start-2 lg:col-start-3 text-[16px] text-muted leading-relaxed">Сырьё закупается у проверенных европейских и российских поставщиков.</p>
+    </div>
+    <div class="grid grid-cols-[3rem_1fr] lg:grid-cols-[5rem_18rem_1fr] gap-x-5 gap-y-1 items-baseline py-6 lg:py-7 border-b border-line hover:bg-surface transition-colors">
+      <span class="font-mono text-[15px] text-brand">04</span><h3 class="font-display font-bold text-[18px] text-ink leading-snug">Сертифицированная продукция</h3><p class="col-start-2 lg:col-start-3 text-[16px] text-muted leading-relaxed">Вся продукция сертифицирована и соответствует установленным требованиям.</p>
+    </div>
+    <div class="grid grid-cols-[3rem_1fr] lg:grid-cols-[5rem_18rem_1fr] gap-x-5 gap-y-1 items-baseline py-6 lg:py-7 border-b border-line hover:bg-surface transition-colors">
+      <span class="font-mono text-[15px] text-brand">05</span><h3 class="font-display font-bold text-[18px] text-ink leading-snug">Оперативное выполнение заказов</h3><p class="col-start-2 lg:col-start-3 text-[16px] text-muted leading-relaxed">Работаем профессионально и в срок — дорожим отношениями с каждым клиентом.</p>
+    </div>
+    <div class="grid grid-cols-[3rem_1fr] lg:grid-cols-[5rem_18rem_1fr] gap-x-5 gap-y-1 items-baseline py-6 lg:py-7 border-b border-line hover:bg-surface transition-colors">
+      <span class="font-mono text-[15px] text-brand">06</span><h3 class="font-display font-bold text-[18px] text-ink leading-snug">Окраска в любой цвет</h3><p class="col-start-2 lg:col-start-3 text-[16px] text-muted leading-relaxed">Изделие и крышку к нему окрашиваем в любой цвет по выбору заказчика.</p>
+    </div>
+    <div class="grid grid-cols-[3rem_1fr] lg:grid-cols-[5rem_18rem_1fr] gap-x-5 gap-y-1 items-baseline py-6 lg:py-7 border-b border-line hover:bg-surface transition-colors">
+      <span class="font-mono text-[15px] text-brand">07</span><h3 class="font-display font-bold text-[18px] text-ink leading-snug">Рельефный логотип заказчика</h3><p class="col-start-2 lg:col-start-3 text-[16px] text-muted leading-relaxed">На корпус изделия наносим рельефный логотип вашей компании.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<section class="bg-brand-900 text-white relative overflow-hidden">
+  <div class="absolute inset-0 tech-grid opacity-70"></div>
+  <div class="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-14 lg:py-20">
+    <div class="grid lg:grid-cols-2 gap-8 items-center">
+      <div>
+        <h2 class="font-display font-extrabold text-[clamp(1.9rem,4vw,2.6rem)] tracking-tight leading-[1.05] text-balance">Обсудим ваш заказ</h2>
+        <p class="mt-4 text-[17px] text-[#C3D2EC] max-w-xl">Подберём тару под задачу, рассчитаем объёмы, цвет и сроки поставки. Оставьте заявку или позвоните напрямую.</p>
+      </div>
+      <div class="flex flex-col sm:flex-row lg:justify-end gap-3">
+        <a href="#callback" data-modal-open class="btn btn-white">{% include "partials/icon.html" with name="phone-call" class="w-4 h-4" %} Заказать звонок</a>
+        <a href="tel:{{ site_settings.phone_sales_tel }}" class="btn btn-outline-light tnum">{{ site_settings.phone_sales }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

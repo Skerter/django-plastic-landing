@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.meta_title|default:product.name }} | ДемоПласт{% endblock %}
+{% block meta_description %}{{ product.meta_description|default:product.description|truncatewords:24 }}{% endblock %}
+{% block og_title %}{{ product.meta_title|default:product.name }} — ДемоПласт{% endblock %}
+{% block og_description %}{{ product.meta_description|default:product.description|truncatewords:24 }}{% endblock %}
+
+{% block content %}
+<main class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+  <!-- Breadcrumbs -->
+  <nav class="flex items-center gap-2 font-mono text-[12px] uppercase tracking-wider text-muted flex-wrap pt-7 lg:pt-9" aria-label="Хлебные крошки">
+    <a href="{% url 'home' %}" class="hover:text-brand transition-colors">Главная</a>
+    <span class="text-line">/</span>
+    <a href="{% url 'category_list' %}" class="hover:text-brand transition-colors">Каталог</a>
+    <span class="text-line">/</span>
+    <a href="{% url 'category_detail' product.category.slug %}" class="hover:text-brand transition-colors">{{ product.category.name }}</a>
+    <span class="text-line">/</span>
+    <span class="text-ink normal-case tracking-normal">{{ product.name }}</span>
+  </nav>
+
+  <!-- ===================== PRODUCT ===================== -->
+  <div class="mt-7 grid lg:grid-cols-2 gap-8 lg:gap-14 pb-16 lg:pb-20 border-b border-line">
+    <!-- Gallery -->
+    {% with images=product.images.all %}
+    <div class="min-w-0" data-gallery>
+      <div class="relative group/gal">
+        {% if product.badge %}
+        <span class="absolute top-5 left-5 z-20 font-mono text-[11px] uppercase tracking-wider bg-white border border-line px-2.5 py-1 text-brand">{{ product.badge }}</span>
+        {% endif %}
+
+        <div data-gallery-track class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar" style="touch-action:pan-x">
+          {% if images %}
+            {% for img in images %}
+            <div class="gal-slide min-w-full snap-center aspect-square bg-surface grid place-items-center overflow-hidden">
+              <img src="{{ img.image.url }}" alt="{{ img.alt|default:product.name }}" {% if not forloop.first %}loading="lazy"{% endif %} class="w-full h-full object-contain">
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="gal-slide min-w-full snap-center ph ph-marks aspect-square grid place-items-center">
+              <span class="ph-tag px-4 text-center">[ ФОТО · {{ product.name }} ]</span>
+            </div>
+          {% endif %}
+        </div>
+
+        {% if images|length > 1 %}
+        <button type="button" data-gallery-prev aria-label="Назад" class="hidden sm:grid place-items-center absolute left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/90 border border-line text-ink hover:text-brand hover:border-brand transition-all opacity-0 group-hover/gal:opacity-100">{% include "partials/icon.html" with name="chevron-left" class="w-5 h-5" %}</button>
+        <button type="button" data-gallery-next aria-label="Вперёд" class="hidden sm:grid place-items-center absolute right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white/90 border border-line text-ink hover:text-brand hover:border-brand transition-all opacity-0 group-hover/gal:opacity-100">{% include "partials/icon.html" with name="chevron-right" class="w-5 h-5" %}</button>
+        <div data-gallery-dots class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+          {% for img in images %}
+          <button type="button" data-gallery-dot="{{ forloop.counter0 }}" aria-label="Фото {{ forloop.counter }}" class="dot h-2 rounded-full transition-all {% if forloop.first %}bg-brand w-5{% else %}bg-ink/20 hover:bg-ink/40 w-2{% endif %}"></button>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      {% if images|length > 1 %}
+      <div class="mt-3 grid grid-cols-4 gap-3" data-gallery-thumbs>
+        {% for img in images %}
+        <button type="button" data-gallery-thumb="{{ forloop.counter0 }}" class="thumb aspect-square bg-surface grid place-items-center overflow-hidden border-2 transition-colors {% if forloop.first %}border-brand{% else %}border-line hover:border-brand{% endif %}">
+          <img src="{{ img.image.url }}" alt="{{ img.alt|default:product.name }}" loading="lazy" class="w-full h-full object-cover">
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endwith %}
+
+    <!-- Info -->
+    <div class="min-w-0">
+      <h1 class="font-display font-extrabold text-[clamp(2rem,4.5vw,2.8rem)] tracking-tight leading-[1.05] text-balance">{{ product.name }}</h1>
+      {% if product.description %}
+      <div class="mt-5 text-[17px] text-muted leading-relaxed text-pretty">{{ product.description|linebreaks }}</div>
+      {% endif %}
+
+      <div class="mt-6 flex flex-wrap gap-2">
+        {% if 'штабелир' in product.name|lower %}
+        <span class="inline-flex items-center gap-1.5 border border-line px-3 py-2 font-mono text-[12px] uppercase tracking-wide text-ink">{% include "partials/icon.html" with name="layers-3" class="w-4 h-4 text-brand" %} Штабелируемая</span>
+        {% endif %}
+        {% for spec in product.specs.all %}{% if spec.label == 'Особенность' and 'мерной полос' in spec.value|lower %}
+        <span class="inline-flex items-center gap-1.5 border border-line px-3 py-2 font-mono text-[12px] uppercase tracking-wide text-ink">{% include "partials/icon.html" with name="ruler" class="w-4 h-4 text-brand" %} Мерная полоса</span>
+        {% endif %}{% endfor %}
+        <span class="inline-flex items-center gap-1.5 border border-line px-3 py-2 font-mono text-[12px] uppercase tracking-wide text-ink">{% include "partials/icon.html" with name="paint-bucket" class="w-4 h-4 text-brand" %} Окраска по заказу</span>
+        <span class="inline-flex items-center gap-1.5 border border-line px-3 py-2 font-mono text-[12px] uppercase tracking-wide text-ink">{% include "partials/icon.html" with name="stamp" class="w-4 h-4 text-brand" %} Логотип на заказ</span>
+      </div>
+
+      {% if product.specs.all %}
+      <div class="mt-8">
+        <h2 class="font-mono text-[12px] uppercase tracking-widest text-muted flex items-center gap-2">{% include "partials/icon.html" with name="clipboard-list" class="w-4 h-4 text-brand" %} Характеристики</h2>
+        <dl class="mt-3 border-t border-line">
+          {% for spec in product.specs.all %}
+          <div class="flex justify-between gap-4 px-4 py-3.5{% cycle ' bg-surface' '' %}">
+            <dt class="text-muted">{{ spec.label }}</dt>
+            <dd class="font-display font-bold text-ink tnum text-right">{{ spec.value }}{% if spec.unit %} {{ spec.unit }}{% endif %}</dd>
+          </div>
+          {% endfor %}
+        </dl>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===================== ORDER FORM ===================== -->
+  <section id="order" class="py-16 lg:py-20 scroll-mt-20">
+    <div class="grid lg:grid-cols-5 border border-line">
+      <div class="lg:col-span-3 bg-white p-7 sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-line">
+        <h2 class="font-display font-extrabold text-[clamp(1.7rem,3.5vw,2.2rem)] tracking-tight">Заказать «{{ product.name }}»</h2>
+        <p class="mt-3 text-muted text-[16px]">Оставьте заявку — менеджер уточнит объёмы, цвет и сроки, рассчитает поставку.</p>
+        {% include "leads/form.html" with form_type="order" product=product.pk submit_label="Заказать" %}
+      </div>
+      <!-- Side contacts -->
+      <div class="lg:col-span-2 bg-brand-900 text-white p-7 sm:p-10 lg:p-12 relative overflow-hidden">
+        <div class="absolute inset-0 tech-grid opacity-60"></div>
+        <div class="relative h-full flex flex-col">
+          <div class="space-y-6">
+            <a href="tel:{{ site_settings.phone_sales_tel }}" class="flex items-start gap-4 group">
+              <span class="grid place-items-center w-11 h-11 bg-white/10 shrink-0">{% include "partials/icon.html" with name="phone" class="w-5 h-5" %}</span>
+              <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Отдел продаж</span><span class="block font-bold text-[19px] tnum group-hover:text-accent transition-colors">{{ site_settings.phone_sales }}</span></span>
+            </a>
+            <a href="tel:{{ site_settings.phone_production_tel }}" class="flex items-start gap-4 group">
+              <span class="grid place-items-center w-11 h-11 bg-white/10 shrink-0">{% include "partials/icon.html" with name="phone" class="w-5 h-5" %}</span>
+              <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Производство</span><span class="block font-bold text-[19px] tnum group-hover:text-accent transition-colors">{{ site_settings.phone_production }}</span></span>
+            </a>
+            <div class="flex items-start gap-4">
+              <span class="grid place-items-center w-11 h-11 bg-white/10 shrink-0">{% include "partials/icon.html" with name="map-pin" class="w-5 h-5" %}</span>
+              <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Адрес</span><span class="block text-[15px] mt-0.5">{{ site_settings.address }}</span></span>
+            </div>
+            <div class="flex items-start gap-4">
+              <span class="grid place-items-center w-11 h-11 bg-white/10 shrink-0">{% include "partials/icon.html" with name="clock" class="w-5 h-5" %}</span>
+              <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Часы работы</span><span class="block text-[15px] mt-0.5 tnum">{{ site_settings.work_hours }}</span></span>
+            </div>
+          </div>
+          <div class="mt-auto pt-10">
+            <div class="border-t border-white/10 pt-6">
+              <p class="font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6] mb-4">Что дальше</p>
+              <ul class="space-y-3 text-[14px] text-[#C3D2EC] leading-relaxed">
+                <li class="flex gap-2.5">{% include "partials/icon.html" with name="check" class="w-4 h-4 text-accent shrink-0 mt-0.5" %} Перезвоним в течение рабочего дня</li>
+                <li class="flex gap-2.5">{% include "partials/icon.html" with name="check" class="w-4 h-4 text-accent shrink-0 mt-0.5" %} Уточним объём, цвет и сроки, рассчитаем поставку</li>
+                <li class="flex gap-2.5">{% include "partials/icon.html" with name="check" class="w-4 h-4 text-accent shrink-0 mt-0.5" %} Подберём способ доставки в ваш регион</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- schema.org Product -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ product.name|escapejs }}",
+    "description": "{{ product.meta_description|default:product.description|truncatewords:24|escapejs }}",
+    {% if product.image %}"image": "{{ request.scheme }}://{{ request.get_host }}{{ product.image.url }}",{% endif %}
+    "brand": {"@type": "Brand", "name": "ДемоПласт"},
+    "offers": {"@type": "Offer", "priceCurrency": "RUB", "availability": "https://schema.org/InStock", "seller": {"@type": "Organization", "name": "{{ site_settings.company_name|escapejs }}"}}
+  }
+  </script>
+</main>
+{% endblock %}

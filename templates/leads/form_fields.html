@@ -1,0 +1,60 @@
+{% comment %}
+  Поля формы заявки (свапаемый htmx-фрагмент).
+  Рендерит ошибки полей и non-field-ошибки. Классы — из дизайн-системы demoplast.css.
+{% endcomment %}
+<div class="grid sm:grid-cols-2 gap-5">
+  {% if form.non_field_errors %}
+  <div class="sm:col-span-2 border border-red-300 bg-red-50 text-red-700 text-[14px] px-4 py-3 rounded">
+    {{ form.non_field_errors.0 }}
+  </div>
+  {% endif %}
+
+  <div>
+    <label class="lbl" for="id_name">Имя <span class="text-brand">*</span></label>
+    <input id="id_name" name="name" type="text" required class="fld{% if form.name.errors %} fld-error{% endif %}" placeholder="Как к вам обращаться"
+           value="{{ form.name.value|default:'' }}">
+    {% if form.name.errors %}<p class="text-red-600 text-[13px] mt-1.5">{{ form.name.errors.0 }}</p>{% endif %}
+  </div>
+
+  <div>
+    <label class="lbl" for="id_phone">Телефон <span class="text-brand">*</span></label>
+    <input id="id_phone" name="phone" type="tel" required class="fld tnum{% if form.phone.errors %} fld-error{% endif %}" placeholder="+7 (___) ___-__-__"
+           value="{{ form.phone.value|default:'' }}">
+    {% if form.phone.errors %}<p class="text-red-600 text-[13px] mt-1.5">{{ form.phone.errors.0 }}</p>{% endif %}
+  </div>
+
+  <div class="sm:col-span-2">
+    <label class="lbl" for="id_email">E-mail <span class="text-muted font-normal">(необязательно)</span></label>
+    <input id="id_email" name="email" type="email" class="fld{% if form.email.errors %} fld-error{% endif %}" placeholder="mail@company.ru"
+           value="{{ form.email.value|default:'' }}">
+    {% if form.email.errors %}<p class="text-red-600 text-[13px] mt-1.5">{{ form.email.errors.0 }}</p>{% endif %}
+  </div>
+
+  <div class="sm:col-span-2">
+    <label class="lbl" for="id_comment">Комментарий</label>
+    <textarea id="id_comment" name="comment" rows="3" class="fld" placeholder="Какая тара и объёмы вас интересуют">{{ form.comment.value|default:'' }}</textarea>
+    {% if form.comment.errors %}<p class="text-red-600 text-[13px] mt-1.5">{{ form.comment.errors.0 }}</p>{% endif %}
+  </div>
+
+  {% comment %} honeypot — скрытое антиспам-поле, человек его не видит {% endcomment %}
+  <div class="hidden" aria-hidden="true">
+    <label for="id_website">Не заполняйте это поле</label>
+    <input id="id_website" name="website" type="text" tabindex="-1" autocomplete="off" value="">
+  </div>
+
+  <div class="sm:col-span-2">
+    <label class="flex items-start gap-3 cursor-pointer select-none">
+      <input name="consent" type="checkbox" required class="chk{% if form.consent.errors %} chk-error{% endif %}"{% if form.consent.value %} checked{% endif %}>
+      <span class="text-[13px] leading-relaxed text-muted">Я согласен на обработку персональных данных в соответствии с
+        <a href="{% url 'politika' %}" rel="noopener" class="text-brand underline underline-offset-2 hover:text-brand-700">Политикой конфиденциальности</a> и
+        <a href="{% url 'soglasie' %}" rel="noopener" class="text-brand underline underline-offset-2 hover:text-brand-700">Согласием на обработку персональных данных</a>.</span>
+    </label>
+    {% if form.consent.errors %}<p class="text-red-600 text-[13px] mt-1.5">{{ form.consent.errors.0 }}</p>{% endif %}
+  </div>
+
+  <div class="sm:col-span-2 flex justify-center">
+    <button type="submit" class="btn btn-primary w-full sm:w-auto">
+      {% include "partials/icon.html" with name="phone-call" class="w-4 h-4" %} {{ submit_label|default:"Заказать звонок" }}
+    </button>
+  </div>
+</div>

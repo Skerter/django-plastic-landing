@@ -1,0 +1,105 @@
+{% load static %}<!DOCTYPE html>
+{# Контакты здесь НАМЕРЕННО захардкожены и не берутся из SiteSettings.
+   Страница 500 рендерится Django без контекст-процессоров. 
+   При смене телефонов обновить вручную здесь. #}
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>500 — Внутренняя ошибка сервера | ООО «ДемоПласт»</title>
+<meta name="robots" content="noindex">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+{# Собранная статика отдаётся веб-сервером/WhiteNoise и доступна даже при 500. #}
+<link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/demoplast.css' %}">
+
+{# Критический брендовый CSS заинлайнен: страница остаётся читабельной и фирменной,
+   даже если внешние стили не загрузятся (особенность 500). #}
+<style>
+  :root{ --brand:#2B5CB4; --brand-700:#1E4488; --brand-900:#14213D; --ink:#15191E; --muted:#5B6573; --line:#E2E6EC; --surface:#F4F6F9; --accent:#E8A13A; }
+  *{ -webkit-tap-highlight-color:transparent; }
+  body{ font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--ink); background:#fff; -webkit-font-smoothing:antialiased; font-size:17px; line-height:1.6; }
+  h1,h2,h3,h4{ font-family:"Archivo",system-ui,sans-serif; }
+  .tnum{ font-variant-numeric:tabular-nums; }
+  .err-code{ font-variant-numeric:tabular-nums; line-height:.86; letter-spacing:-.03em; }
+  .tech-grid{ background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px); background-size:52px 52px; }
+  .ico{ width:1.25rem; height:1.25rem; flex:none; }
+</style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+<header class="sticky top-0 z-50 bg-white border-b border-line">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 lg:h-[72px] gap-4">
+      <a href="/" class="flex items-center shrink-0" aria-label="DemoPlast — на главную">
+        <span class="inline-flex items-center justify-center bg-brand h-11 px-3.5 rounded">{% include "partials/logo.html" %}</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="tel:+74950000000" class="hidden md:flex flex-col items-end leading-tight group">
+          <span class="font-mono text-[10px] text-muted tracking-widest uppercase">Отдел продаж</span>
+          <span class="font-bold text-[16px] text-ink group-hover:text-brand transition-colors tnum">+7 495 000-00-00</span>
+        </a>
+        <a href="tel:+74950000000" class="btn btn-primary btn-sm hidden sm:inline-flex">{% include "partials/icon.html" with name="phone-call" class="ico" %} Позвонить</a>
+        <a href="tel:+74950000000" aria-label="Позвонить в отдел продаж" class="sm:hidden grid place-items-center w-11 h-11 bg-brand text-white rounded">{% include "partials/icon.html" with name="phone" class="ico" %}</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="flex-1 bg-brand-900 text-white relative overflow-hidden flex items-center">
+  <div class="absolute inset-0 tech-grid opacity-70"></div>
+  <div class="hidden lg:block absolute inset-y-0 right-0 w-[38%] bg-brand" style="clip-path:polygon(26% 0,100% 0,100% 100%,0 100%);"></div>
+  <div class="relative max-w-7xl mx-auto w-full px-5 sm:px-6 lg:px-8 py-16 lg:py-24">
+    <div class="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+      <div>
+        <div class="err-code font-display font-black text-[clamp(5.5rem,18vw,12rem)] mt-4">500</div>
+        <h1 class="font-display font-extrabold text-[clamp(1.6rem,4vw,2.4rem)] tracking-tight leading-[1.08] mt-2">Внутренняя ошибка сервера</h1>
+        <p class="mt-5 text-[17px] text-[#C3D2EC] max-w-md leading-relaxed">На сервере произошла непредвиденная ошибка. Мы уже работаем над её устранением. Откройте страницу чуть позже — или позвоните нам, мы поможем прямо сейчас.</p>
+        <div class="mt-9 flex flex-col sm:flex-row gap-3">
+          <a href="tel:+74950000000" class="btn btn-white">{% include "partials/icon.html" with name="phone-call" class="ico" %} Позвонить нам</a>
+          <a href="/" class="btn btn-outline-light">{% include "partials/icon.html" with name="home" class="ico" %} На главную</a>
+        </div>
+      </div>
+      <div class="lg:justify-self-end w-full lg:max-w-sm">
+        <div class="border border-white/15">
+          <div class="p-5 border-b border-white/15 bg-white/[0.04]">
+            <span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Нужна помощь сейчас?</span>
+            <span class="block font-display font-bold text-[18px] mt-1">Позвоните напрямую</span>
+          </div>
+          <a href="tel:+74950000000" class="flex items-center justify-between gap-4 p-5 border-b border-white/15 hover:bg-white/5 transition-colors group">
+            <span class="flex items-center gap-4">
+              <span class="grid place-items-center w-11 h-11 bg-white/10 shrink-0">{% include "partials/icon.html" with name="phone" class="ico" %}</span>
+              <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Отдел продаж</span><span class="block font-bold text-[19px] tnum group-hover:text-accent transition-colors">+7 495 000-00-00</span></span>
+            </span>
+            {% include "partials/icon.html" with name="arrow-right" class="ico text-[#8FA9D6] group-hover:text-white group-hover:translate-x-1 transition-all" %}
+          </a>
+          <a href="tel:+74950000001" class="flex items-center justify-between gap-4 p-5 border-b border-white/15 hover:bg-white/5 transition-colors group">
+            <span class="flex items-center gap-4">
+              <span class="grid place-items-center w-11 h-11 bg-white/10 shrink-0">{% include "partials/icon.html" with name="phone" class="ico" %}</span>
+              <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Производство</span><span class="block font-bold text-[19px] tnum group-hover:text-accent transition-colors">+7 495 000-00-01</span></span>
+            </span>
+            {% include "partials/icon.html" with name="arrow-right" class="ico text-[#8FA9D6] group-hover:text-white group-hover:translate-x-1 transition-all" %}
+          </a>
+          <div class="flex items-center gap-4 p-5">
+            <span class="grid place-items-center w-11 h-11 bg-white/10 shrink-0">{% include "partials/icon.html" with name="clock" class="ico" %}</span>
+            <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Часы работы</span><span class="block text-[15px] mt-0.5 tnum">ПН–ПТ · 08:00–17:00</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="bg-brand-900 text-white border-t border-white/10">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row justify-between gap-3 font-mono text-[12px] uppercase tracking-wider text-[#6F84AE]">
+    <span>© 1994–{% now "Y" %} ООО «ДемоПласт»</span>
+    <span>Москва · производство пластиковой тары</span>
+  </div>
+</footer>
+
+</body>
+</html>

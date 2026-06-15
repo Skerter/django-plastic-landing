@@ -1,0 +1,49 @@
+<footer class="bg-brand-900 text-white">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-14 lg:py-16">
+    <div class="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-12">
+      <!-- brand -->
+      <div class="sm:col-span-2 lg:col-span-4 lg:pr-8">
+        <span class="inline-flex items-center justify-center bg-brand h-11 px-3.5 rounded">{% include "partials/logo.html" %}</span>
+        <p class="mt-5 text-[14px] text-[#9DB0D0] leading-relaxed max-w-sm">Завод пластиковой тары оптом с 1994 года. Канистры и крышки на собственном производстве в Москве. Поставки по всей России.</p>
+      </div>
+      <!-- nav -->
+      <div class="lg:col-span-2">
+        <h4 class="font-mono text-[12px] uppercase tracking-widest text-[#6F84AE] mb-5">Навигация</h4>
+        <ul class="space-y-3 text-[15px]">
+          <li><a href="{% url 'category_list' %}" class="text-[#C3D2EC] hover:text-white transition-colors">Каталог</a></li>
+          <li><a href="{% url 'dostavka' %}" class="text-[#C3D2EC] hover:text-white transition-colors">Доставка</a></li>
+          <li><a href="{% url 'o_kompanii' %}" class="text-[#C3D2EC] hover:text-white transition-colors">О компании</a></li>
+          <li><a href="{% url 'kontakty' %}" class="text-[#C3D2EC] hover:text-white transition-colors">Контакты</a></li>
+        </ul>
+      </div>
+      <!-- contacts -->
+      <div class="lg:col-span-3">
+        <h4 class="font-mono text-[12px] uppercase tracking-widest text-[#6F84AE] mb-5">Контакты</h4>
+        <div class="space-y-4">
+          <a href="tel:{{ site_settings.phone_sales_tel }}" class="block group">
+            <span class="block font-mono text-[11px] uppercase tracking-widest text-[#6F84AE]">Отдел продаж</span>
+            <span class="block font-medium text-[15px] tnum text-[#C3D2EC] group-hover:text-white transition-colors">{{ site_settings.phone_sales }}</span>
+          </a>
+          <a href="tel:{{ site_settings.phone_production_tel }}" class="block group">
+            <span class="block font-mono text-[11px] uppercase tracking-widest text-[#6F84AE]">Производство</span>
+            <span class="block font-medium text-[15px] tnum text-[#C3D2EC] group-hover:text-white transition-colors">{{ site_settings.phone_production }}</span>
+          </a>
+          <p class="text-[14px] text-[#C3D2EC] leading-relaxed pt-1">{{ site_settings.address }}<br><span class="tnum">{{ site_settings.work_hours }}</span></p>
+        </div>
+      </div>
+      <!-- documents -->
+      <div class="lg:col-span-3">
+        <h4 class="font-mono text-[12px] uppercase tracking-widest text-[#6F84AE] mb-5">Документы</h4>
+        <ul class="space-y-3 text-[15px]">
+          <li><a href="{% url 'politika' %}" class="text-[#C3D2EC] hover:text-white transition-colors">Политика конфиденциальности</a></li>
+          <li><a href="{% url 'soglasie' %}" class="text-[#C3D2EC] hover:text-white transition-colors">Согласие на обработку персональных данных</a></li>
+          <li><button type="button" data-cookie-settings class="text-[#C3D2EC] hover:text-white transition-colors text-left">Настройки cookie</button></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-12 pt-7 border-t border-white/10 flex flex-col sm:flex-row justify-between gap-3 font-mono text-[12px] uppercase tracking-wider text-[#6F84AE]">
+      <span>© 1994–{% now "Y" %} {{ site_settings.company_name }}</span>
+      <span>Москва · производство пластиковой тары</span>
+    </div>
+  </div>
+</footer>

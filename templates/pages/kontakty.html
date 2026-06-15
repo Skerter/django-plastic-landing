@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Контакты — ООО «ДемоПласт», г. Москва{% endblock %}
+{% block meta_description %}Контакты завода пластиковой тары ДемоПласт: телефоны отдела продаж и производства, адрес в Москве, режим работы, реквизиты ООО «ДемоПласт».{% endblock %}
+
+{% block content %}
+<!-- PAGE HEAD -->
+<section class="border-b border-line">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-7 lg:pt-9 pb-10 lg:pb-12">
+    <nav class="flex items-center gap-2 font-mono text-[12px] uppercase tracking-wider text-muted flex-wrap" aria-label="Хлебные крошки">
+      <a href="{% url 'home' %}" class="hover:text-brand transition-colors">Главная</a>
+      <span class="text-line">/</span>
+      <span class="text-ink">Контакты</span>
+    </nav>
+    <div class="mt-7">
+      <h1 class="font-display font-extrabold text-[clamp(2.4rem,6vw,3.6rem)] tracking-tight leading-[1.03]">Контакты</h1>
+      <p class="mt-5 text-[17px] text-muted leading-relaxed text-pretty max-w-3xl">Свяжитесь с нами удобным способом — по вопросам заказа, производства или бухгалтерии. Приезжайте на производство в г. Москва или согласуйте отгрузку.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTS + MAP -->
+<section class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-14 lg:py-20">
+  <div class="grid lg:grid-cols-2 gap-5 lg:gap-6 items-stretch">
+    <div class="grid sm:grid-cols-2 gap-px grid-rule border border-line">
+      <div class="bg-white p-6 lg:p-7 sm:col-span-2">
+        <div class="flex items-center gap-2 font-mono text-[12px] uppercase tracking-widest text-muted">{% include "partials/icon.html" with name="map-pin" class="w-4 h-4 text-brand" %} Адрес</div>
+        <p class="mt-3 text-[17px] text-ink leading-relaxed">{{ site_settings.address }}</p>
+      </div>
+      <div class="bg-white p-6 lg:p-7">
+        <div class="flex items-center gap-2 font-mono text-[12px] uppercase tracking-widest text-muted">{% include "partials/icon.html" with name="briefcase" class="w-4 h-4 text-brand" %} Отдел продаж</div>
+        <p class="mt-3 text-[15px] text-ink">{{ site_settings.phone_sales_person }}</p>
+        <a href="tel:{{ site_settings.phone_sales_tel }}" class="mt-1 inline-block font-bold text-[19px] tnum text-ink hover:text-brand transition-colors">{{ site_settings.phone_sales }}</a>
+        {% if site_settings.email_sales %}<a href="mailto:{{ site_settings.email_sales }}" class="mt-1 block text-[15px] text-brand hover:text-brand-700 underline underline-offset-2">{{ site_settings.email_sales }}</a>{% endif %}
+      </div>
+      <div class="bg-white p-6 lg:p-7">
+        <div class="flex items-center gap-2 font-mono text-[12px] uppercase tracking-widest text-muted">{% include "partials/icon.html" with name="factory" class="w-4 h-4 text-brand" %} Производство</div>
+        <p class="mt-3 text-[15px] text-ink">{{ site_settings.phone_production_person }}</p>
+        <a href="tel:{{ site_settings.phone_production_tel }}" class="mt-1 inline-block font-bold text-[19px] tnum text-ink hover:text-brand transition-colors">{{ site_settings.phone_production }}</a>
+      </div>
+      <div class="bg-white p-6 lg:p-7">
+        <div class="flex items-center gap-2 font-mono text-[12px] uppercase tracking-widest text-muted">{% include "partials/icon.html" with name="calculator" class="w-4 h-4 text-brand" %} Бухгалтерия</div>
+        <a href="tel:{{ site_settings.phone_accounting_tel }}" class="mt-3 inline-block font-bold text-[19px] tnum text-ink hover:text-brand transition-colors">{{ site_settings.phone_accounting }}</a>
+        {% if site_settings.email_accounting %}<a href="mailto:{{ site_settings.email_accounting }}" class="mt-1 block text-[15px] text-brand hover:text-brand-700 underline underline-offset-2">{{ site_settings.email_accounting }}</a>{% endif %}
+      </div>
+      <div class="bg-white p-6 lg:p-7">
+        <div class="flex items-center gap-2 font-mono text-[12px] uppercase tracking-widest text-muted">{% include "partials/icon.html" with name="clock" class="w-4 h-4 text-brand" %} Режим работы</div>
+        <p class="mt-3 text-[15px] text-ink tnum">{{ site_settings.work_hours }}</p>
+        <p class="mt-1 text-[15px] text-muted">{{ site_settings.work_hours_weekend }}</p>
+      </div>
+    </div>
+
+    <div class="bg-slate-200 min-h-[360px] lg:min-h-0 relative border border-line">
+      <iframe title="Карта — {{ site_settings.address }}"
+        src="https://yandex.ru/map-widget/v1/?mode=search&text={{ site_settings.map_query|urlencode }}&z=16"
+        width="100%" height="100%" frameborder="0" allowfullscreen
+        style="position:absolute;inset:0;width:100%;height:100%;border:0;min-height:360px;" loading="lazy"></iframe>
+    </div>
+  </div>
+  <a href="https://yandex.ru/maps/?text={{ site_settings.map_query|urlencode }}" target="_blank" rel="noopener" class="mt-4 inline-flex items-center gap-2 font-display font-bold text-[13px] uppercase tracking-wider text-brand hover:text-brand-700 transition-colors">Открыть в Яндекс.Картах {% include "partials/icon.html" with name="external-link" class="w-4 h-4" %}</a>
+</section>
+
+<!-- REQUISITES -->
+<section class="bg-surface border-y border-line">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-16 lg:py-20">
+    <h2 class="font-display font-extrabold text-[clamp(1.8rem,4vw,2.4rem)] tracking-tight">Реквизиты</h2>
+    <p class="mt-4 text-muted text-[17px]">{{ site_settings.company_name }}</p>
+    <div class="mt-7 grid lg:grid-cols-2 gap-x-12 border-t border-line">
+      <dl>
+        <div class="flex justify-between gap-6 px-1 py-3.5 border-b border-line"><dt class="text-muted">Юридический адрес</dt><dd class="font-medium text-ink text-right">{{ site_settings.legal_address }}</dd></div>
+        <div class="flex justify-between gap-6 px-1 py-3.5 border-b border-line"><dt class="text-muted">ИНН</dt><dd class="font-medium text-ink tnum text-right">{{ site_settings.inn }}</dd></div>
+        <div class="flex justify-between gap-6 px-1 py-3.5 border-b border-line"><dt class="text-muted">КПП</dt><dd class="font-medium text-ink tnum text-right">{{ site_settings.kpp }}</dd></div>
+        <div class="flex justify-between gap-6 px-1 py-3.5 border-b border-line"><dt class="text-muted">ОГРН</dt><dd class="font-medium text-ink tnum text-right">{{ site_settings.ogrn }}</dd></div>
+        <div class="flex justify-between gap-6 px-1 py-3.5 border-b border-line lg:border-b-0"><dt class="text-muted">ОКПО</dt><dd class="font-medium text-ink tnum text-right">{{ site_settings.okpo }}</dd></div>
+      </dl>
+      <dl>
+        <div class="flex justify-between gap-6 px-1 py-3.5 border-b border-line"><dt class="text-muted">Расчётный счёт</dt><dd class="font-medium text-ink tnum text-right">{{ site_settings.account }}</dd></div>
+        <div class="flex justify-between gap-6 px-1 py-3.5 border-b border-line"><dt class="text-muted">Банк</dt><dd class="font-medium text-ink text-right">{{ site_settings.bank }}</dd></div>
+        <div class="flex justify-between gap-6 px-1 py-3.5 border-b border-line"><dt class="text-muted">БИК</dt><dd class="font-medium text-ink tnum text-right">{{ site_settings.bik }}</dd></div>
+        <div class="flex justify-between gap-6 px-1 py-3.5"><dt class="text-muted">Корр. счёт</dt><dd class="font-medium text-ink tnum text-right">{{ site_settings.corr_account }}</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+{% endblock %}

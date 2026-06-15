@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Каталог пластиковой тары — канистры и крышки | ДемоПласт, Москва{% endblock %}
+{% block meta_description %}Каталог завода ДемоПласт: пластиковые канистры от 1 до 30 литров и крышки 45/55 мм с клапаном. Собственное производство в Москве, окраска и логотип по заказу.{% endblock %}
+
+{% block content %}
+<!-- PAGE HEAD -->
+<section class="border-b border-line">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-7 lg:pt-9 pb-10 lg:pb-12">
+    <nav class="flex items-center gap-2 font-mono text-[12px] uppercase tracking-wider text-muted flex-wrap" aria-label="Хлебные крошки">
+      <a href="{% url 'home' %}" class="hover:text-brand transition-colors">Главная</a>
+      <span class="text-line">/</span>
+      <span class="text-ink">Каталог</span>
+    </nav>
+    <div class="mt-6 grid lg:grid-cols-[1fr_auto] gap-6 lg:items-end">
+      <div class="max-w-2xl">
+        <h1 class="font-display font-extrabold text-[clamp(2.4rem,6vw,3.6rem)] tracking-tight leading-[1.03]">Каталог</h1>
+        <p class="mt-5 text-[17px] text-muted leading-relaxed text-pretty">Пластиковая тара собственного производства: канистры от 1 до 30 литров и крышки с клапаном под наши горловины и тару заказчика. Окраска в любой цвет, рельефный логотип — по заказу.</p>
+      </div>
+      <a href="#callback" data-modal-open class="btn btn-outline shrink-0">{% include "partials/icon.html" with name="file-text" class="w-4 h-4" %} Запросить прайс</a>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORY GRID -->
+<section class="bg-surface">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-10 lg:py-14">
+    <div class="grid md:grid-cols-2 gap-5">
+      {% for category in categories %}
+      {% if category.slug == 'kanistry' %}{% with badge="6 объёмов · 1–30 л" blurb="Круглые и евроканистры, штабелируемые, с крышками. Защитный рукав и рельефный логотип по заказу." %}{% include "catalog/_category_card.html" %}{% endwith %}
+      {% elif category.slug == 'kryshki' %}{% with badge="45 · 55 мм · клапан" blurb="Герметичные крышки под горловину наших канистр и тары заказчика, клапан сброса давления. Окраска в любой цвет." %}{% include "catalog/_category_card.html" %}{% endwith %}
+      {% else %}{% with badge="" blurb=category.description %}{% include "catalog/_category_card.html" %}{% endwith %}
+      {% endif %}
+      {% empty %}
+      <p class="text-muted">Категории скоро появятся.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<section class="bg-brand-900 text-white relative overflow-hidden">
+  <div class="absolute inset-0 tech-grid opacity-70"></div>
+  <div class="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-14 lg:py-20">
+    <div class="grid lg:grid-cols-2 gap-8 items-center">
+      <div>
+        <h2 class="font-display font-extrabold text-[clamp(1.9rem,4vw,2.6rem)] tracking-tight leading-[1.05] text-balance">Не нашли нужную позицию?</h2>
+        <p class="mt-4 text-[17px] text-[#C3D2EC] max-w-xl">Изготовим тару под ваши требования: объём, цвет, рельефный логотип, диаметр горловины. Опишите задачу — подберём решение и рассчитаем партию.</p>
+      </div>
+      <div class="flex flex-col sm:flex-row lg:justify-end gap-3">
+        <a href="#callback" data-modal-open class="btn btn-white">{% include "partials/icon.html" with name="phone-call" class="w-4 h-4" %} Заказать звонок</a>
+        <a href="tel:{{ site_settings.phone_sales_tel }}" class="btn btn-outline-light tnum">{{ site_settings.phone_sales }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

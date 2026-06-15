@@ -1,0 +1,67 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Производство и продажа пластмассовой тары — ООО «ДемоПласт»{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Производство пластиковой тары оптом. ООО «ДемоПласт», Москва, с 1994 года. Канистры 1–30 л и крышки.{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}Производство пластмассовой тары — ООО «ДемоПласт»{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Производство пластиковой тары оптом. ООО «ДемоПласт», Москва.{% endblock %}">
+  <meta property="og:type" content="website">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  {% tailwind_css %}
+
+  <script src="{% static 'js/htmx.min.js' %}"></script>
+  <meta name="htmx-config" content='{"defaultHeaders":{"X-CSRFToken":"{{ csrf_token }}"},"responseHandling":[{"code":"429","swap":true},{"code":"[23]..","swap":true},{"code":"[45]..","swap":false,"error":true}]}'>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-white text-ink antialiased">
+
+  {% include "partials/header.html" %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "partials/footer.html" %}
+
+  {% include "partials/cookie_banner.html" %}
+
+  <!-- Глобальная модалка «Заказать звонок» (скрыта; наполняется формой по запросу) -->
+  <div id="callbackModal" class="hidden fixed inset-0 z-[90]" role="dialog" aria-modal="true" aria-label="Заказать звонок">
+    <div data-modal-close class="absolute inset-0 bg-brand-900/60 backdrop-blur-[2px]"></div>
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(560px,calc(100vw-32px))] max-h-[calc(100vh-32px)] overflow-auto bg-white border border-line shadow-[0_24px_60px_rgba(20,33,61,.30)]">
+      <div class="flex items-start justify-between gap-4 p-7 pb-0">
+        <div>
+          <h2 class="font-display font-extrabold text-[26px] tracking-tight">Заказать звонок</h2>
+          <p class="mt-2 text-[15px] text-muted leading-snug">Оставьте заявку — менеджер перезвонит, рассчитает объёмы, цвет и сроки поставки.</p>
+        </div>
+        <button type="button" data-modal-close aria-label="Закрыть" class="shrink-0 w-10 h-10 grid place-items-center border border-line text-ink hover:border-brand hover:text-brand transition-colors">{% include "partials/icon.html" with name="x" class="w-5 h-5" %}</button>
+      </div>
+      <div class="p-7 pt-6">
+        {% include "leads/form.html" with form_type="callback" product=None %}
+      </div>
+    </div>
+  </div>
+
+  {% if request.COOKIES.cookie_consent == 'accepted' and site_settings.metrika_id %}
+  <!-- Яндекс.Метрика — инжектится ТОЛЬКО при согласии (152-ФЗ §8) и заданном ID -->
+  <script>
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();
+    for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
+    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    ym({{ site_settings.metrika_id }}, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true });
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/{{ site_settings.metrika_id }}" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  {% endif %}
+
+  <script src="{% static 'js/site.js' %}" defer></script>
+</body>
+</html>

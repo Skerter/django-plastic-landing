@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Страница не найдена (404) — ООО «ДемоПласт»{% endblock %}
+{% block extra_head %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block content %}
+<section class="bg-brand-900 text-white relative overflow-hidden" data-error-root data-code="404">
+  <div class="absolute inset-0 tech-grid opacity-70"></div>
+  <div class="hidden lg:block absolute inset-y-0 right-0 w-[38%] bg-brand" style="clip-path:polygon(26% 0,100% 0,100% 100%,0 100%);"></div>
+  <div class="relative max-w-7xl mx-auto w-full px-5 sm:px-6 lg:px-8 py-16 lg:py-24">
+    <div class="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+      <div>
+        <div class="font-display font-black text-[clamp(5.5rem,18vw,12rem)] leading-[.86] tracking-tight tnum mt-4">404</div>
+        <h1 class="font-display font-extrabold text-[clamp(1.6rem,4vw,2.4rem)] tracking-tight leading-[1.08] mt-2">Такой страницы нет</h1>
+        <p class="mt-5 text-[17px] text-[#C3D2EC] max-w-md leading-relaxed">Возможно, ссылка устарела или в адресе опечатка. Вернитесь на главную или загляните в каталог — или позвоните нам.</p>
+        <div class="mt-9 flex flex-col sm:flex-row gap-3">
+          <a href="{% url 'home' %}" class="btn btn-white">{% include "partials/icon.html" with name="home" class="w-4 h-4" %} На главную</a>
+          <a href="{% url 'category_list' %}" class="btn btn-outline-light">{% include "partials/icon.html" with name="layout-grid" class="w-4 h-4" %} В каталог</a>
+        </div>
+        <p class="mt-8 text-[15px] text-[#9DB0D0]">Отдел продаж:
+          <a href="tel:{{ site_settings.phone_sales_tel }}" class="font-bold text-white tnum hover:text-accent transition-colors">{{ site_settings.phone_sales }}</a>
+        </p>
+      </div>
+
+      {# панель быстрых ссылок — гарантированно существующие именованные URL #}
+      <div class="lg:justify-self-end w-full lg:max-w-sm">
+        <div class="border border-white/15">
+          <a href="{% url 'category_list' %}" class="flex items-center justify-between gap-4 p-5 border-b border-white/15 hover:bg-white/5 transition-colors group">
+            <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Продукция</span><span class="block font-display font-bold text-[18px] mt-1">Каталог</span></span>
+            {% include "partials/icon.html" with name="arrow-right" class="w-5 h-5 text-[#8FA9D6] group-hover:text-white group-hover:translate-x-1 transition-all" %}
+          </a>
+          <a href="{% url 'dostavka' %}" class="flex items-center justify-between gap-4 p-5 border-b border-white/15 hover:bg-white/5 transition-colors group">
+            <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Логистика</span><span class="block font-display font-bold text-[18px] mt-1">Доставка</span></span>
+            {% include "partials/icon.html" with name="arrow-right" class="w-5 h-5 text-[#8FA9D6] group-hover:text-white group-hover:translate-x-1 transition-all" %}
+          </a>
+          <a href="{% url 'o_kompanii' %}" class="flex items-center justify-between gap-4 p-5 border-b border-white/15 hover:bg-white/5 transition-colors group">
+            <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Завод</span><span class="block font-display font-bold text-[18px] mt-1">О компании</span></span>
+            {% include "partials/icon.html" with name="arrow-right" class="w-5 h-5 text-[#8FA9D6] group-hover:text-white group-hover:translate-x-1 transition-all" %}
+          </a>
+          <a href="{% url 'kontakty' %}" class="flex items-center justify-between gap-4 p-5 hover:bg-white/5 transition-colors group">
+            <span><span class="block font-mono text-[11px] uppercase tracking-widest text-[#8FA9D6]">Связь</span><span class="block font-display font-bold text-[18px] mt-1">Контакты</span></span>
+            {% include "partials/icon.html" with name="arrow-right" class="w-5 h-5 text-[#8FA9D6] group-hover:text-white group-hover:translate-x-1 transition-all" %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

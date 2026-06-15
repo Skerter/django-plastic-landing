@@ -1,0 +1,39 @@
+{% comment %}
+  Cookie-баннер с категориями согласия (152-ФЗ §8).
+  Серверная механика: выбор пишется в httponly-cookie cookie_consent
+  через htmx → {% url 'cookie_consent' %}. Яндекс.Метрика инжектится
+  в base.html ТОЛЬКО при cookie_consent == 'accepted'.
+  Кнопка «Настройки cookie» в футере снимает у баннера .hidden (см. site.js).
+{% endcomment %}
+<div id="cookieBanner"
+     class="{% if request.COOKIES.cookie_consent %}hidden {% endif %}fixed left-0 right-0 bottom-0 z-[80] bg-brand-900 border-t-2 border-brand shadow-[0_-8px_30px_rgba(0,0,0,.25)]"
+     role="dialog" aria-label="Уведомление об использовании cookie">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-[18px] flex flex-wrap items-center gap-x-6 gap-y-4 justify-between">
+    <p class="m-0 max-w-2xl text-[14px] leading-relaxed text-[#C3D2EC]">
+      Мы используем <strong class="text-white font-semibold">необходимые cookie</strong> (сессия, защита форм) — они всегда активны.
+      С вашего согласия подключаем <strong class="text-white font-semibold">аналитические cookie</strong> (Яндекс.Метрика).
+      Данные обрабатываются на серверах в РФ.
+      <a href="{% url 'politika' %}" class="underline underline-offset-2 hover:text-white">Политика конфиденциальности</a>.
+    </p>
+    <div class="flex flex-wrap gap-2.5">
+      <button type="button"
+              hx-post="{% url 'cookie_consent' %}" hx-vals='{"choice": "declined"}' hx-swap="none"
+              hx-on::after-request="document.getElementById('cookieBanner').classList.add('hidden')"
+              class="h-[46px] px-[22px] rounded font-display font-bold text-[13px] uppercase tracking-[.05em] text-white bg-transparent border border-white/45 hover:border-white transition-colors">
+        Отклонить
+      </button>
+      <button type="button"
+              hx-post="{% url 'cookie_consent' %}" hx-vals='{"choice": "necessary"}' hx-swap="none"
+              hx-on::after-request="document.getElementById('cookieBanner').classList.add('hidden')"
+              class="h-[46px] px-[22px] rounded font-display font-bold text-[13px] uppercase tracking-[.05em] text-white bg-transparent border border-white/45 hover:border-white transition-colors">
+        Только необходимые
+      </button>
+      <button type="button"
+              hx-post="{% url 'cookie_consent' %}" hx-vals='{"choice": "accepted"}' hx-swap="none"
+              hx-on::after-request="location.reload()"
+              class="h-[46px] px-[22px] rounded font-display font-bold text-[13px] uppercase tracking-[.05em] text-white bg-brand border border-brand hover:bg-brand-700 hover:border-brand-700 transition-colors">
+        Принять все
+      </button>
+    </div>
+  </div>
+</div>

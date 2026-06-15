@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Согласие на обработку персональных данных — ООО «ДемоПласт»{% endblock %}
+{% block meta_description %}Согласие на обработку персональных данных пользователей сайта ООО «ДемоПласт» (г. Москва).{% endblock %}
+{% block extra_head %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block content %}
+<section class="border-b border-line">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-7 lg:pt-9 pb-10 lg:pb-12">
+    <nav class="flex items-center gap-2 font-mono text-[12px] uppercase tracking-wider text-muted flex-wrap" aria-label="Хлебные крошки">
+      <a href="{% url 'home' %}" class="hover:text-brand transition-colors">Главная</a>
+      <span class="text-line">/</span>
+      <span class="text-ink">Согласие на обработку персональных данных</span>
+    </nav>
+    <div class="mt-6 max-w-3xl">
+      <h1 class="font-display font-extrabold text-[clamp(2.2rem,5.5vw,3.4rem)] tracking-tight leading-[1.04]">Согласие на обработку персональных данных</h1>
+      <p class="mt-5 font-mono text-[12px] uppercase tracking-widest text-muted">ООО «ДемоПласт» · г. Москва · ред. от __.__.____</p>
+    </div>
+  </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-14 lg:py-20">
+  <div class="grid lg:grid-cols-[15rem_1fr] gap-10 lg:gap-16">
+    <aside class="lg:sticky lg:top-28 self-start">
+      <h2 class="font-mono text-[12px] uppercase tracking-widest text-muted mb-4">Содержание</h2>
+      <ol class="space-y-2.5 text-[14px] text-muted font-mono">
+        <li>01 — Цели обработки</li>
+        <li>02 — Перечень данных</li>
+        <li>03 — Третьи лица</li>
+        <li>04 — Срок и отзыв</li>
+      </ol>
+    </aside>
+
+    <div class="max-w-3xl space-y-10">
+      <div class="border border-amber-300 bg-amber-50 text-amber-800 text-[14px] px-4 py-3 rounded font-mono uppercase tracking-wide">
+        [ Отдельный документ-согласие (152-ФЗ). Финальный текст готовит юрист. ]
+      </div>
+      <div>
+        <h2 class="font-display font-bold text-[22px] text-ink tracking-tight">01 — Цели обработки</h2>
+        <div class="ph mt-4 border border-line p-6 space-y-3">
+          <div class="h-3 bg-line/70 w-full"></div>
+          <div class="h-3 bg-line/70 w-[90%]"></div>
+          <p class="ph-tag pt-2">[ обработка заявки, обратный звонок — ВСТАВИТЬ ТЕКСТ ]</p>
+        </div>
+      </div>
+      <div>
+        <h2 class="font-display font-bold text-[22px] text-ink tracking-tight">02 — Перечень данных</h2>
+        <div class="ph mt-4 border border-line p-6 space-y-3">
+          <div class="h-3 bg-line/70 w-full"></div>
+          <div class="h-3 bg-line/70 w-[85%]"></div>
+          <p class="ph-tag pt-2">[ имя, телефон, e-mail — ВСТАВИТЬ ТЕКСТ ]</p>
+        </div>
+      </div>
+      <div>
+        <h2 class="font-display font-bold text-[22px] text-ink tracking-tight">03 — Третьи лица</h2>
+        <div class="ph mt-4 border border-line p-6 space-y-3">
+          <div class="h-3 bg-line/70 w-full"></div>
+          <div class="h-3 bg-line/70 w-[93%]"></div>
+          <p class="ph-tag pt-2">[ amoCRM как получатель данных — ВСТАВИТЬ ТЕКСТ ]</p>
+        </div>
+      </div>
+      <div class="border border-line bg-surface p-6 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+        <p class="text-[15px] text-muted">По вопросам обработки данных свяжитесь с нами.</p>
+        <a href="{% url 'kontakty' %}" class="btn btn-outline btn-sm shrink-0">Контакты {% include "partials/icon.html" with name="arrow-right" class="w-4 h-4" %}</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

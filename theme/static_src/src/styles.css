@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/**
+ * Компонентная дизайн-система DemoPlast (.btn, .fld, .ph, .grid-rule, .nav-lk, …).
+ * Кладём в слой components, чтобы утилиты Tailwind (hidden, sm:hidden, bg-*)
+ * всегда побеждали компоненты по правилам каскада слоёв — без !important.
+ */
+@import "../../../static/css/demoplast.css" layer(components);
+
+/**
+ * Tailwind сканирует эти пути на классы.
+ */
+@source "../../../templates/**/*.html";
+@source "../../../apps/**/*.py";
+
+/* ============================================================
+   DemoPlast — дизайн-токены (Tailwind v4 @theme)
+   Archivo (display) · IBM Plex Sans (text) · IBM Plex Mono (mono)
+   Палитра и радиусы перенесены из дизайн-системы (static/css/demoplast.css).
+   ============================================================ */
+@theme {
+  /* Шрифты */
+  --font-display: "Archivo", sans-serif;
+  --font-sans: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* Фирменная палитра */
+  --color-brand: #2B5CB4;
+  --color-brand-700: #1E4488;
+  --color-brand-900: #14213D;
+  --color-ink: #15191E;
+  --color-muted: #5B6573;
+  --color-line: #E2E6EC;
+  --color-surface: #F4F6F9;
+  --color-accent: #E8A13A;
+
+  /* Промышленный «квадратный» радиус: всё 4px, включая full.
+     Переопределяем шкалу Tailwind целиком. */
+  --radius-none: 0px;
+  --radius-sm: 2px;
+  --radius-DEFAULT: 4px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 4px;
+  --radius-3xl: 4px;
+  --radius-full: 4px;
+
+  /* Контейнер 80rem (max-w-7xl уже = 80rem в Tailwind, оставляем дефолт) */
+}

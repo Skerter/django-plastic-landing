@@ -1,0 +1,79 @@
+/* Брендирование Django-админки под фирменный стиль DemoPlast.
+   Переопределяем CSS-переменные палитры (admin/css/base.css), без правки исходников Django.
+
+   Переменные дублируем для светлой и тёмной темы: Django переопределяет их
+   в @media (prefers-color-scheme: dark) и в :root[data-theme="dark"], иначе
+   наши значения перебиваются обратно на дефолтные тёмные. */
+
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+    --primary: #2B5CB4;            /* основной цвет: шапка, активные элементы */
+    --secondary: #2B5CB4;          /* модульные заголовки */
+    --accent: #1E4486;             /* акцент (наведение/выделение) — чуть темнее основного */
+
+    --header-bg: #2B5CB4;          /* фон верхней шапки */
+    --header-color: #ffffff;
+    --header-link-color: #ffffff;
+    --header-branding-color: #ffffff;
+
+    --link-fg: #2B5CB4;            /* ссылки в контенте */
+    --link-hover-color: #1E4486;
+
+    --button-bg: #2B5CB4;          /* обычные кнопки */
+    --button-hover-bg: #1E4486;
+    --default-button-bg: #1E4486;  /* основная кнопка (Сохранить) — темнее, чтобы выделялась */
+    --default-button-hover-bg: #163566;
+
+    --breadcrumbs-bg: #1E4486;     /* «хлебные крошки» под шапкой */
+    --breadcrumbs-fg: #d6e2f5;
+    --breadcrumbs-link-fg: #ffffff;
+}
+
+/* Авто-тёмная тема (по системной): тот же бренд на шапке. */
+@media (prefers-color-scheme: dark) {
+    :root,
+    :root[data-theme="auto"] {
+        --primary: #2B5CB4;
+        --secondary: #2B5CB4;
+        --accent: #1E4486;
+
+        --header-bg: #2B5CB4;
+        --header-color: #ffffff;
+        --header-link-color: #ffffff;
+        --header-branding-color: #ffffff;
+
+        --button-bg: #2B5CB4;
+        --button-hover-bg: #1E4486;
+        --default-button-bg: #1E4486;
+        --default-button-hover-bg: #163566;
+
+        --breadcrumbs-bg: #1E4486;
+        --breadcrumbs-fg: #d6e2f5;
+        --breadcrumbs-link-fg: #ffffff;
+    }
+}
+
+/* Текст приветствия в шапке («Добро пожаловать, …») в тёмной теме был бледным. */
+#user-tools {
+    color: #ffffff;
+}
+
+/* Логотип в шапке */
+#site-name img {
+    height: 28px;
+    vertical-align: middle;
+}
+
+#site-name a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Текст site_header рядом с логотипом — белый на синей шапке. */
+#site-name,
+#site-name a,
+#site-name a span {
+    color: #ffffff;
+}
