@@ -47,15 +47,28 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Откройте **http://localhost:8000**. При старте контейнер автоматически:
-применяет миграции → собирает Tailwind CSS → наполняет каталог и контакты
-(сид-миграции) → создаёт демо-заявки → поднимает dev-сервер.
+Откройте **http://localhost:8000** — всё готово. Одна команда `docker compose up`
+поднимает полностью наполненное демо; ничего доустанавливать не нужно. При старте
+контейнер автоматически:
+
+1. ждёт PostgreSQL и применяет миграции;
+2. **наполняет каталог, товары и контакты** (сид-миграции — категории, 9 товаров со
+   спеками, `SiteSettings`);
+3. собирает Tailwind CSS;
+4. **генерирует плейсхолдер-картинки товаров** (`seed_demo_images`) — по 3 ракурса на
+   товар, чтобы галерея-карусель на карточке была рабочей;
+5. **создаёт фейковые заявки** (`seed_demo_leads`) — чтобы админка была не пустой;
+6. поднимает dev-сервер.
 
 ```bash
 # Доступ в админку (опционально):
 docker compose exec web python manage.py createsuperuser
 # затем http://localhost:8000/admin/
 ```
+
+> **Демо-данные генерируются, а не коммитятся.** Каталог и контакты приходят из
+> сид-миграций; картинки и заявки создают management-команды при старте. Папка `media/`
+> в `.gitignore` — репозиторий чистый, демо наполняет себя само.
 
 > **Демо-режим.** В `.env.example` стоит `DEMO_MODE=True`: внешние интеграции
 > (SMTP-почта, Telegram, amoCRM) **не вызываются** — заявка сохраняется в БД, каналы
@@ -164,13 +177,25 @@ uv run pytest tests/ -v
 
 ---
 
+## ⚙️ Два окружения — два шаблона env
+
+| Файл | Для чего | Особенности |
+|---|---|---|
+| **`.env.example`** | Локальный запуск / демо | `config.settings.docker`, `DEMO_MODE=True`. Это то, что копируется в `.env` для `docker compose up`. |
+| **`.env.prod.example`** | **Деплой** | `config.settings.prod`, `DEBUG=False`, реальная PostgreSQL (`POSTGRES_*` синхронны с `DATABASE_URL`), `DOMAIN`/`CERTBOT_EMAIL` для HTTPS, `DEMO_MODE=False`. |
+
+Оба шаблона **закоммичены** (в `.gitignore` есть `!.env.example` и `!.env.prod.example`),
+а реальные `.env` / `.env.prod` с секретами — игнорируются и в репозиторий не попадают.
+
+---
+
 ## ☁️ Прод-инфраструктура
 
 В репозитории — полный прод-стек (обезличенный): `compose.prod.yaml` (Gunicorn + Nginx +
 certbot + qcluster-воркер), `Dockerfile`, `entrypoint.sh`, `init-letsencrypt.sh` и
 GitHub Actions (`.github/workflows/deploy.yaml`): на push в `main` собирается образ →
-пушится в GHCR → деплоится по SSH на VPS. Домены, IP, имена аккаунтов в этих файлах —
-плейсхолдеры (`demoplast.example`, `your-org`).
+пушится в GHCR → деплоится по SSH на VPS. Деплой использует `.env.prod.example` как шаблон.
+Домены, IP, имена аккаунтов — плейсхолдеры (`demoplast.example`, `your-org`).
 
 ---
 
