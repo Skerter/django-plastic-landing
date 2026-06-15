@@ -1,0 +1,36 @@
+[project]
+name = "django-plastic-landing"
+version = "0.1.0"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "django>=5.1,<6",
+    "django-environ>=0.11",
+    "django-tailwind>=4.0",
+    "django-q2>=1.0",
+    "django-ratelimit>=4.0",
+    "pytailwindcss>=0.3",
+    "cookiecutter>=2.0",
+    "pillow>=11.0",
+    "psycopg[binary]>=3.0",
+    "gunicorn>=21.0",
+    "sentry-sdk[django]>=2.0",
+    "django-solo>=2.5.1",
+    "requests>=2.34.2",
+    "whitenoise>=6.12.0",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.dev"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-django>=4.0",
+    "playwright>=1.40",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"config/settings/*.py" = ["F403", "F405"]

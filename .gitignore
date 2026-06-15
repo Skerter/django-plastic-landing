@@ -1,0 +1,89 @@
+# ── Secrets & env ────────────────────────────────────────────────────────────
+.env
+.env.prod
+.env.local
+.env.*.local
+!.env.example
+!.env.prod.example
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.pyo
+*.egg
+*.egg-info/
+dist/
+build/
+wheels/
+sdist/
+develop-eggs/
+.eggs/
+MANIFEST
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.uv/
+
+# ── Django ───────────────────────────────────────────────────────────────────
+*.log
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+local_settings.py
+
+# ── Tailwind build output ─────────────────────────────────────────────────────
+theme/static/css/dist/
+
+# ── Testing & coverage ────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+
+# ── Type checking ─────────────────────────────────────────────────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+
+# ── Ruff ─────────────────────────────────────────────────────────────────────
+.ruff_cache/
+
+# ── Docker ───────────────────────────────────────────────────────────────────
+.docker/
+
+# ── IDE ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# ── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# ── Certificates (managed by certbot volumes, not repo) ──────────────────────
+nginx/ssl/
+certbot/
+
+# Playwright screenshots (local visual checks)
+.screenshots/
