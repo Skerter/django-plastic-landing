@@ -15,8 +15,6 @@ DATABASES = {
 
 DEBUG = False
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
