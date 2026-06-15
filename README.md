@@ -28,15 +28,13 @@ Docker → Nginx → CI/CD.
 
 ## 📸 Скриншоты
 
-> Поместите изображения в `docs/screenshots/` и они подставятся ниже.
-
-| Главная | Каталог / карточка товара |
+| Главная | Карточка товара |
 |---|---|
 | ![Главная](docs/screenshots/home.png) | ![Карточка товара](docs/screenshots/product.png) |
 
 | Форма заявки (152-ФЗ согласие) | Админка / заявки |
 |---|---|
-| ![Форма заявки](docs/screenshots/lead-form.png) | ![Админка](docs/screenshots/admin.png) |
+| ![Форма заявки](docs/screenshots/form.png) | ![Админка](docs/screenshots/admin.png) |
 
 ---
 
@@ -158,7 +156,7 @@ django-plastic-landing/
 ├── theme/                    # django-tailwind: @theme + компонентная CSS
 ├── static/                   # css/demoplast.css · js/site.js · js/htmx.min.js · img/
 ├── nginx/                    # конфиг для прода
-├── docs/screenshots/         # сюда положить скриншоты для README
+├── docs/screenshots/         # скриншоты для README
 └── tests/                    # pytest: leads, catalog, pages, core (33 теста)
 ```
 
