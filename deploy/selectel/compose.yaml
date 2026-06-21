@@ -1,0 +1,64 @@
+services:
+  web:
+    image: ghcr.io/skerter/django-plastic-landing:latest
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py seed_demo_images &&
+             python manage.py seed_demo_leads &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+    env_file:
+      - .env
+    volumes:
+      - media_volume:/app/media
+    networks:
+      - proxy
+      - demoplast_internal
+    depends_on:
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.demoplast.rule=Host(`${SITE_DOMAIN}`)"
+      - "traefik.http.routers.demoplast.entrypoints=websecure"
+      - "traefik.http.routers.demoplast.tls.certresolver=le"
+      - "traefik.http.services.demoplast.loadbalancer.server.port=8000"
+
+  media:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - ./nginx-media.conf:/etc/nginx/conf.d/default.conf:ro
+      - media_volume:/srv/media:ro
+    networks:
+      - proxy
+    depends_on:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.demoplast-media.rule=Host(`${SITE_DOMAIN}`) && PathPrefix(`/media`)"
+      - "traefik.http.routers.demoplast-media.entrypoints=websecure"
+      - "traefik.http.routers.demoplast-media.tls.certresolver=le"
+      - "traefik.http.routers.demoplast-media.priority=100"
+      - "traefik.http.services.demoplast-media.loadbalancer.server.port=80"
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - demoplast_internal
+
+volumes:
+  postgres_data:
+  media_volume:
+
+networks:
+  proxy:
+    external: true
+  demoplast_internal:

@@ -15,6 +15,11 @@ DATABASES = {
 
 DEBUG = False
 
+# За реверс-прокси (Traefik/Nginx) с HTTPS Django 5 требует явного списка
+# доверенных источников для проверки CSRF на POST-формах — иначе лид-форма
+# отдаёт 403. Хост(ы) совпадают с ALLOWED_HOSTS, со схемой https://.
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
+
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',

@@ -2,10 +2,10 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
 
 env:
-  IMAGE: ghcr.io/your-org/django-plastic-landing
+  IMAGE: ghcr.io/skerter/django-plastic-landing
 
 jobs:
   build:
@@ -46,9 +46,8 @@ jobs:
           script: |
             set -e
             cd /opt/django-plastic-landing
-            git pull origin main
+            git pull origin ${{ github.ref_name }}
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USER }} --password-stdin
             docker compose -f compose.prod.yaml pull
             docker compose -f compose.prod.yaml up -d
-            docker compose -f compose.prod.yaml restart nginx
             docker image prune -f
