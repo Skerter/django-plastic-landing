@@ -48,6 +48,6 @@ jobs:
             cd /opt/django-plastic-landing
             git pull origin ${{ github.ref_name }}
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USER }} --password-stdin
-            docker compose -f compose.prod.yaml pull
-            docker compose -f compose.prod.yaml up -d
+            docker compose -f deploy/selectel/compose.yaml pull
+            docker compose -f deploy/selectel/compose.yaml up -d
             docker image prune -f
