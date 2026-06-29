@@ -41,25 +41,48 @@
     <div class="flex flex-wrap items-end justify-between gap-5 mb-8">
       <div class="max-w-2xl">
         <h2 class="font-display font-extrabold text-[clamp(1.8rem,4vw,2.4rem)] tracking-tight">Сертификаты</h2>
-        <p class="mt-4 text-muted text-[17px]">Продукция сертифицирована и соответствует всем необходимым стандартам. Копии документов предоставляем по запросу.</p>
+        <p class="mt-4 text-muted text-[17px]">Продукция сертифицирована и соответствует всем необходимым стандартам. Копии документов предоставляем по запросу. <span class="font-mono text-[14px] text-brand tnum whitespace-nowrap">[ {{ certificates|length }} шт. ]</span></p>
       </div>
       <a href="#callback" data-modal-open class="inline-flex items-center gap-2 font-display font-bold text-[14px] uppercase tracking-wider text-brand hover:text-brand-700 transition-colors">Запросить копии {% include "partials/icon.html" with name="arrow-right" class="w-4 h-4" %}</a>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px grid-rule border border-line">
-      {% for cert in certificates %}
-      <div class="aspect-[3/4] grid place-items-center overflow-hidden border border-line">
-        <img src="{{ cert.image.url }}" alt="{{ cert.title }}" loading="lazy" class="w-full h-full object-cover">
+
+    <div class="flex items-center justify-between gap-4 mb-4">
+      <span class="font-mono text-[12px] text-muted">Листайте ленту →</span>
+      <div class="flex items-center gap-2">
+        <button type="button" class="cert-nav" data-cert-prev aria-label="Назад">{% include "partials/icon.html" with name="chevron-left" class="w-4 h-4" %}</button>
+        <button type="button" class="cert-nav" data-cert-next aria-label="Вперёд">{% include "partials/icon.html" with name="chevron-right" class="w-4 h-4" %}</button>
       </div>
-      {% endfor %}
-      <a href="#callback" data-modal-open class="aspect-[3/4] grid place-items-center bg-brand text-white text-center hover:bg-brand-700 transition-colors p-4">
-        <span class="flex flex-col items-center">
-          {% include "partials/icon.html" with name="file-text" class="w-7 h-7" %}
-          <span class="block font-mono text-[11px] uppercase tracking-widest text-[#C3D2EC] mt-3 leading-relaxed">Запросить<br>документы</span>
+    </div>
+
+    <div class="cert-film no-scrollbar" data-cert-film>
+      {% for cert in certificates %}
+      <button type="button" class="cert-card" data-cert-idx="{{ forloop.counter0 }}" aria-label="Открыть «{{ cert.title }}»">
+        <img src="{{ cert.image.url }}" alt="{{ cert.title }}" loading="lazy">
+        <span class="cert-card__ft">
+          <span class="block font-mono text-[11px] uppercase tracking-wider text-brand">№ {{ forloop.counter|stringformat:"02d" }}</span>
+          <span class="block mt-1 text-[13px] text-muted line-clamp-2">{{ cert.title }}</span>
         </span>
-      </a>
+      </button>
+      {% endfor %}
     </div>
   </div>
 </section>
+
+<!-- CERTIFICATE LIGHTBOX -->
+<div class="cert-lb" id="certLb" role="dialog" aria-modal="true" aria-label="Просмотр сертификата" data-cert-lb hidden>
+  <div class="flex items-center justify-between px-5 sm:px-8 h-16 shrink-0 border-b border-white/10">
+    <span class="font-mono text-[12px] text-[#C3D2EC] tracking-wider tnum" data-cert-counter></span>
+    <button type="button" class="cert-nav cert-nav--light" data-cert-close aria-label="Закрыть">{% include "partials/icon.html" with name="x" class="w-5 h-5" %}</button>
+  </div>
+  <div class="flex-1 min-h-0 flex items-center gap-3 sm:gap-6 px-3 sm:px-8 py-6">
+    <button type="button" class="cert-nav cert-nav--light shrink-0" data-cert-lb-prev aria-label="Назад">{% include "partials/icon.html" with name="chevron-left" class="w-5 h-5" %}</button>
+    <div class="flex-1 h-full min-h-0 flex flex-col items-center justify-center">
+      <img class="cert-lb-img" data-cert-lb-img alt="">
+      <p class="mt-5 font-display font-bold text-[17px] text-white text-center" data-cert-lb-title></p>
+    </div>
+    <button type="button" class="cert-nav cert-nav--light shrink-0" data-cert-lb-next aria-label="Вперёд">{% include "partials/icon.html" with name="chevron-right" class="w-5 h-5" %}</button>
+  </div>
+</div>
 {% endif %}
 
 <!-- KEY FACTS -->

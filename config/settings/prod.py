@@ -2,10 +2,13 @@ from .base import *
 
 import sentry_sdk
 
+from config.sentry import before_send
+
 
 sentry_sdk.init(
     dsn=env('SENTRY_DSN', default=''),
     traces_sample_rate=0.2,
+    before_send=before_send,
 )
 
 

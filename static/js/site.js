@@ -112,4 +112,77 @@
     if (prev) prev.addEventListener('click', function () { goTo(active - 1); });
     if (next) next.addEventListener('click', function () { goTo(active + 1); });
   });
+
+  /* ---------- Сертификаты: фильмстрип + lightbox ---------- */
+  (function () {
+    var film = document.querySelector('[data-cert-film]');
+    var lb = document.querySelector('[data-cert-lb]');
+    if (!film || !lb) return;
+
+    var cards = Array.prototype.slice.call(film.querySelectorAll('[data-cert-idx]'));
+    if (!cards.length) return;
+
+    // данные сертификатов берём из карточек ленты (url крупного фото = src превью, title = alt)
+    var items = cards.map(function (c) {
+      var img = c.querySelector('img');
+      return { src: img ? img.src : '', title: img ? img.alt : '' };
+    });
+
+    // листание ленты кнопками (на 2 карточки за шаг)
+    function step(dir) {
+      var w = cards[0].offsetWidth + 16; // ширина карточки + gap
+      film.scrollBy({ left: dir * w * 2, behavior: 'smooth' });
+    }
+    var filmPrev = document.querySelector('[data-cert-prev]');
+    var filmNext = document.querySelector('[data-cert-next]');
+    if (filmPrev) filmPrev.addEventListener('click', function () { step(-1); });
+    if (filmNext) filmNext.addEventListener('click', function () { step(1); });
+
+    // lightbox
+    var lbImg = lb.querySelector('[data-cert-lb-img]');
+    var lbTitle = lb.querySelector('[data-cert-lb-title]');
+    var lbCounter = lb.querySelector('[data-cert-counter]');
+    var idx = 0;
+    var lastFocus = null;
+
+    function render() {
+      var it = items[idx];
+      lbImg.src = it.src;
+      lbImg.alt = it.title;
+      lbTitle.textContent = it.title;
+      lbCounter.textContent = (idx + 1) + ' / ' + items.length;
+    }
+    function open(i) {
+      idx = i;
+      lastFocus = document.activeElement;
+      render();
+      lb.hidden = false;
+      lb.classList.add('open');
+      document.documentElement.style.overflow = 'hidden';
+    }
+    function close() {
+      lb.classList.remove('open');
+      lb.hidden = true;
+      document.documentElement.style.overflow = '';
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+    function move(d) {
+      idx = (idx + d + items.length) % items.length; // зацикленная навигация
+      render();
+    }
+
+    cards.forEach(function (c) {
+      c.addEventListener('click', function () { open(+c.getAttribute('data-cert-idx')); });
+    });
+    lb.querySelector('[data-cert-close]').addEventListener('click', close);
+    lb.querySelector('[data-cert-lb-prev]').addEventListener('click', function () { move(-1); });
+    lb.querySelector('[data-cert-lb-next]').addEventListener('click', function () { move(1); });
+    lb.addEventListener('click', function (e) { if (e.target === lb) close(); });
+    document.addEventListener('keydown', function (e) {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') close();
+      else if (e.key === 'ArrowLeft') move(-1);
+      else if (e.key === 'ArrowRight') move(1);
+    });
+  })();
 })();
