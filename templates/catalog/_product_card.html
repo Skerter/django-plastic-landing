@@ -5,7 +5,7 @@
 {% endcomment %}
 {% with specs=product.specs.all %}
 <a href="{% url 'product_detail' product.category.slug product.slug %}" class="group bg-white hover:bg-surface transition-colors flex flex-col">
-  <div class="ph ph-marks relative aspect-[4/3] grid place-items-center overflow-hidden">
+  <div class="ph ph-marks relative aspect-square grid place-items-center overflow-hidden">
     {% if product.badge %}
       <span class="absolute top-4 left-4 z-10 font-mono text-[11px] uppercase tracking-wider bg-white border border-line px-2.5 py-1 text-brand">{{ product.badge }}</span>
     {% endif %}
