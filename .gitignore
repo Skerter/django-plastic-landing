@@ -44,6 +44,9 @@ local_settings.py
 # ── Tailwind build output ─────────────────────────────────────────────────────
 theme/static/css/dist/
 
+# ── MkDocs build output ───────────────────────────────────────────────────────
+site/
+
 # ── Testing & coverage ────────────────────────────────────────────────────────
 .pytest_cache/
 .coverage
@@ -83,10 +86,6 @@ dmypy.json
 .Trashes
 Thumbs.db
 desktop.ini
-
-# ── Certificates (managed by certbot volumes, not repo) ──────────────────────
-nginx/ssl/
-certbot/
 
 # Playwright screenshots (local visual checks)
 .screenshots/

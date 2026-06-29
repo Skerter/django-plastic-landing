@@ -1,5 +1,9 @@
 site_name: DemoPlast — Документация
 site_description: Сайт-каталог производителя пластиковой тары (Django)
+site_url: https://skerter.github.io/django-plastic-landing/
+repo_url: https://github.com/Skerter/django-plastic-landing
+repo_name: Skerter/django-plastic-landing
+edit_uri: edit/main/docs/
 docs_dir: docs
 strict: true
 
@@ -35,6 +39,12 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:mermaid2.fence_mermaid_custom
+  # Unicode-совместимые якоря: кириллические заголовки → читаемые кириллические id
+  # (дефолтный slugify выбрасывает не-ASCII и ломает ссылки вида #обновить-прод).
+  - toc:
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
 
 nav:
   - Главная: index.md
