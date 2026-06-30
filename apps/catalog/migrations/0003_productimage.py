@@ -5,25 +5,47 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0002_product_badge'),
+        ("catalog", "0002_product_badge"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProductImage',
+            name="ProductImage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='products/')),
-                ('alt', models.CharField(blank=True, help_text='Подпись/ракурс (напр. «вид сбоку», «горловина 55 мм»). Используется как alt и подпись миниатюры.', max_length=200, verbose_name='Подпись')),
-                ('order', models.PositiveIntegerField(default=0)),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='catalog.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("image", models.ImageField(upload_to="products/")),
+                (
+                    "alt",
+                    models.CharField(
+                        blank=True,
+                        help_text="Подпись/ракурс (напр. «вид сбоку», «горловина 55 мм»). Используется как alt и подпись миниатюры.",
+                        max_length=200,
+                        verbose_name="Подпись",
+                    ),
+                ),
+                ("order", models.PositiveIntegerField(default=0)),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="images",
+                        to="catalog.product",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Фото товара',
-                'verbose_name_plural': 'Фото товара',
-                'ordering': ['order'],
+                "verbose_name": "Фото товара",
+                "verbose_name_plural": "Фото товара",
+                "ordering": ["order"],
             },
         ),
     ]

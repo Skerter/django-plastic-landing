@@ -4,110 +4,200 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0002_seed_site_settings'),
+        ("core", "0002_seed_site_settings"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sitesettings',
-            name='account',
-            field=models.CharField(blank=True, help_text='20 цифр.', max_length=20, verbose_name='Расчётный счёт'),
+            model_name="sitesettings",
+            name="account",
+            field=models.CharField(
+                blank=True,
+                help_text="20 цифр.",
+                max_length=20,
+                verbose_name="Расчётный счёт",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='address',
-            field=models.CharField(blank=True, help_text='Например: г. Москва, ул. Промышленная, д. 1. Выводится в подвале и контактах.', max_length=255, verbose_name='Адрес производства'),
+            model_name="sitesettings",
+            name="address",
+            field=models.CharField(
+                blank=True,
+                help_text="Например: г. Москва, ул. Промышленная, д. 1. Выводится в подвале и контактах.",
+                max_length=255,
+                verbose_name="Адрес производства",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='bank',
-            field=models.CharField(blank=True, help_text='Полное название банка.', max_length=255, verbose_name='Банк'),
+            model_name="sitesettings",
+            name="bank",
+            field=models.CharField(
+                blank=True,
+                help_text="Полное название банка.",
+                max_length=255,
+                verbose_name="Банк",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='bik',
-            field=models.CharField(blank=True, help_text='9 цифр.', max_length=9, verbose_name='БИК'),
+            model_name="sitesettings",
+            name="bik",
+            field=models.CharField(
+                blank=True, help_text="9 цифр.", max_length=9, verbose_name="БИК"
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='company_name',
-            field=models.CharField(default='ООО «ДемоПласт»', help_text='Официальное название. Выводится в подвале, реквизитах и микроразметке.', max_length=255, verbose_name='Название компании'),
+            model_name="sitesettings",
+            name="company_name",
+            field=models.CharField(
+                default="ООО «ДемоПласт»",
+                help_text="Официальное название. Выводится в подвале, реквизитах и микроразметке.",
+                max_length=255,
+                verbose_name="Название компании",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='corr_account',
-            field=models.CharField(blank=True, help_text='20 цифр.', max_length=20, verbose_name='Корр. счёт'),
+            model_name="sitesettings",
+            name="corr_account",
+            field=models.CharField(
+                blank=True,
+                help_text="20 цифр.",
+                max_length=20,
+                verbose_name="Корр. счёт",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='email',
-            field=models.EmailField(blank=True, help_text='Адрес для счетов и документов. Показывается на «Контактах».', max_length=254, verbose_name='E-mail бухгалтерии'),
+            model_name="sitesettings",
+            name="email",
+            field=models.EmailField(
+                blank=True,
+                help_text="Адрес для счетов и документов. Показывается на «Контактах».",
+                max_length=254,
+                verbose_name="E-mail бухгалтерии",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='inn',
-            field=models.CharField(blank=True, help_text='10 или 12 цифр.', max_length=12, verbose_name='ИНН'),
+            model_name="sitesettings",
+            name="inn",
+            field=models.CharField(
+                blank=True,
+                help_text="10 или 12 цифр.",
+                max_length=12,
+                verbose_name="ИНН",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='kpp',
-            field=models.CharField(blank=True, help_text='9 цифр.', max_length=9, verbose_name='КПП'),
+            model_name="sitesettings",
+            name="kpp",
+            field=models.CharField(
+                blank=True, help_text="9 цифр.", max_length=9, verbose_name="КПП"
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='legal_address',
-            field=models.CharField(blank=True, help_text='С индексом. Например: 101000, г. Москва, ул. Промышленная, д. 1', max_length=255, verbose_name='Юридический адрес'),
+            model_name="sitesettings",
+            name="legal_address",
+            field=models.CharField(
+                blank=True,
+                help_text="С индексом. Например: 101000, г. Москва, ул. Промышленная, д. 1",
+                max_length=255,
+                verbose_name="Юридический адрес",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='map_query',
-            field=models.CharField(blank=True, help_text='Текст, по которому строится карта на «Контактах». Например: Москва, улица Промышленная, 1', max_length=255, verbose_name='Запрос для Яндекс.Карт'),
+            model_name="sitesettings",
+            name="map_query",
+            field=models.CharField(
+                blank=True,
+                help_text="Текст, по которому строится карта на «Контактах». Например: Москва, улица Промышленная, 1",
+                max_length=255,
+                verbose_name="Запрос для Яндекс.Карт",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='ogrn',
-            field=models.CharField(blank=True, help_text='13 цифр.', max_length=15, verbose_name='ОГРН'),
+            model_name="sitesettings",
+            name="ogrn",
+            field=models.CharField(
+                blank=True, help_text="13 цифр.", max_length=15, verbose_name="ОГРН"
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='phone_accounting',
-            field=models.CharField(blank=True, help_text='Формат как для показа: +7 495 000-00-02.', max_length=32, verbose_name='Телефон — бухгалтерия'),
+            model_name="sitesettings",
+            name="phone_accounting",
+            field=models.CharField(
+                blank=True,
+                help_text="Формат как для показа: +7 495 000-00-02.",
+                max_length=32,
+                verbose_name="Телефон — бухгалтерия",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='phone_production',
-            field=models.CharField(blank=True, help_text='Формат как для показа: +7 495 000-00-01.', max_length=32, verbose_name='Телефон — производство'),
+            model_name="sitesettings",
+            name="phone_production",
+            field=models.CharField(
+                blank=True,
+                help_text="Формат как для показа: +7 495 000-00-01.",
+                max_length=32,
+                verbose_name="Телефон — производство",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='phone_production_person',
-            field=models.CharField(blank=True, help_text='Контактное лицо производства.', max_length=255, verbose_name='ФИО — производство'),
+            model_name="sitesettings",
+            name="phone_production_person",
+            field=models.CharField(
+                blank=True,
+                help_text="Контактное лицо производства.",
+                max_length=255,
+                verbose_name="ФИО — производство",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='phone_sales',
-            field=models.CharField(blank=True, help_text='Главный телефон. Формат как для показа: +7 495 000-00-00. Ссылка tel: соберётся автоматически.', max_length=32, verbose_name='Телефон — отдел продаж'),
+            model_name="sitesettings",
+            name="phone_sales",
+            field=models.CharField(
+                blank=True,
+                help_text="Главный телефон. Формат как для показа: +7 495 000-00-00. Ссылка tel: соберётся автоматически.",
+                max_length=32,
+                verbose_name="Телефон — отдел продаж",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='phone_sales_person',
-            field=models.CharField(blank=True, help_text='Контактное лицо отдела продаж. Показывается на странице «Контакты».', max_length=255, verbose_name='ФИО — продажи'),
+            model_name="sitesettings",
+            name="phone_sales_person",
+            field=models.CharField(
+                blank=True,
+                help_text="Контактное лицо отдела продаж. Показывается на странице «Контакты».",
+                max_length=255,
+                verbose_name="ФИО — продажи",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='telegram_chat_id',
-            field=models.CharField(blank=True, help_text='ID чата для уведомлений о заявках. На сайте не виден.', max_length=64, verbose_name='Telegram chat_id (уведомления)'),
+            model_name="sitesettings",
+            name="telegram_chat_id",
+            field=models.CharField(
+                blank=True,
+                help_text="ID чата для уведомлений о заявках. На сайте не виден.",
+                max_length=64,
+                verbose_name="Telegram chat_id (уведомления)",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='work_hours',
-            field=models.CharField(blank=True, help_text='Например: ПН–ПТ · 08:00–17:00', max_length=128, verbose_name='Режим работы в будни'),
+            model_name="sitesettings",
+            name="work_hours",
+            field=models.CharField(
+                blank=True,
+                help_text="Например: ПН–ПТ · 08:00–17:00",
+                max_length=128,
+                verbose_name="Режим работы в будни",
+            ),
         ),
         migrations.AlterField(
-            model_name='sitesettings',
-            name='work_hours_weekend',
-            field=models.CharField(blank=True, help_text='Например: СБ–ВС: выходной', max_length=128, verbose_name='Режим работы в выходные'),
+            model_name="sitesettings",
+            name="work_hours_weekend",
+            field=models.CharField(
+                blank=True,
+                help_text="Например: СБ–ВС: выходной",
+                max_length=128,
+                verbose_name="Режим работы в выходные",
+            ),
         ),
     ]

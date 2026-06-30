@@ -17,6 +17,7 @@
     --width     ширина в px (по умолчанию 800)
     --quality   качество WebP (по умолчанию 80)
 """
+
 import argparse
 import re
 import sys

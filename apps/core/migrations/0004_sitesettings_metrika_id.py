@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0003_alter_sitesettings_account_and_more'),
+        ("core", "0003_alter_sitesettings_account_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sitesettings',
-            name='metrika_id',
-            field=models.CharField(blank=True, help_text='Номер счётчика из кабинета Метрики (например 98765432). Пусто — Метрика отключена. Грузится только при согласии на cookie.', max_length=16, verbose_name='ID счётчика Яндекс.Метрики'),
+            model_name="sitesettings",
+            name="metrika_id",
+            field=models.CharField(
+                blank=True,
+                help_text="Номер счётчика из кабинета Метрики (например 98765432). Пусто — Метрика отключена. Грузится только при согласии на cookie.",
+                max_length=16,
+                verbose_name="ID счётчика Яндекс.Метрики",
+            ),
         ),
     ]

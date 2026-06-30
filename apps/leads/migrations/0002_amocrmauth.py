@@ -4,23 +4,41 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('leads', '0001_initial'),
+        ("leads", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AmoCRMAuth',
+            name="AmoCRMAuth",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('access_token', models.TextField(blank=True, verbose_name='Access token')),
-                ('refresh_token', models.TextField(blank=True, verbose_name='Refresh token')),
-                ('expires_at', models.DateTimeField(blank=True, null=True, verbose_name='Истекает')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "access_token",
+                    models.TextField(blank=True, verbose_name="Access token"),
+                ),
+                (
+                    "refresh_token",
+                    models.TextField(blank=True, verbose_name="Refresh token"),
+                ),
+                (
+                    "expires_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="Истекает"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'amoCRM — авторизация',
-                'verbose_name_plural': 'amoCRM — авторизация',
+                "verbose_name": "amoCRM — авторизация",
+                "verbose_name_plural": "amoCRM — авторизация",
             },
         ),
     ]

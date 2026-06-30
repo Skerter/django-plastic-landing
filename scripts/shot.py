@@ -11,6 +11,7 @@
 
 Имена файлов: <slug>__desktop.png / <slug>__mobile.png
 """
+
 import argparse
 import sys
 from pathlib import Path
@@ -34,13 +35,20 @@ def main() -> int:
     ap.add_argument("--base", default="http://127.0.0.1:8009")
     ap.add_argument("--out", default=".screenshots")
     ap.add_argument("--only", choices=["desktop", "mobile"], default=None)
-    ap.add_argument("--consent", action="store_true",
-                    help="предустановить cookie_consent=accepted (скрыть баннер)")
-    ap.add_argument("--selector", default=None,
-                    help="CSS-селектор: снять только этот элемент, а не всю страницу")
+    ap.add_argument(
+        "--consent",
+        action="store_true",
+        help="предустановить cookie_consent=accepted (скрыть баннер)",
+    )
+    ap.add_argument(
+        "--selector",
+        default=None,
+        help="CSS-селектор: снять только этот элемент, а не всю страницу",
+    )
     args = ap.parse_args()
 
     from urllib.parse import urlparse
+
     host = urlparse(args.base).hostname or "127.0.0.1"
 
     out = Path(args.out)
@@ -53,10 +61,16 @@ def main() -> int:
         for name, vp in targets.items():
             ctx = browser.new_context(viewport=vp, device_scale_factor=1)
             if args.consent:
-                ctx.add_cookies([{
-                    "name": "cookie_consent", "value": "accepted",
-                    "domain": host, "path": "/",
-                }])
+                ctx.add_cookies(
+                    [
+                        {
+                            "name": "cookie_consent",
+                            "value": "accepted",
+                            "domain": host,
+                            "path": "/",
+                        }
+                    ]
+                )
             page = ctx.new_page()
             for path in args.paths:
                 url = args.base.rstrip("/") + path

@@ -5,32 +5,77 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('catalog', '0001_initial'),
+        ("catalog", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Lead',
+            name="Lead",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200, verbose_name='Имя')),
-                ('phone', models.CharField(max_length=20, verbose_name='Телефон')),
-                ('email', models.EmailField(blank=True, max_length=254, verbose_name='Email')),
-                ('comment', models.TextField(blank=True, verbose_name='Комментарий')),
-                ('type', models.CharField(choices=[('callback', 'Обратный звонок'), ('order', 'Заказ')], default='order', max_length=20, verbose_name='Тип')),
-                ('status', models.CharField(choices=[('new', 'Новая'), ('processed', 'Обработана')], default='new', max_length=20, verbose_name='Статус')),
-                ('consent', models.BooleanField(verbose_name='Согласие на обработку персональных данных')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
-                ('product', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='catalog.product', verbose_name='Товар')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200, verbose_name="Имя")),
+                ("phone", models.CharField(max_length=20, verbose_name="Телефон")),
+                (
+                    "email",
+                    models.EmailField(blank=True, max_length=254, verbose_name="Email"),
+                ),
+                ("comment", models.TextField(blank=True, verbose_name="Комментарий")),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("callback", "Обратный звонок"), ("order", "Заказ")],
+                        default="order",
+                        max_length=20,
+                        verbose_name="Тип",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("new", "Новая"), ("processed", "Обработана")],
+                        default="new",
+                        max_length=20,
+                        verbose_name="Статус",
+                    ),
+                ),
+                (
+                    "consent",
+                    models.BooleanField(
+                        verbose_name="Согласие на обработку персональных данных"
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата создания"
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="catalog.product",
+                        verbose_name="Товар",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Заявка',
-                'verbose_name_plural': 'Заявки',
-                'ordering': ['-created_at'],
+                "verbose_name": "Заявка",
+                "verbose_name_plural": "Заявки",
+                "ordering": ["-created_at"],
             },
         ),
     ]

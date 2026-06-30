@@ -1,17 +1,33 @@
 """Скруббер ПДн для событий Sentry (152-ФЗ: имена/телефоны/email не уходят за рубеж)."""
 
 # Ключи, значения которых считаем персональными данными и вырезаем из событий.
-PII_KEYS = frozenset({
-    'name', 'phone', 'email', 'comment',
-    'first_name', 'last_name', 'username',
-})
+PII_KEYS = frozenset(
+    {
+        "name",
+        "phone",
+        "email",
+        "comment",
+        "first_name",
+        "last_name",
+        "username",
+    }
+)
 # Имена локальных переменных в кадрах стектрейса, которые целиком могут нести ПДн
 # (объект Lead, тело формы, payload и т.п.) — затираем значение целиком.
-PII_VAR_NAMES = frozenset({
-    'payload', 'lead', 'form', 'cleaned_data', 'data', 'request', 'post', 'instance',
-})
+PII_VAR_NAMES = frozenset(
+    {
+        "payload",
+        "lead",
+        "form",
+        "cleaned_data",
+        "data",
+        "request",
+        "post",
+        "instance",
+    }
+)
 
-FILTERED = '[Filtered]'
+FILTERED = "[Filtered]"
 
 
 def _scrub_mapping(data):
@@ -30,12 +46,12 @@ def _scrub_frames(exception):
     """Затереть ПДн в локальных переменных кадров стектрейса (chained-исключения тоже)."""
     if not isinstance(exception, dict):
         return
-    for value in exception.get('values', []):
-        stacktrace = value.get('stacktrace')
+    for value in exception.get("values", []):
+        stacktrace = value.get("stacktrace")
         if not isinstance(stacktrace, dict):
             continue
-        for frame in stacktrace.get('frames', []):
-            frame_vars = frame.get('vars')
+        for frame in stacktrace.get("frames", []):
+            frame_vars = frame.get("vars")
             if not isinstance(frame_vars, dict):
                 continue
             for var_name in frame_vars:
@@ -50,22 +66,22 @@ def _scrub_frames(exception):
 
 def before_send(event, hint):
     """Вызывается Sentry перед отправкой. Вырезает ПДн, сохраняя диагностику."""
-    request = event.get('request')
+    request = event.get("request")
     if isinstance(request, dict):
         # Тело запроса (POST лидформы) и куки целиком — там ПДн.
-        if 'data' in request:
-            request['data'] = FILTERED
-        if 'cookies' in request:
-            request['cookies'] = FILTERED
+        if "data" in request:
+            request["data"] = FILTERED
+        if "cookies" in request:
+            request["cookies"] = FILTERED
 
     # На случай, если ПДн попали в extra/contexts.
-    if isinstance(event.get('extra'), dict):
-        _scrub_mapping(event['extra'])
-    if isinstance(event.get('contexts'), dict):
-        _scrub_mapping(event['contexts'])
+    if isinstance(event.get("extra"), dict):
+        _scrub_mapping(event["extra"])
+    if isinstance(event.get("contexts"), dict):
+        _scrub_mapping(event["contexts"])
 
     # Локальные переменные в кадрах стектрейса (там объект Lead / тело формы / payload).
-    _scrub_frames(event.get('exception'))
-    _scrub_frames(event.get('threads'))
+    _scrub_frames(event.get("exception"))
+    _scrub_frames(event.get("threads"))
 
     return event

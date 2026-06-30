@@ -26,6 +26,7 @@
     --margin    поля вокруг продукта, доля стороны (по умолчанию 0.06)
     --quality   качество WebP (по умолчанию 82)
 """
+
 import argparse
 import sys
 from pathlib import Path
@@ -38,7 +39,7 @@ EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
 def hex_to_rgb(s: str) -> tuple[int, int, int]:
     s = s.lstrip("#")
-    return tuple(int(s[i:i + 2], 16) for i in (0, 2, 4))  # type: ignore[return-value]
+    return tuple(int(s[i : i + 2], 16) for i in (0, 2, 4))  # type: ignore[return-value]
 
 
 def swap_background(src: Path, bg: np.ndarray, key: np.ndarray) -> Image.Image:
@@ -65,11 +66,13 @@ def swap_background(src: Path, bg: np.ndarray, key: np.ndarray) -> Image.Image:
     return Image.fromarray(out.clip(0, 255).astype("uint8"))
 
 
-def fit_square(img: Image.Image, bg: np.ndarray, size: int, margin: float) -> Image.Image:
+def fit_square(
+    img: Image.Image, bg: np.ndarray, size: int, margin: float
+) -> Image.Image:
     """Обрезать по продукту, вписать в квадрат на bg с полями."""
     arr = np.asarray(img).astype(int)
     # продукт = пиксели, заметно отличающиеся от фона
-    mask = (np.abs(arr - bg).sum(axis=2) > 24)
+    mask = np.abs(arr - bg).sum(axis=2) > 24
     ys, xs = np.where(mask)
     canvas = Image.new("RGB", (size, size), tuple(int(c) for c in bg))
     if len(xs) == 0:  # пусто — отдать чистый фон

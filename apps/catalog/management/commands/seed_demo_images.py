@@ -10,6 +10,7 @@
 
     python manage.py seed_demo_images
 """
+
 from io import BytesIO
 
 from django.core.files.base import ContentFile
@@ -23,32 +24,34 @@ except ImportError:  # pragma: no cover
     Image = None
 
 # Префикс в alt-поле помечает картинку как демо-сгенерированную (для идемпотентности).
-DEMO_ALT_PREFIX = '[demo] '
+DEMO_ALT_PREFIX = "[demo] "
 
 # Ракурсы: подпись + фоновый цвет (фирменная палитра DemoPlast).
 ANGLES = [
-    ('вид спереди', (43, 92, 180)),    # brand
-    ('вид сбоку', (30, 68, 136)),      # brand-700
-    ('горловина', (232, 161, 58)),     # accent
+    ("вид спереди", (43, 92, 180)),  # brand
+    ("вид сбоку", (30, 68, 136)),  # brand-700
+    ("горловина", (232, 161, 58)),  # accent
 ]
 
 SIZE = (900, 900)
 
 
 def _make_png(title: str, subtitle: str, bg: tuple[int, int, int]) -> bytes:
-    img = Image.new('RGB', SIZE, bg)
+    img = Image.new("RGB", SIZE, bg)
     draw = ImageDraw.Draw(img)
 
     # Тонкая рамка-плейсхолдер.
-    draw.rectangle([20, 20, SIZE[0] - 20, SIZE[1] - 20], outline=(255, 255, 255), width=3)
+    draw.rectangle(
+        [20, 20, SIZE[0] - 20, SIZE[1] - 20], outline=(255, 255, 255), width=3
+    )
 
     # Диагональная штриховка — чтобы читалось как заглушка.
     for x in range(-SIZE[1], SIZE[0], 60):
         draw.line([(x, SIZE[1]), (x + SIZE[1], 0)], fill=(255, 255, 255, 30), width=1)
 
     try:
-        font_big = ImageFont.truetype('DejaVuSans-Bold.ttf', 54)
-        font_small = ImageFont.truetype('DejaVuSans.ttf', 34)
+        font_big = ImageFont.truetype("DejaVuSans-Bold.ttf", 54)
+        font_small = ImageFont.truetype("DejaVuSans.ttf", 34)
     except OSError:
         font_big = ImageFont.load_default()
         font_small = ImageFont.load_default()
@@ -58,28 +61,30 @@ def _make_png(title: str, subtitle: str, bg: tuple[int, int, int]) -> bytes:
         w = box[2] - box[0]
         draw.text(((SIZE[0] - w) / 2, y), text, fill=(255, 255, 255), font=font)
 
-    centered('DEMO', 300, font_big)
+    centered("DEMO", 300, font_big)
     centered(title, 390, font_small)
     centered(subtitle, 470, font_small)
 
     buf = BytesIO()
-    img.save(buf, format='PNG')
+    img.save(buf, format="PNG")
     return buf.getvalue()
 
 
 class Command(BaseCommand):
-    help = 'Генерирует плейсхолдер-картинки товаров (для рабочей карусели в демо).'
+    help = "Генерирует плейсхолдер-картинки товаров (для рабочей карусели в демо)."
 
     def handle(self, *args, **options):
         if Image is None:
-            self.stderr.write(self.style.ERROR(
-                'Pillow не установлен — пропускаю генерацию картинок.'))
+            self.stderr.write(
+                self.style.ERROR("Pillow не установлен — пропускаю генерацию картинок.")
+            )
             return
 
         deleted, _ = ProductImage.objects.filter(
-            alt__startswith=DEMO_ALT_PREFIX).delete()
+            alt__startswith=DEMO_ALT_PREFIX
+        ).delete()
         if deleted:
-            self.stdout.write(f'Удалено прежних демо-картинок: {deleted}')
+            self.stdout.write(f"Удалено прежних демо-картинок: {deleted}")
 
         created = 0
         products = Product.objects.all()
@@ -88,12 +93,15 @@ class Command(BaseCommand):
                 png = _make_png(product.name[:28], angle, bg)
                 pi = ProductImage(
                     product=product,
-                    alt=f'{DEMO_ALT_PREFIX}{angle}',
+                    alt=f"{DEMO_ALT_PREFIX}{angle}",
                     order=order,
                 )
-                fname = f'demo-{product.slug}-{order}.png'
+                fname = f"demo-{product.slug}-{order}.png"
                 pi.image.save(fname, ContentFile(png), save=True)
                 created += 1
 
-        self.stdout.write(self.style.SUCCESS(
-            f'Создано демо-картинок: {created} для товаров: {products.count()}'))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Создано демо-картинок: {created} для товаров: {products.count()}"
+            )
+        )

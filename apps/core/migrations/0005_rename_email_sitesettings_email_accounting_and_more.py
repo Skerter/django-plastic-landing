@@ -4,20 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0004_sitesettings_metrika_id'),
+        ("core", "0004_sitesettings_metrika_id"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='sitesettings',
-            old_name='email',
-            new_name='email_accounting',
+            model_name="sitesettings",
+            old_name="email",
+            new_name="email_accounting",
         ),
         migrations.AddField(
-            model_name='sitesettings',
-            name='email_sales',
-            field=models.EmailField(blank=True, help_text='Адрес для заявок. На него приходят письма о новых заявках с сайта.', max_length=254, verbose_name='E-mail отдела продаж'),
+            model_name="sitesettings",
+            name="email_sales",
+            field=models.EmailField(
+                blank=True,
+                help_text="Адрес для заявок. На него приходят письма о новых заявках с сайта.",
+                max_length=254,
+                verbose_name="E-mail отдела продаж",
+            ),
         ),
     ]

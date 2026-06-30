@@ -5,63 +5,99 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('slug', models.SlugField(unique=True)),
-                ('image', models.ImageField(blank=True, upload_to='categories/')),
-                ('order', models.PositiveIntegerField(default=0)),
-                ('is_active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("slug", models.SlugField(unique=True)),
+                ("image", models.ImageField(blank=True, upload_to="categories/")),
+                ("order", models.PositiveIntegerField(default=0)),
+                ("is_active", models.BooleanField(default=True)),
             ],
             options={
-                'verbose_name': 'Категория',
-                'verbose_name_plural': 'Категории',
-                'ordering': ['order', 'name'],
+                "verbose_name": "Категория",
+                "verbose_name_plural": "Категории",
+                "ordering": ["order", "name"],
             },
         ),
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('slug', models.SlugField(unique=True)),
-                ('description', models.TextField(blank=True)),
-                ('image', models.ImageField(blank=True, upload_to='products/')),
-                ('is_active', models.BooleanField(default=True)),
-                ('order', models.PositiveIntegerField(default=0)),
-                ('meta_title', models.CharField(blank=True, max_length=200)),
-                ('meta_description', models.CharField(blank=True, max_length=300)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='products', to='catalog.category')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("slug", models.SlugField(unique=True)),
+                ("description", models.TextField(blank=True)),
+                ("image", models.ImageField(blank=True, upload_to="products/")),
+                ("is_active", models.BooleanField(default=True)),
+                ("order", models.PositiveIntegerField(default=0)),
+                ("meta_title", models.CharField(blank=True, max_length=200)),
+                ("meta_description", models.CharField(blank=True, max_length=300)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="products",
+                        to="catalog.category",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Товар',
-                'verbose_name_plural': 'Товары',
-                'ordering': ['order', 'name'],
+                "verbose_name": "Товар",
+                "verbose_name_plural": "Товары",
+                "ordering": ["order", "name"],
             },
         ),
         migrations.CreateModel(
-            name='ProductSpec',
+            name="ProductSpec",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('label', models.CharField(max_length=100)),
-                ('value', models.CharField(max_length=200)),
-                ('unit', models.CharField(blank=True, max_length=50)),
-                ('order', models.PositiveIntegerField(default=0)),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='specs', to='catalog.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("label", models.CharField(max_length=100)),
+                ("value", models.CharField(max_length=200)),
+                ("unit", models.CharField(blank=True, max_length=50)),
+                ("order", models.PositiveIntegerField(default=0)),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="specs",
+                        to="catalog.product",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Характеристика',
-                'verbose_name_plural': 'Характеристики',
-                'ordering': ['order'],
+                "verbose_name": "Характеристика",
+                "verbose_name_plural": "Характеристики",
+                "ordering": ["order"],
             },
         ),
     ]
