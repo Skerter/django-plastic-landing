@@ -30,6 +30,8 @@ dev = [
     "pytest>=8.0",
     "pytest-django>=4.0",
     "playwright>=1.40",
+    "ruff>=0.10",
+    "factory-boy>=3.3",
 ]
 docs = [
     "mkdocs-material>=9.5",
