@@ -1,30 +1,30 @@
-# 0003 — Серверный рендеринг, не SPA
+# 0003 — Server-side rendering, not an SPA
 
-- **Статус:** accepted
-- **Дата:** 2026-05-01
+- **Status:** accepted
+- **Date:** 2026-05-01
 
-## Контекст
+## Context
 
-Аудитория сайта — российский B2B-рынок, и поисковая выдача (SEO) для него
-критична. Нужно выбрать способ рендеринга страниц: серверный (SSR через Django
-templates) или клиентский (SPA на JS-фреймворке).
+The site's audience is the Russian B2B market, and search results (SEO) are
+critical for it. A page rendering approach has to be chosen: server-side (SSR through
+Django templates) or client-side (an SPA on a JS framework).
 
-## Решение
+## Decision
 
-Страницы рендерятся **на сервере** (Django templates). Точечный интерактив
-(формы, фильтры) делаем на **HTMX**, без тяжёлого JS-фреймворка.
+Pages are rendered **on the server** (Django templates). Targeted interactivity
+(forms, filters) is built with **HTMX**, without a heavy JS framework.
 
-## Последствия
+## Consequences
 
-**Плюсы:**
+**Upsides:**
 
-- Поисковик получает готовый HTML — лучшая индексация, чем у SPA, где контент
-  подгружается JS.
-- Быстрая первая отрисовка, меньше JS на клиенте.
-- Проще стек: не нужен отдельный фронтенд-сервис ([ADR 0001](0001-monolith-not-microservices.md)).
+- The crawler receives ready HTML — better indexing than an SPA, where the content
+  is loaded by JS.
+- Fast first paint, less JS on the client.
+- A simpler stack: no separate frontend service is needed ([ADR 0001](0001-monolith-not-microservices.md)).
 
-**Минусы / плата:**
+**Downsides / the cost:**
 
-- Богатый клиентский интерактив сложнее, чем в SPA. Но для каталога и форм он не
-  нужен — HTMX закрывает необходимое (например, отправку формы заявки без
-  перезагрузки страницы).
+- Rich client-side interactivity is harder than in an SPA. But the catalog and the forms
+  do not need it — HTMX covers what is required (submitting the lead form without a
+  page reload, for instance).

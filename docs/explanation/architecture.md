@@ -1,124 +1,125 @@
-# Архитектура
+# Architecture
 
-Этот раздел объясняет, как устроен проект и **почему** он устроен именно так.
-Если нужно что-то сделать — смотрите [инструкции](../how-to/deploy.md);
-здесь — картина целиком и логика решений.
+This section explains how the project is built and **why** it is built that way.
+If you need to get something done, see the [how-to guides](../how-to/deploy.md);
+here you get the whole picture and the reasoning behind the decisions.
 
-## Что это за приложение
+## What this application is
 
-Сайт-каталог с лидогенерацией: посетитель смотрит товары и оставляет заявку
-(звонок или заказ). Это **не интернет-магазин** — нет корзины, оплаты, цен,
-личного кабинета. Цель каждой страницы — привести к заявке.
+A catalog site with lead generation: a visitor browses the products and submits a lead
+(a callback or an order). It is **not an online shop** — there is no cart, no payment,
+no prices, no customer account. The goal of every page is to lead to a submission.
 
-Аудитория — российский B2B-рынок, поэтому два требования стоят выше прочих:
-**SEO** (сайт должны хорошо индексировать поисковики) и **соответствие
-152-ФЗ** (закон о персональных данных). Оба сильно повлияли на архитектуру —
-см. [Соответствие 152-ФЗ](compliance-152fz.md).
+The audience is the Russian B2B market, so two requirements outrank the rest:
+**SEO** (search engines must index the site well) and **152-FZ compliance**
+(the personal data law). Both shaped the architecture heavily —
+see [152-FZ compliance](compliance-152fz.md).
 
-## Монолит на Django
+## A Django monolith
 
-Приложение — единый Django-проект с серверным рендерингом (HTML собирается
-на сервере из шаблонов), а не SPA и не набор микросервисов. Интерактив форм
-сделан на HTMX — точечные запросы без тяжёлого фронтенда.
+The application is a single Django project with server-side rendering (the HTML is
+assembled on the server from templates), not an SPA and not a set of microservices.
+Form interactivity is built with HTMX — targeted requests without a heavy frontend.
 
-Почему так — три отдельных решения, каждое со своим разбором:
+The reasoning splits into three separate decisions, each with its own analysis:
 
-- [ADR 0001 — Монолит, не микросервисы](../adr/0001-monolith-not-microservices.md)
-- [ADR 0002 — docker-compose, не Kubernetes](../adr/0002-compose-not-k8s.md)
-- [ADR 0003 — Серверный рендеринг, не SPA](../adr/0003-ssr-not-spa.md)
+- [ADR 0001 — Monolith, not microservices](../adr/0001-monolith-not-microservices.md)
+- [ADR 0002 — docker-compose, not Kubernetes](../adr/0002-compose-not-k8s.md)
+- [ADR 0003 — Server-side rendering, not an SPA](../adr/0003-ssr-not-spa.md)
 
-Коротко: проект небольшой (несколько страниц + формы), а SEO критичен.
-Монолит с SSR проще, дешевле в эксплуатации и лучше индексируется. Усложнение
-нечем оправдать.
+In short: the project is small (a handful of pages plus forms) while SEO is critical.
+A monolith with SSR is simpler, cheaper to operate and better indexed. There is nothing
+to justify the extra complexity.
 
-## Приложения и слои
+## Apps and layers
 
-Код разделён на четыре Django-приложения по зонам ответственности:
+The code is split into four Django apps by area of responsibility:
 
-| Приложение | Отвечает за |
+| App | Responsible for |
 |---|---|
-| `apps.catalog` | Категории, товары, характеристики, фото; sitemap |
-| `apps.leads` | Заявки, форма, интеграции (email/Telegram/amoCRM) |
-| `apps.pages` | Статические страницы, сертификаты, robots.txt |
-| `apps.core` | Настройки сайта (singleton), cookie-consent, context processor |
+| `apps.catalog` | Categories, products, specs, photos; the sitemap |
+| `apps.leads` | Leads, the form, the integrations (email/Telegram/amoCRM) |
+| `apps.pages` | Static pages, certificates, robots.txt |
+| `apps.core` | Site settings (singleton), cookie consent, the context processor |
 
-Внутри действует принцип **тонкие вьюхи, толстые модели, логика — в сервисном
-слое**. Бизнес-логика интеграций изолирована в `apps/leads/services/`
-(`mail.py`, `telegram.py`, `amocrm.py`), а не размазана по вьюхам. Вьюха
-заявки ([`apps/leads/views.py`](https://github.com/Skerter/django-plastic-landing/blob/main/apps/leads/views.py))
-только валидирует форму, сохраняет заявку и ставит задачи в очередь — вся
-работа с внешними API живёт в сервисах.
+Inside them the principle is **thin views, fat models, logic in the service
+layer**. The business logic of the integrations is isolated in `apps/leads/services/`
+(`mail.py`, `telegram.py`, `amocrm.py`) instead of being smeared across the views. The
+lead view ([`apps/leads/views.py`](https://github.com/Skerter/django-plastic-landing/blob/main/apps/leads/views.py))
+only validates the form, saves the lead and queues the tasks — all the work with
+external APIs lives in the services.
 
-Это даёт тестируемость (сервис мокается отдельно от HTTP) и то, что вьюха не
-зависит от деталей конкретной CRM.
+This buys testability (a service is mocked separately from HTTP) and keeps the view
+independent of the details of any particular CRM.
 
-## Поток обработки заявки
+## The lead processing flow
 
-Самая важная логика проекта — как обрабатывается заявка. Ключевой принцип:
-**заявка сначала пишется в свою БД, и только потом уходит во внешние системы**
+The most important logic in the project is how a lead is processed. The key principle:
+**the lead is written to our own database first, and only then sent to external systems**
 ([ADR 0005](../adr/0005-write-lead-to-db-first.md)).
 
 ```mermaid
 sequenceDiagram
-    participant U as Посетитель
-    participant V as Вьюха (web)
-    participant DB as База данных
-    participant Q as Очередь (qcluster)
+    participant U as Visitor
+    participant V as View (web)
+    participant DB as Database
+    participant Q as Queue (qcluster)
     participant X as Email / Telegram / amoCRM
 
-    U->>V: Отправка формы (HTMX POST)
-    V->>DB: Сохранить заявку
-    V->>Q: Поставить задачи уведомлений
-    V-->>U: «Спасибо» (сразу, не дожидаясь X)
-    Q->>X: Отправить (асинхронно, с ретраями)
+    U->>V: Form submission (HTMX POST)
+    V->>DB: Save the lead
+    V->>Q: Queue the notification tasks
+    V-->>U: "Thank you" (immediately, without waiting for X)
+    Q->>X: Send (asynchronously, with retries)
 ```
 
-Почему именно так:
+Why exactly this way:
 
-- **Заявка не теряется.** БД — источник истины. Даже если все внешние каналы
-  упадут, заявка уже сохранена и видна в админке.
-- **Форма не ждёт внешние сервисы.** Ответ «спасибо» отдаётся сразу; рассылка
-  идёт в фоне (`qcluster`). Пользователь не висит, пока amoCRM думает.
-- **Сбой одного канала не ломает остальные.** Каждый канал — независимая
-  задача; падение изолировано и ретраится. Подробнее о настройке —
-  [Каналы уведомлений](../how-to/enable-notification-channels.md).
+- **The lead is never lost.** The database is the source of truth. Even if every external
+  channel fails, the lead is already saved and visible in the admin.
+- **The form does not wait for external services.** The "thank you" is returned at once;
+  the fan-out runs in the background (`qcluster`). The user does not hang while amoCRM
+  is thinking.
+- **One channel failing does not break the others.** Each channel is an independent
+  task; a failure is isolated and retried. More on the setup —
+  [Notification channels](../how-to/enable-notification-channels.md).
 
-## Конфигурация без кода
+## Configuration without code
 
-Контакты, реквизиты, тексты и параметры уведомлений редактируются в админке,
-а не в коде. За это отвечает singleton `SiteSettings` (одна запись в БД),
-который прокидывается во все шаблоны через context processor
+Contacts, legal details, texts and notification parameters are edited in the admin
+rather than in the code. That is what the `SiteSettings` singleton is for (a single
+database record), passed into every template through a context processor
 ([`apps/core/context_processors.py`](https://github.com/Skerter/django-plastic-landing/blob/main/apps/core/context_processors.py)).
-Так заказчик меняет телефон или адрес без участия разработчика. Полный состав
-полей — [Модель данных](../reference/data-model.md).
+This lets the client change a phone number or an address without a developer. The full
+set of fields — [Data model](../reference/data-model.md).
 
 ## SEO
 
-SEO заложено в нескольких местах:
+SEO is built into several places:
 
-- **Серверный рендеринг** — поисковик видит готовый HTML (см. ADR 0003).
-- **`sitemap.xml`** генерируется из активных категорий и товаров
+- **Server-side rendering** — the crawler sees ready HTML (see ADR 0003).
+- **`sitemap.xml`** is generated from the active categories and products
   (`apps/catalog/sitemaps.py`).
-- **Мета-теги** берутся из полей моделей (`meta_title`, `meta_description`).
-- **Мобильная вёрстка** (mobile-first) — у поисковиков mobile-first индексация.
+- **Meta tags** come from model fields (`meta_title`, `meta_description`).
+- **Mobile-first markup** — search engines index mobile-first.
 
-## Настройки по окружениям
+## Per-environment settings
 
-Настройки Django разделены на файлы под разные окружения, наследующие общую
-базу:
+The Django settings are split into files for different environments, all inheriting a
+common base:
 
-| Файл | Окружение |
+| File | Environment |
 |---|---|
-| `config/settings/base.py` | Общее для всех |
-| `config/settings/dev.py` | Локальная разработка (SQLite, письма в консоль) |
-| `config/settings/docker.py` | Разработка в Docker (Postgres по хосту `db`) |
-| `config/settings/prod.py` | Прод (Postgres, security-флаги, Sentry, SMTP) |
+| `config/settings/base.py` | Shared by everything |
+| `config/settings/dev.py` | Local development (SQLite, emails to the console) |
+| `config/settings/docker.py` | Development in Docker (Postgres on the `db` host) |
+| `config/settings/prod.py` | Production (Postgres, security flags, Sentry, SMTP) |
 
-Какие переменные читает каждое окружение — [Переменные окружения](../reference/environment.md).
+Which variables each environment reads — [Environment variables](../reference/environment.md).
 
-## Прод и деплой
+## Production and deployment
 
-В продакшене — один VPS, Docker Compose, два стека (приложение + Traefik как
-reverse-proxy с авто-TLS). Образ собирается в CI и тянется на сервер.
-Устройство прода со схемой и пошаговым развёртыванием —
-[Деплой](../how-to/deploy.md).
+In production: a single VPS, Docker Compose, two stacks (the application plus Traefik as
+the reverse proxy with automatic TLS). The image is built in CI and pulled onto the server.
+The production layout with a diagram and a step-by-step rollout —
+[Deploy](../how-to/deploy.md).

@@ -1,48 +1,52 @@
-# Документация DemoPlast
+# DemoPlast documentation
 
-Сайт-каталог производителя пластиковой тары на Django.
-Это техническая документация проекта: как запустить, как эксплуатировать,
-как устроено и почему.
+A Django-based catalog site for a plastic packaging manufacturer.
+This is the project's technical documentation: how to run it, how to operate it,
+how it is built and why.
 
-Документация разделена на четыре типа по модели
-[Diátaxis](https://diataxis.fr/) — каждый отвечает на свой вопрос.
-Выберите нужный по тому, что вам сейчас надо сделать.
+The documentation is split into four types following the
+[Diátaxis](https://diataxis.fr/) model — each answers a different question.
+Pick the one that matches what you need to do right now.
 
-## Уроки
+## Tutorials
 
-**«Я здесь впервые — проведите меня за руку.»**
-Пошаговый запуск проекта с нуля до работающего сервера.
+**"I am here for the first time — walk me through it."**
+Step-by-step setup from nothing to a running server.
 
-- [Запуск проекта локально](tutorials/getting-started.md)
+- [Run the project locally](tutorials/getting-started.md)
 
-## Инструкции
+## How-to guides
 
-**«Я в контексте, мне нужно решить конкретную задачу.»**
-Рецепты для типовых операций.
+**"I know the context, I need to solve a specific task."**
+Recipes for routine operations.
 
-- [Деплой на сервер](how-to/deploy.md)
-- [Эксплуатация: SSH, логи, бэкапы](how-to/operations.md)
-- [Добавить контент через админку](how-to/add-product-via-admin.md)
-- [Включить каналы уведомлений](how-to/enable-notification-channels.md)
+- [Deploy to a server](how-to/deploy.md)
+- [Operations: SSH, logs, backups](how-to/operations.md)
+- [Manage content through the admin](how-to/add-product-via-admin.md)
+- [Enable notification channels](how-to/enable-notification-channels.md)
 
-## Справочник
+## Reference
 
-**«Мне нужны точные факты: поля, переменные, endpoints.»**
-Исчерпывающие таблицы без объяснений.
+**"I need exact facts: fields, variables, endpoints."**
+Exhaustive tables without explanations.
 
-- [Переменные окружения](reference/environment.md)
-- [API и endpoints](reference/api-endpoints.md)
-- [Модель данных](reference/data-model.md)
+- [Environment variables](reference/environment.md)
+- [API and endpoints](reference/api-endpoints.md)
+- [Data model](reference/data-model.md)
 
-## Объяснения
+## Explanation
 
-**«Я хочу понять, почему так, а не иначе.»**
-Контекст архитектурных решений.
+**"I want to understand why it is built this way."**
+The context behind the architectural decisions.
 
-- [Архитектура](explanation/architecture.md)
-- [Соответствие 152-ФЗ](explanation/compliance-152fz.md)
-- [Решения (ADR)](adr/README.md)
+- [Architecture](explanation/architecture.md)
+- [152-FZ compliance](explanation/compliance-152fz.md)
+- [Decisions (ADR)](adr/index.md)
 
 ---
 
-Исходный код и обзор проекта — в [README репозитория](https://github.com/Skerter/django-plastic-landing#readme).
+English is the source of truth for this documentation; the Russian version is a
+translation ([ADR-0006](adr/0006-language-policy.md)).
+
+Source code and project overview — in the
+[repository README](https://github.com/Skerter/django-plastic-landing#readme).

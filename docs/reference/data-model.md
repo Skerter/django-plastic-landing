@@ -1,12 +1,12 @@
-# Модель данных
+# Data model
 
-Справочник по всем моделям базы данных (словарь данных). Источник —
-`models.py` приложений `catalog`, `leads`, `pages`, `core`.
+A reference of every database model (the data dictionary). The source is the
+`models.py` of the `catalog`, `leads`, `pages` and `core` apps.
 
-В колонке **Поле** — имя в коде/БД. Поля с `blank` могут быть пустыми в форме;
-поля с `null` могут быть `NULL` в БД.
+The **Field** column holds the name used in the code and the database. Fields marked
+`blank` may be empty in a form; fields marked `null` may be `NULL` in the database.
 
-## Схема связей
+## Relationship diagram
 
 ```mermaid
 erDiagram
@@ -48,137 +48,138 @@ erDiagram
     }
 ```
 
-`SiteSettings`, `AmoCRMAuth`, `Certificate` и `Page` ни с чем не связаны
-(одиночки и независимые галереи) — на схеме не показаны.
+`SiteSettings`, `AmoCRMAuth`, `Certificate` and `Page` have no relations
+(singletons and standalone galleries) — they are not shown on the diagram.
 
 ---
 
-## Каталог (`apps.catalog`)
+## Catalog (`apps.catalog`)
 
-### Category — категория каталога
+### Category — a catalog category
 
-| Поле | Тип | Пусто? | Описание |
+| Field | Type | Empty? | Description |
 |---|---|---|---|
-| `name` | CharField(200) | нет | Название. |
-| `slug` | SlugField | нет, уникальный | Часть URL. |
-| `image` | ImageField | blank | Картинка раздела (`categories/`). |
-| `order` | PositiveInteger | default 0 | Порядок сортировки. |
-| `is_active` | Boolean | default True | Показывать на сайте. |
+| `name` | CharField(200) | no | The title. |
+| `slug` | SlugField | no, unique | Part of the URL. |
+| `image` | ImageField | blank | The section picture (`categories/`). |
+| `order` | PositiveInteger | default 0 | The sort order. |
+| `is_active` | Boolean | default True | Show on the site. |
 
-Сортировка по умолчанию: `order`, затем `name`.
+Default ordering: `order`, then `name`.
 
-### Product — товар
+### Product — a product
 
-| Поле | Тип | Пусто? | Описание |
+| Field | Type | Empty? | Description |
 |---|---|---|---|
-| `category` | FK → Category | нет | Категория. При удалении категории — **PROTECT** (нельзя удалить, пока есть товары). |
-| `name` | CharField(200) | нет | Название. |
-| `slug` | SlugField | нет, уникальный | Часть URL. |
-| `badge` | CharField(50) | blank | Метка-ярлык на фото («Евроканистра»). |
-| `description` | TextField | blank | Описание. |
-| `image` | ImageField | blank | Главное фото (`products/`). |
-| `is_active` | Boolean | default True | Показывать на сайте. |
-| `order` | PositiveInteger | default 0 | Порядок. |
-| `meta_title` | CharField(200) | blank | SEO-заголовок. |
-| `meta_description` | CharField(300) | blank | SEO-описание. |
+| `category` | FK → Category | no | The category. On category deletion — **PROTECT** (it cannot be deleted while it has products). |
+| `name` | CharField(200) | no | The title. |
+| `slug` | SlugField | no, unique | Part of the URL. |
+| `badge` | CharField(50) | blank | The label over the photo ("Евроканистра"). |
+| `description` | TextField | blank | The description. |
+| `image` | ImageField | blank | The main photo (`products/`). |
+| `is_active` | Boolean | default True | Show on the site. |
+| `order` | PositiveInteger | default 0 | The order. |
+| `meta_title` | CharField(200) | blank | The SEO title. |
+| `meta_description` | CharField(300) | blank | The SEO description. |
 
-### ProductSpec — характеристика товара
+### ProductSpec — a product spec
 
-Пары «параметр → значение». Набор у разных товаров разный (поэтому свободные
-поля, а не фиксированные колонки).
+"Parameter → value" pairs. The set differs from product to product (hence free-form
+fields rather than fixed columns).
 
-| Поле | Тип | Пусто? | Описание |
+| Field | Type | Empty? | Description |
 |---|---|---|---|
-| `product` | FK → Product | нет | Товар. При удалении товара — **CASCADE**. |
-| `label` | CharField(100) | нет | Параметр («Объём»). |
-| `value` | CharField(200) | нет | Значение («20»). |
-| `unit` | CharField(50) | blank | Единица («л»). |
-| `order` | PositiveInteger | default 0 | Порядок. |
+| `product` | FK → Product | no | The product. On product deletion — **CASCADE**. |
+| `label` | CharField(100) | no | The parameter ("Объём"). |
+| `value` | CharField(200) | no | The value ("20"). |
+| `unit` | CharField(50) | blank | The unit ("л"). |
+| `order` | PositiveInteger | default 0 | The order. |
 
-### ProductImage — фото товара
+### ProductImage — a product photo
 
-| Поле | Тип | Пусто? | Описание |
+| Field | Type | Empty? | Description |
 |---|---|---|---|
-| `product` | FK → Product | нет | Товар. **CASCADE**. |
-| `image` | ImageField | нет | Файл (`products/`). |
-| `alt` | CharField(200) | blank | Подпись/ракурс. Используется как alt и подпись миниатюры. |
-| `order` | PositiveInteger | default 0 | Порядок в галерее. |
+| `product` | FK → Product | no | The product. **CASCADE**. |
+| `image` | ImageField | no | The file (`products/`). |
+| `alt` | CharField(200) | blank | The caption/angle. Used as the alt text and the thumbnail caption. |
+| `order` | PositiveInteger | default 0 | The position in the gallery. |
 
 ---
 
-## Заявки (`apps.leads`)
+## Leads (`apps.leads`)
 
-### Lead — заявка с сайта
+### Lead — a lead from the site
 
-| Поле | Тип | Пусто? | Описание |
+| Field | Type | Empty? | Description |
 |---|---|---|---|
-| `name` | CharField(200) | нет | Имя. |
-| `phone` | CharField(20) | нет | Телефон. |
-| `email` | EmailField | blank | E-mail. |
-| `comment` | TextField | blank | Комментарий. |
-| `type` | CharField, choices | default `order` | Тип: `callback` (звонок) / `order` (заказ). |
-| `status` | CharField, choices | default `new` | Статус: `new` / `processed`. |
-| `consent` | Boolean | нет | Факт согласия на обработку ПДн. |
-| `created_at` | DateTime | auto | Дата создания (ставится автоматически). |
-| `product` | FK → Product | null, blank | Товар, по которому заявка. При удалении товара — **SET_NULL**. |
+| `name` | CharField(200) | no | The name. |
+| `phone` | CharField(20) | no | The phone number. |
+| `email` | EmailField | blank | The e-mail. |
+| `comment` | TextField | blank | The comment. |
+| `type` | CharField, choices | default `order` | The type: `callback` / `order`. |
+| `status` | CharField, choices | default `new` | The status: `new` / `processed`. |
+| `consent` | Boolean | no | The fact of personal data processing consent. |
+| `created_at` | DateTime | auto | The creation timestamp (set automatically). |
+| `product` | FK → Product | null, blank | The product the lead is about. On product deletion — **SET_NULL**. |
 
-Сортировка по умолчанию: `created_at` по убыванию (новые сверху).
-Метод `as_message()` форматирует заявку в текст для уведомлений.
+Default ordering: `created_at` descending (newest first).
+The `as_message()` method formats a lead into notification text.
 
-### AmoCRMAuth — токены amoCRM (одиночка)
+### AmoCRMAuth — the amoCRM tokens (singleton)
 
-Хранит OAuth-токены интеграции. Единственная запись.
+Stores the integration's OAuth tokens. A single record.
 
-| Поле | Тип | Описание |
+| Field | Type | Description |
 |---|---|---|
-| `access_token` | TextField | Токен доступа. |
-| `refresh_token` | TextField | Токен обновления. |
-| `expires_at` | DateTime | Срок действия access-токена. |
+| `access_token` | TextField | The access token. |
+| `refresh_token` | TextField | The refresh token. |
+| `expires_at` | DateTime | The access token's expiry. |
 
-Токены создаются командой `amocrm_auth` и обновляются автоматически. В админке
-доступны только для чтения.
+The tokens are created by the `amocrm_auth` command and refreshed automatically. In the
+admin they are read-only.
 
 ---
 
-## Страницы (`apps.pages`)
+## Pages (`apps.pages`)
 
-### Certificate — сертификат
+### Certificate — a certificate
 
-Независимая галерея картинок на странице «О компании».
+A standalone image gallery on the "About" page.
 
-| Поле | Тип | Пусто? | Описание |
+| Field | Type | Empty? | Description |
 |---|---|---|---|
-| `title` | CharField(200) | нет | Название. |
-| `image` | ImageField | нет | Скан/фото (`certificates/`). |
-| `order` | PositiveInteger | default 0 | Порядок. |
-| `is_active` | Boolean | default True | Показывать. |
+| `title` | CharField(200) | no | The title. |
+| `image` | ImageField | no | The scan or photo (`certificates/`). |
+| `order` | PositiveInteger | default 0 | The order. |
+| `is_active` | Boolean | default True | Show it. |
 
 ---
 
-## Настройки сайта (`apps.core`)
+## Site settings (`apps.core`)
 
-### SiteSettings — настройки сайта (одиночка)
+### SiteSettings — the site settings (singleton)
 
-Единственная запись, правится в админке. Контакты, реквизиты и параметры
-уведомлений. Полное описание каждого поля — в его `help_text` в админке.
+A single record, edited in the admin. Contacts, legal details and notification
+parameters. Every field is described in full by its `help_text` in the admin.
 
-**Контакты:** `company_name`, `phone_sales`, `phone_sales_person`,
+**Contacts:** `company_name`, `phone_sales`, `phone_sales_person`,
 `email_sales`, `phone_production`, `phone_production_person`,
 `phone_accounting`, `email_accounting`.
 
-**Адрес и режим:** `address`, `work_hours`, `work_hours_weekend`, `map_query`.
+**Address and hours:** `address`, `work_hours`, `work_hours_weekend`, `map_query`.
 
-**Реквизиты:** `legal_address`, `inn`, `kpp`, `ogrn`, `okpo`, `account`,
+**Legal details:** `legal_address`, `inn`, `kpp`, `ogrn`, `okpo`, `account`,
 `bank`, `bik`, `corr_account`.
 
-**Уведомления и аналитика:** `metrika_id`, `notify_email_enabled`,
+**Notifications and analytics:** `metrika_id`, `notify_email_enabled`,
 `email_notifications`, `notify_telegram_enabled`, `telegram_chat_id`,
 `notify_amocrm_enabled`.
 
-!!! note "Телефоны: одно поле — два применения"
-    Телефон хранится в одном поле в виде для показа (`+7 495 000-00-00`).
-    Кликабельная ссылка `tel:` вычисляется автоматически свойствами
-    `phone_*_tel` — отдельно её хранить не нужно, display и href не разойдутся.
+!!! note "Phone numbers: one field, two uses"
+    A phone number is stored in a single field in its display form (`+7 495 000-00-00`).
+    The clickable `tel:` link is derived automatically by the `phone_*_tel`
+    properties — there is no need to store it separately, and the display value
+    and the href cannot drift apart.
 
-Зачем отдельные `email_sales` и `email_notifications` — см.
-[Каналы уведомлений](../how-to/enable-notification-channels.md).
+Why `email_sales` and `email_notifications` are separate — see
+[Notification channels](../how-to/enable-notification-channels.md).

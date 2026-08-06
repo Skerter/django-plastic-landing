@@ -1,63 +1,64 @@
-# Эксплуатация
+# Operations
 
-Повседневные операции с сервером: подключение, обновление, логи,
-резервное копирование, диагностика. Этот документ — основной источник по
-эксплуатации.
+Day-to-day work with the server: connecting, updating, logs,
+backups, diagnostics. This document is the primary source on
+operations.
 
-Все docker-команды выполняются **на сервере** под пользователем `deploy`
-из каталога `/opt/django-plastic-landing`.
+All docker commands are run **on the server** as the `deploy` user
+from the `/opt/django-plastic-landing` directory.
 
-## Базовые факты о сервере
+## Server facts
 
-| Параметр | Значение |
+| Parameter | Value |
 |---|---|
-| Хостинг | Selectel VDS, Ubuntu 24.04 |
-| SSH-пользователь | `deploy` |
-| Каталог проекта | `/opt/django-plastic-landing` |
-| Compose проекта | `deploy/selectel/compose.yaml` |
-| Reverse-proxy | общий Traefik (внешняя сеть `proxy`) |
-| Образ | `ghcr.io/skerter/django-plastic-landing:latest` |
-| DNS и CDN | Cloudflare (запись proxied) |
-| Демо | <https://demoplast.skerter.dev> |
+| Hosting | Selectel VDS, Ubuntu 24.04 |
+| SSH user | `deploy` |
+| Project directory | `/opt/django-plastic-landing` |
+| Project Compose file | `deploy/selectel/compose.yaml` |
+| Reverse proxy | shared Traefik (external network `proxy`) |
+| Image | `ghcr.io/skerter/django-plastic-landing:latest` |
+| DNS and CDN | Cloudflare (record proxied) |
+| Demo | <https://demoplast.skerter.dev> |
 
-!!! note "Traefik — отдельный стек"
-    Входной Traefik (точка входа :80/:443 + TLS) живёт сам по себе и подключается
-    к проекту через внешнюю docker-сеть `proxy`; CI его не трогает. Команды ниже
-    используют `-f deploy/selectel/compose.yaml` — см. [алиас](#удобный-алиас).
+!!! note "Traefik is a separate stack"
+    The entry Traefik (the :80/:443 entrypoint + TLS) lives on its own and connects
+    to the project through the external docker network `proxy`; CI never touches it.
+    The commands below use `-f deploy/selectel/compose.yaml` — see the [alias](#a-handy-alias).
 
 ---
 
-## 1. Подключение по SSH
+## 1. Connecting over SSH
 
-Подставьте путь к своему приватному ключу и адрес сервера:
+Substitute the path to your private key and the server address:
 
 ```bash
-ssh -i <путь-к-ssh-ключу> <ssh-пользователь>@<IP-сервера>
+ssh -i <path-to-ssh-key> <ssh-user>@<server-IP>
 cd /opt/django-plastic-landing
 ```
 
-Выйти — `exit` или `Ctrl+D`.
+To leave — `exit` or `Ctrl+D`.
 
 !!! note "Windows"
-    В PowerShell домашний каталог — `$env:USERPROFILE` (например
-    `"$env:USERPROFILE\.ssh\id_ed25519"`). Если SSH ругается на права доступа
-    к ключу, ограничьте их только своим пользователем.
+    In PowerShell the home directory is `$env:USERPROFILE` (for example
+    `"$env:USERPROFILE\.ssh\id_ed25519"`). If SSH complains about the key's
+    permissions, restrict them to your user only.
 
-## 2. Реестр образов (GHCR)
+## 2. Image registry (GHCR)
 
-Нужен, чтобы тянуть образ. Вход через stdin — токен не светится в истории:
+Needed to pull the image. Logging in through stdin keeps the token out of the shell history:
 
 ```bash
-echo "<GHCR_TOKEN>" | docker login ghcr.io -u <github-пользователь> --password-stdin
+echo "<GHCR_TOKEN>" | docker login ghcr.io -u <github-user> --password-stdin
 ```
 
-Токен: GitHub → Settings → Developer settings → Tokens (classic) с правом
-`read:packages`. Он же лежит в GitHub-секрете `GHCR_TOKEN` (его использует CI) —
-при смене обновить **и** секрет, **и** `docker login` на сервере.
+The token: GitHub → Settings → Developer settings → Tokens (classic) with the
+`read:packages` scope. The same token is stored in the `GHCR_TOKEN` GitHub secret
+(used by CI) — when rotating it, update **both** the secret **and** the `docker login`
+on the server.
 
-## 3. Редактирование `.env`
+## 3. Editing `.env`
 
-`.env` проекта лежит рядом с примером (`deploy/selectel/.env.example`), сам не в git:
+The project `.env` sits next to its example (`deploy/selectel/.env.example`) and is not in git:
 
 - `/opt/django-plastic-landing/deploy/selectel/.env`
 
@@ -65,160 +66,161 @@ echo "<GHCR_TOKEN>" | docker login ghcr.io -u <github-пользователь> 
 nano deploy/selectel/.env
 ```
 
-Сохранить в nano: **Ctrl+O** → Enter → **Ctrl+X**. Применить (контейнеры читают
-`.env` только при старте):
+Saving in nano: **Ctrl+O** → Enter → **Ctrl+X**. To apply (containers read
+`.env` only at startup):
 
 ```bash
 docker compose -f deploy/selectel/compose.yaml up -d
 ```
 
-Полный список переменных — [Переменные окружения](../reference/environment.md).
+The full list of variables — [Environment variables](../reference/environment.md).
 
-!!! tip "Что в админке, а что в `.env`"
-    Частая путаница. Токены и SMTP — в `.env`; получатель уведомлений,
-    Telegram chat_id, ID Метрики — **в админке** (SiteSettings). Таблица
-    «где что» — в [Каналах уведомлений](enable-notification-channels.md).
+!!! tip "What lives in the admin and what in `.env`"
+    A common confusion. Tokens and SMTP go into `.env`; the notification recipient,
+    the Telegram chat_id and the Metrica ID go **into the admin** (SiteSettings). The
+    "what goes where" table is in [Notification channels](enable-notification-channels.md).
 
-## 4. Контейнеры (docker compose)
+## 4. Containers (docker compose)
 
-**Статус:**
+**Status:**
 ```bash
 docker compose -f deploy/selectel/compose.yaml ps
 ```
 
-**Поднять/обновить стек:**
+**Bring up / update the stack:**
 ```bash
 docker compose -f deploy/selectel/compose.yaml up -d
 ```
 
-**Перезапустить один сервис:**
+**Restart a single service:**
 ```bash
 docker compose -f deploy/selectel/compose.yaml restart web
 docker compose -f deploy/selectel/compose.yaml restart media
 ```
 
-**Пересоздать с нуля** (если закешировал старое состояние):
+**Recreate from scratch** (if it cached an old state):
 ```bash
 docker compose -f deploy/selectel/compose.yaml up -d --force-recreate web
 ```
 
-**Django management внутри `web`:**
+**Django management inside `web`:**
 ```bash
-docker compose -f deploy/selectel/compose.yaml exec web python manage.py <команда>
-# напр.: createsuperuser, migrate, shell
+docker compose -f deploy/selectel/compose.yaml exec web python manage.py <command>
+# e.g.: createsuperuser, migrate, shell
 ```
 
-## 5. Логи
+## 5. Logs
 
 ```bash
 docker compose -f deploy/selectel/compose.yaml logs web --tail 40
-docker compose -f deploy/selectel/compose.yaml logs -f web        # в реальном времени
+docker compose -f deploy/selectel/compose.yaml logs -f web        # follow in real time
 docker compose -f deploy/selectel/compose.yaml logs media --tail 40
 ```
 
-Грепы для диагностики:
+Greps for diagnostics:
 ```bash
 docker compose -f deploy/selectel/compose.yaml logs web | grep -i error
 ```
 
-Логи Traefik (серты, маршруты, ACME) смотрятся в его собственном стеке.
+Traefik logs (certificates, routes, ACME) are inspected in its own stack.
 
-## 6. База данных
+## 6. Database
 
-**Бэкап в файл:**
+**Back up to a file:**
 ```bash
 docker compose -f deploy/selectel/compose.yaml exec db \
   pg_dump -U demoplast demoplast > backup_$(date +%F).sql
 ```
 
-**Восстановить из бэкапа:**
+**Restore from a backup:**
 ```bash
 cat backup_2026-06-19.sql | docker compose -f deploy/selectel/compose.yaml exec -T db \
   psql -U demoplast demoplast
 ```
 
-**Зайти в psql:**
+**Open psql:**
 ```bash
 docker compose -f deploy/selectel/compose.yaml exec db psql -U demoplast demoplast
 ```
-(выйти — `\q`)
+(to leave — `\q`)
 
-## 7. HTTPS / сертификат
+## 7. HTTPS / certificate
 
-TLS полностью на Traefik (Let's Encrypt, HTTP-01) — никакого certbot. Боевой
-сертификат запрашивается автоматически при первом запуске для домена из
-`SITE_DOMAIN` (resolver `le`); дальше Traefik сам его продлевает.
+TLS is entirely on Traefik (Let's Encrypt, HTTP-01) — no certbot. The production
+certificate is requested automatically on first start for the domain from
+`SITE_DOMAIN` (resolver `le`); Traefik renews it on its own afterwards.
 
-Поверх этого стоит Cloudflare: браузер завершает TLS на его edge-узле, а Cloudflare
-отдельным TLS-соединением идёт на origin, где его встречает сертификат Traefik.
-Проверить, что именно лежит на origin, можно в обход Cloudflare — по IP, подставив
-имя хоста через SNI:
+Cloudflare sits on top of this: the browser terminates TLS at its edge node, and
+Cloudflare opens a separate TLS connection to the origin, where the Traefik certificate
+meets it. To check what is actually on the origin, bypass Cloudflare — go by IP and pass
+the host name through SNI:
 
 ```bash
-echo | openssl s_client -connect <IP-сервера>:443 -servername demoplast.skerter.dev 2>/dev/null \
+echo | openssl s_client -connect <server-IP>:443 -servername demoplast.skerter.dev 2>/dev/null \
   | openssl x509 -noout -issuer -subject -dates
 ```
 
-`issuer` с `Let's Encrypt` — всё в порядке; `CN=TRAEFIK DEFAULT CERT` означает, что
-под этот Host у Traefik нет роутера и отдаётся самоподписанная заглушка.
+An `issuer` of `Let's Encrypt` means everything is fine; `CN=TRAEFIK DEFAULT CERT` means
+Traefik has no router for that Host and is serving a self-signed placeholder.
 
-!!! warning "Лимит боевого Let's Encrypt"
-    5 сертификатов в неделю на домен. Не удаляйте том сертификатов Traefik
-    без нужды — пересоздание серта расходует лимит.
+!!! warning "Production Let's Encrypt rate limit"
+    5 certificates per week per domain. Do not delete the Traefik certificate volume
+    without a reason — reissuing a certificate consumes the limit.
 
-!!! note "TODO: перевести Cloudflare в Full (Strict)"
-    Сейчас зона работает в режиме **Full**: трафик Cloudflare → origin шифруется,
-    но подлинность сертификата origin не проверяется, поэтому теоретический MITM
-    на этом участке остаётся возможен. У `demoplast.skerter.dev` валидный
-    сертификат Let's Encrypt уже есть, так что `Full (Strict)` для него включается
-    без дополнительной подготовки.
+!!! note "TODO: switch Cloudflare to Full (Strict)"
+    The zone currently runs in **Full** mode: Cloudflare → origin traffic is encrypted,
+    but the authenticity of the origin certificate is not verified, so a theoretical MITM
+    on that leg remains possible. `demoplast.skerter.dev` already has a valid
+    Let's Encrypt certificate, so `Full (Strict)` can be enabled for it without any
+    extra preparation.
 
-    Переключение отложено потому, что режим шифрования задаётся **на всю зону**
-    `skerter.dev` и затронул бы соседние хосты. Аккуратный путь — не менять зону,
-    а завести Configuration Rule с условием `Hostname equals demoplast.skerter.dev`
-    и настройкой SSL → `Full (Strict)`. Перед включением проверить сертификаты
-    остальных проксируемых хостов командой `openssl` выше: тот, у кого окажется
-    `TRAEFIK DEFAULT CERT`, под Strict начнёт отдавать 526.
+    The switch is postponed because the encryption mode is set **for the whole zone**
+    `skerter.dev` and would affect neighbouring hosts. The careful path is to leave the
+    zone alone and add a Configuration Rule with the condition
+    `Hostname equals demoplast.skerter.dev` and the setting SSL → `Full (Strict)`.
+    Before enabling it, check the certificates of the other proxied hosts with the
+    `openssl` command above: any host serving `TRAEFIK DEFAULT CERT` will start
+    returning 526 under Strict.
 
-## 8. Деплой кода
+## 8. Deploying code
 
-Автоматический — push в `main`, GitHub Actions собирает образ и обновляет сервер.
+Automatic — a push to `main`, GitHub Actions builds the image and updates the server.
 
-Подробнее: [Деплой → обновить прод](deploy.md#обновить-прод).
+More detail: [Deploy → update production](deploy.md#update-production).
 
-## 9. Диагностика «сайт не открывается»
+## 9. Diagnosing "the site does not open"
 
-1. **Статус контейнеров** — все ли `Up`:
+1. **Container status** — are they all `Up`:
    ```bash
    docker compose -f deploy/selectel/compose.yaml ps
    ```
-2. **502 / Bad Gateway** → Traefik не достучался до `web`. Проверь, что `web`
-   `Up` и в сети `proxy`; смотри логи Traefik.
-3. **`web` рестартится** → смотри его лог (§5), ищи traceback. Обычно причина —
-   ошибка в `.env` (см. [Переменные окружения](../reference/environment.md)).
-4. **Сертификат не выдаётся** → проверь, что `SITE_DOMAIN` резолвится в IP
-   сервера и открыт :80 (HTTP-01 идёт по :80); смотри ACME-логи Traefik.
-   Если домен проксируется Cloudflare — временно переведи запись в DNS only,
-   выпусти сертификат напрямую и верни прокси
-   ([Go-live](deploy.md#go-live-переезд-на-боевой-домен)).
-5. **400 Bad Request с `server: gunicorn`** → Django отвергает `Host`. Домена нет
-   в `ALLOWED_HOSTS`: сверь `.env` и то, что реально видит контейнер
+2. **502 / Bad Gateway** → Traefik could not reach `web`. Check that `web` is
+   `Up` and on the `proxy` network; inspect the Traefik logs.
+3. **`web` keeps restarting** → read its log (§5), look for a traceback. Usually the cause
+   is an error in `.env` (see [Environment variables](../reference/environment.md)).
+4. **The certificate is not issued** → check that `SITE_DOMAIN` resolves to the server
+   IP and that :80 is open (HTTP-01 goes over :80); inspect the Traefik ACME logs.
+   If the domain is proxied by Cloudflare — temporarily switch the record to DNS only,
+   issue the certificate directly and turn the proxy back on
+   ([Go-live](deploy.md#go-live-moving-to-the-production-domain)).
+5. **400 Bad Request with `server: gunicorn`** → Django rejects the `Host`. The domain is
+   missing from `ALLOWED_HOSTS`: compare `.env` with what the container actually sees
    (`docker compose -f deploy/selectel/compose.yaml exec web env | grep ALLOWED_HOSTS`) —
-   при дубле переменной в `.env` побеждает последняя строка.
-6. **526 / 525 от Cloudflare** → сертификата на origin нет или он невалиден для
-   выбранного режима шифрования (см. §7).
-7. **`/media/` не отдаётся (404)** → проверь сервис `media` и что том
-   `media_volume` смонтирован.
-8. **Сайт не грузится вообще** → порты снаружи + firewall (`sudo ufw status`),
-   Traefik занял :80/:443 (`sudo ss -tlnp | grep -E ':80|:443'`).
+   with a duplicate variable in `.env` the last line wins.
+6. **526 / 525 from Cloudflare** → the origin has no certificate, or it is invalid for
+   the selected encryption mode (see §7).
+7. **`/media/` is not served (404)** → check the `media` service and that the
+   `media_volume` volume is mounted.
+8. **The site does not load at all** → external ports + firewall (`sudo ufw status`),
+   Traefik holding :80/:443 (`sudo ss -tlnp | grep -E ':80|:443'`).
 
-## Удобный алиас
+## A handy alias
 
-Чтобы не писать `-f deploy/selectel/compose.yaml` каждый раз:
+To avoid typing `-f deploy/selectel/compose.yaml` every time:
 
 ```bash
 echo "alias dc='docker compose -f /opt/django-plastic-landing/deploy/selectel/compose.yaml'" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-После этого: `dc ps`, `dc logs web --tail 40`, `dc restart web`.
+After that: `dc ps`, `dc logs web --tail 40`, `dc restart web`.

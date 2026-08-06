@@ -1,118 +1,124 @@
-# Добавить контент через админку
+# Manage content through the admin
 
-Как наполнять и редактировать сайт через панель управления Django Admin:
-каталог, контакты, реквизиты, сертификаты. Программировать ничего не нужно.
+How to fill and edit the site through the Django admin panel:
+the catalog, contacts, legal details, certificates. No programming needed.
 
-Админка доступна по адресу `/admin/` (локально —
-[http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)). Вход — по логину
-и паролю администратора. Если учётки ещё нет, её создают командой
-`createsuperuser` (см. [Запуск проекта локально](../tutorials/getting-started.md),
-шаг 5).
+The admin lives at `/admin/` (locally —
+[http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)). Sign in with an
+administrator login and password. If you do not have an account yet, create one with
+the `createsuperuser` command (see [Run the project locally](../tutorials/getting-started.md),
+step 5).
 
-## Как устроен каталог
+!!! note "The admin interface is in Russian"
+    The admin is the client's workplace, so its labels are Russian
+    ([ADR-0006](../adr/0006-language-policy.md)). Section names below are given as
+    they appear on screen, with an English gloss in brackets. Model field names
+    (`Name`, `Slug`, `Image`, …) are shown as-is.
 
-Каталог состоит из трёх уровней:
+## How the catalog is structured
 
-- **Категория** (например «Канистры», «Крышки») — раздел каталога.
-- **Товар** принадлежит одной категории.
-- У товара есть **характеристики** и **фотографии** — они редактируются прямо
-  внутри карточки товара, отдельно создавать их не нужно.
+The catalog has three levels:
 
-## Добавить категорию
+- **Категория** (category, for example "Канистры", "Крышки") — a catalog section.
+- **Товар** (product) belongs to exactly one category.
+- A product has **specs** and **photos** — they are edited right
+  inside the product form, there is no need to create them separately.
 
-1. На главной странице админки → **Категории** → **Добавить категорию**.
-2. Заполните:
-   - **Name** — название («Канистры»).
-   - **Slug** — часть адреса. Заполнится автоматически из названия; для
-     кириллицы впишите латиницей вручную (`kanistry`). Это попадёт в URL:
+## Add a category
+
+1. On the admin home page → **Категории** (Categories) → **Добавить категорию** (Add category).
+2. Fill in:
+   - **Name** — the title ("Канистры").
+   - **Slug** — part of the URL. Filled automatically from the title; for
+     Cyrillic titles type the Latin form by hand (`kanistry`). It ends up in the URL:
      `/catalog/kanistry/`.
-   - **Image** — картинка раздела (необязательно).
-   - **Order** — порядок сортировки (меньше число — выше в списке).
-   - **Is active** — снимите галочку, чтобы скрыть категорию с сайта,
-     не удаляя её.
-3. **Сохранить**.
+   - **Image** — the section picture (optional).
+   - **Order** — the sort order (a lower number is higher in the list).
+   - **Is active** — clear the checkbox to hide the category from the site
+     without deleting it.
+3. **Сохранить** (Save).
 
-## Добавить товар
+## Add a product
 
-1. **Товары** → **Добавить товар**.
-2. Заполните основные поля:
-   - **Category** — выберите категорию.
-   - **Name** — название товара.
-   - **Slug** — латиницей (`kanistra-20l`). Войдёт в адрес:
+1. **Товары** (Products) → **Добавить товар** (Add product).
+2. Fill in the main fields:
+   - **Category** — pick a category.
+   - **Name** — the product title.
+   - **Slug** — in Latin characters (`kanistra-20l`). It ends up in the URL:
      `/catalog/kanistry/kanistra-20l/`.
-   - **Метка (badge)** — короткий ярлык поверх фото в карточке
-     («Евроканистра», «Круглая»). Необязательно.
-   - **Description** — описание товара.
-   - **Image** — главное фото карточки.
-   - **Order**, **Is active** — как у категории.
-   - **Meta title / Meta description** — теги для поисковиков (SEO).
-     Если пусто — используются обычные название и описание.
-3. **Характеристики** и **Фото товара** добавляются в этой же форме ниже —
-   см. следующие два раздела.
-4. **Сохранить**.
+   - **Метка (badge)** — a short label over the photo in the card
+     ("Евроканистра", "Круглая"). Optional.
+   - **Description** — the product description.
+   - **Image** — the main photo of the card.
+   - **Order**, **Is active** — same as for a category.
+   - **Meta title / Meta description** — tags for search engines (SEO).
+     If empty, the regular title and description are used.
+3. **Характеристики** (specs) and **Фото товара** (product photos) are added lower in
+   the same form — see the next two sections.
+4. **Сохранить** (Save).
 
-### Характеристики товара
+### Product specs
 
-Характеристики — это пары «параметр → значение» (объём, масса, материал).
-Набор у разных товаров разный, поэтому поля свободные.
+Specs are "parameter → value" pairs (volume, weight, material).
+The set differs from product to product, so the fields are free-form.
 
-В форме товара, в блоке **Характеристики**:
+In the product form, in the **Характеристики** (Specs) block:
 
-- **Label** — название параметра («Объём»).
-- **Value** — значение («20»).
-- **Unit** — единица измерения («л»). Необязательно.
-- **Order** — порядок в таблице характеристик.
+- **Label** — the parameter name ("Объём").
+- **Value** — the value ("20").
+- **Unit** — the unit of measurement ("л"). Optional.
+- **Order** — the position in the specs table.
 
-Чтобы добавить ещё одну строку — заполните пустую внизу; чтобы удалить —
-отметьте **Delete**. Сохраняется всё вместе с товаром.
+To add another row, fill in the empty one at the bottom; to remove a row,
+tick **Delete**. Everything is saved together with the product.
 
-### Фотографии товара (галерея)
+### Product photos (gallery)
 
-В блоке **Фото товара**:
+In the **Фото товара** (Product photos) block:
 
-- **Image** — файл фотографии.
-- **Подпись (alt)** — ракурс или описание («вид сбоку», «горловина 55 мм»).
-  Используется как alt-текст и подпись миниатюры.
-- **Order** — порядок в галерее.
+- **Image** — the photo file.
+- **Подпись (alt)** — the angle or a description ("вид сбоку", "горловина 55 мм").
+  Used as the alt text and the thumbnail caption.
+- **Order** — the position in the gallery.
 
-На карточке товара эти фото показываются каруселью с миниатюрами. Если фото
-не добавить — карточка покажет заглавное фото без галереи.
+On the product page these photos are shown as a carousel with thumbnails. If no photos
+are added, the card shows the main photo without a gallery.
 
-## Изменить контакты и реквизиты
+## Change contacts and legal details
 
-Телефоны, адрес, режим работы и банковские реквизиты правятся в одном месте —
-**Настройки сайта** (это единственная запись, не список).
+Phone numbers, the address, opening hours and bank details are edited in one place —
+**Настройки сайта** (Site settings; it is a single record, not a list).
 
-1. **Настройки сайта** → откроется форма с разделами:
-   - **Контакты** — название компании, телефоны (продажи / производство /
-     бухгалтерия), контактные лица, e-mail.
-   - **Адрес и режим** — адрес, часы работы, запрос для Яндекс.Карт.
-   - **Реквизиты** — ИНН, КПП, ОГРН, расчётный счёт, банк и т.д.
-   - **Уведомления и аналитика** — см. ниже и
-     [Каналы уведомлений](enable-notification-channels.md).
-2. Внесите изменения → **Сохранить**.
+1. **Настройки сайта** (Site settings) → a form with these sections opens:
+   - **Контакты** (Contacts) — company name, phone numbers (sales / production /
+     accounting), contact persons, e-mail.
+   - **Адрес и режим** (Address and hours) — address, opening hours, the Yandex.Maps query.
+   - **Реквизиты** (Legal details) — INN, KPP, OGRN, bank account, bank and so on.
+   - **Уведомления и аналитика** (Notifications and analytics) — see below and
+     [Notification channels](enable-notification-channels.md).
+2. Make the changes → **Сохранить** (Save).
 
-!!! tip "Телефоны вводятся один раз"
-    Телефон вводится в удобном для показа виде (`+7 495 000-00-00`).
-    Кликабельная ссылка `tel:` соберётся из него автоматически — отдельно
-    её задавать не нужно.
+!!! tip "Phone numbers are entered once"
+    A phone number is entered in a display-friendly form (`+7 495 000-00-00`).
+    The clickable `tel:` link is assembled from it automatically — there is no
+    need to set it separately.
 
-## Загрузить сертификаты
+## Upload certificates
 
-Сертификаты — это просто галерея картинок на странице «О компании».
+Certificates are simply an image gallery on the "About" page.
 
-1. **Сертификаты** → **Добавить сертификат**.
-2. Заполните **Title** (название), **Image** (скан/фото), **Order** (порядок),
-   **Is active** (показывать или скрыть).
-3. **Сохранить**.
+1. **Сертификаты** (Certificates) → **Добавить сертификат** (Add certificate).
+2. Fill in **Title**, **Image** (a scan or photo), **Order**,
+   **Is active** (show or hide).
+3. **Сохранить** (Save).
 
-Порядок и видимость можно менять прямо в списке сертификатов, не открывая
-каждый. Если активных сертификатов нет, секция на сайте скрывается целиком.
+The order and visibility can be changed right in the certificate list, without opening
+each one. If there are no active certificates, the section is hidden from the site entirely.
 
-## Заявки с сайта
+## Leads from the site
 
-Раздел **Заявки** — это обращения, оставленные через формы сайта. Поля заявки
-доступны **только для чтения** (заявку нельзя подделать или изменить из админки).
+The **Заявки** (Leads) section holds the submissions left through the site forms. The lead
+fields are **read-only** (a lead cannot be forged or altered from the admin).
 
-Менять можно один параметр — **Статус** (`Новая` / `Обработана`). Список
-заявок фильтруется по статусу и типу.
+Only one attribute can be changed — **Статус** (status: `Новая` / `Обработана`, i.e. new /
+processed). The lead list can be filtered by status and type.

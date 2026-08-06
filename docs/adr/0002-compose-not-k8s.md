@@ -1,34 +1,33 @@
-# 0002 — docker-compose, не Kubernetes
+# 0002 — docker-compose, not Kubernetes
 
-- **Статус:** accepted
-- **Дата:** 2026-05-01
+- **Status:** accepted
+- **Date:** 2026-05-01
 
-## Контекст
+## Context
 
-Приложение ([ADR 0001](0001-monolith-not-microservices.md)) разворачивается на
-одном VPS. Нужно выбрать способ оркестрации контейнеров (web, БД, фоновый
-воркер, reverse-proxy).
+The application ([ADR 0001](0001-monolith-not-microservices.md)) is deployed on a
+single VPS. A way to orchestrate the containers (web, database, background
+worker, reverse proxy) has to be chosen.
 
-## Решение
+## Decision
 
-Используем **docker-compose**. Kubernetes / k3s не применяем.
+We use **docker-compose**. Kubernetes / k3s is not used.
 
-## Последствия
+## Consequences
 
-**Плюсы:**
+**Upsides:**
 
-- Под одну ноду compose достаточен и прост: описание стека в одном файле,
-  понятные команды.
-- Автоперезапуск контейнеров обеспечивает `restart: unless-stopped` — для одной
-  ноды это и есть «самовосстановление».
-- Минимум накладных расходов: оркестратор не съедает ресурсы, которые нужны
-  приложению.
+- For a single node compose is sufficient and simple: the stack is described in one
+  file, the commands are obvious.
+- Container auto-restart is provided by `restart: unless-stopped` — on a single
+  node that *is* "self-healing".
+- Minimal overhead: the orchestrator does not eat the resources the application needs.
 
-**Минусы / плата:**
+**Downsides / the cost:**
 
-- Нет автоматического масштабирования на несколько нод и отказоустойчивости
-  уровня кластера. Для одного VPS это неактуально.
+- No automatic scaling across several nodes and no cluster-level fault tolerance.
+  For one VPS that is irrelevant.
 
-На одной ноде Kubernetes — оверинжиниринг: оркестратор потреблял бы больше
-ресурсов, чем само приложение, а «самовосстановление» на единственной ноде даёт
-тот же `restart: unless-stopped`.
+On a single node Kubernetes is over-engineering: the orchestrator would consume more
+resources than the application itself, and "self-healing" on the only node is exactly
+what `restart: unless-stopped` gives.

@@ -1,115 +1,115 @@
-# Переменные окружения
+# Environment variables
 
-Полный справочник переменных окружения. Конфигурация задаётся через файл
-`.env` в корне проекта (читается `django-environ`). Это **единый источник
-истины** по переменным — шаблоны `.env.example` (локально) и
-`deploy/selectel/.env.example` (прод) ссылаются сюда.
+A complete reference of the environment variables. Configuration is supplied through the
+`.env` file in the project root (read by `django-environ`). This is the **single source
+of truth** for the variables — the `.env.example` (local) and
+`deploy/selectel/.env.example` (production) templates point here.
 
-!!! danger "Секреты не коммитятся"
-    `.env` добавлен в `.gitignore`. В репозитории хранятся только шаблоны
-    `*.example` без реальных значений. Никогда не коммитьте заполненный `.env`.
+!!! danger "Secrets are never committed"
+    `.env` is listed in `.gitignore`. The repository only stores the `*.example`
+    templates without real values. Never commit a filled-in `.env`.
 
-Колонка **Окружение** показывает, где переменная нужна:
-**dev** — локальная разработка, **prod** — сервер, **оба** — везде.
+The **Environment** column shows where a variable is needed:
+**dev** — local development, **prod** — the server, **both** — everywhere.
 
 ---
 
 ## Django
 
-| Переменная | Окружение | По умолчанию | Описание |
+| Variable | Environment | Default | Description |
 |---|---|---|---|
-| `DJANGO_SETTINGS_MODULE` | оба | — | Модуль настроек. Локально `config.settings.dev`, на проде `config.settings.prod`. |
-| `SECRET_KEY` | оба | — (обязательна) | Криптоключ Django. На проде сгенерировать: `python3 -c "import secrets; print(secrets.token_urlsafe(50))"`. |
-| `DEBUG` | оба | `False` | Режим отладки. Локально `True`, на проде **строго** `False`. |
-| `ALLOWED_HOSTS` | оба | пусто | Список хостов через запятую. Локально `localhost,127.0.0.1`, на проде — домен сайта. |
+| `DJANGO_SETTINGS_MODULE` | both | — | The settings module. Locally `config.settings.dev`, in production `config.settings.prod`. |
+| `SECRET_KEY` | both | — (required) | Django's cryptographic key. Generate one for production: `python3 -c "import secrets; print(secrets.token_urlsafe(50))"`. |
+| `DEBUG` | both | `False` | Debug mode. Locally `True`, in production **strictly** `False`. |
+| `ALLOWED_HOSTS` | both | empty | A comma-separated list of hosts. Locally `localhost,127.0.0.1`, in production the site domain. |
 
-## База данных
+## Database
 
-| Переменная | Окружение | По умолчанию | Описание |
+| Variable | Environment | Default | Description |
 |---|---|---|---|
-| `DATABASE_URL` | prod | — | URL подключения к Postgres. Хост — имя сервиса compose (`db`), а не `localhost`. |
+| `DATABASE_URL` | prod | — | The Postgres connection URL. The host is the compose service name (`db`), not `localhost`. |
 
-!!! note "Локально база — SQLite"
-    Настройки `dev` жёстко используют SQLite (`db.sqlite3`) и `DATABASE_URL`
-    **не читают**. Переменная нужна только на проде (`prod`).
+!!! note "Locally the database is SQLite"
+    The `dev` settings hard-code SQLite (`db.sqlite3`) and do **not** read
+    `DATABASE_URL`. The variable is only needed in production (`prod`).
 
-## Postgres (контейнер `db`)
+## Postgres (the `db` container)
 
-Читаются Docker Compose на проде. Значения должны совпадать с `DATABASE_URL`.
+Read by Docker Compose in production. The values must match `DATABASE_URL`.
 
-| Переменная | Окружение | По умолчанию | Описание |
+| Variable | Environment | Default | Description |
 |---|---|---|---|
-| `POSTGRES_DB` | prod | — | Имя базы (`demoplast`). |
-| `POSTGRES_USER` | prod | — | Пользователь БД (`demoplast`). |
-| `POSTGRES_PASSWORD` | prod | — | Пароль. Тот же, что в `DATABASE_URL`. |
+| `POSTGRES_DB` | prod | — | The database name (`demoplast`). |
+| `POSTGRES_USER` | prod | — | The database user (`demoplast`). |
+| `POSTGRES_PASSWORD` | prod | — | The password. The same one as in `DATABASE_URL`. |
 
 ## Docker Compose
 
-| Переменная | Окружение | По умолчанию | Описание |
+| Variable | Environment | Default | Description |
 |---|---|---|---|
-| `COMPOSE_PROJECT_NAME` | prod | имя папки | Имя проекта Compose — фиксирует имена томов. Для проекта `demo-plast`. |
-| `SITE_DOMAIN` | prod | — | Домен для маршрутизации Traefik и выпуска TLS-сертификата. На демо — `demoplast.skerter.dev`. Единственное место, где задаётся домен: `compose.yaml` подставляет его в labels. |
+| `COMPOSE_PROJECT_NAME` | prod | folder name | The Compose project name — pins the volume names. For this project, `demo-plast`. |
+| `SITE_DOMAIN` | prod | — | The domain for Traefik routing and TLS certificate issuance. On the demo, `demoplast.skerter.dev`. The only place where the domain is set: `compose.yaml` interpolates it into the labels. |
 
-## Sentry (мониторинг ошибок)
+## Sentry (error monitoring)
 
-| Переменная | Окружение | По умолчанию | Описание |
+| Variable | Environment | Default | Description |
 |---|---|---|---|
-| `SENTRY_DSN` | prod | пусто | DSN проекта на sentry.io. Пусто → Sentry не активируется. |
-| `SENTRY_TRACES_SAMPLE_RATE` | prod | `0.2` | Доля трейсов производительности (0.0–1.0). |
+| `SENTRY_DSN` | prod | empty | The project DSN on sentry.io. Empty → Sentry is not activated. |
+| `SENTRY_TRACES_SAMPLE_RATE` | prod | `0.2` | The share of performance traces (0.0–1.0). |
 
-!!! note "Персональные данные вырезаются"
-    Перед отправкой в Sentry имена, телефоны и e-mail удаляются
-    (`config/sentry.py`, `before_send`) — требование 152-ФЗ. См.
-    [Соответствие 152-ФЗ](../explanation/compliance-152fz.md).
+!!! note "Personal data is stripped"
+    Names, phone numbers and e-mails are removed before anything is sent to Sentry
+    (`config/sentry.py`, `before_send`) — a 152-FZ requirement. See
+    [152-FZ compliance](../explanation/compliance-152fz.md).
 
 ## Email (SMTP)
 
-Доступ отправителя писем о заявках. Получатель задаётся **в админке**
-(SiteSettings → «E-mail для уведомлений»), а не здесь.
+The sender's access for lead notification emails. The recipient is set **in the admin**
+(SiteSettings → "E-mail для уведомлений"), not here.
 
-| Переменная | Окружение | По умолчанию | Описание |
+| Variable | Environment | Default | Description |
 |---|---|---|---|
-| `DEFAULT_FROM_EMAIL` | оба | пусто | Адрес-отправитель. **Должен совпадать** с `EMAIL_HOST_USER`. |
-| `EMAIL_HOST` | prod | пусто | SMTP-сервер (`smtp.example.com`). |
-| `EMAIL_PORT` | prod | `465` | Порт SMTP (типично 465 для implicit SSL). |
-| `EMAIL_HOST_USER` | prod | пусто | Логин SMTP (адрес ящика-отправителя). |
-| `EMAIL_HOST_PASSWORD` | prod | пусто | **Пароль приложения** (не обычный пароль). |
-| `EMAIL_USE_SSL` | prod | `True` | Implicit SSL (порт 465). |
-| `EMAIL_USE_TLS` | prod | `False` | STARTTLS (порт 587). Взаимоисключающа с `EMAIL_USE_SSL`. |
+| `DEFAULT_FROM_EMAIL` | both | empty | The sender address. **Must match** `EMAIL_HOST_USER`. |
+| `EMAIL_HOST` | prod | empty | The SMTP server (`smtp.example.com`). |
+| `EMAIL_PORT` | prod | `465` | The SMTP port (typically 465 for implicit SSL). |
+| `EMAIL_HOST_USER` | prod | empty | The SMTP login (the sender mailbox address). |
+| `EMAIL_HOST_PASSWORD` | prod | empty | An **app password** (not the regular password). |
+| `EMAIL_USE_SSL` | prod | `True` | Implicit SSL (port 465). |
+| `EMAIL_USE_TLS` | prod | `False` | STARTTLS (port 587). Mutually exclusive with `EMAIL_USE_SSL`. |
 
-!!! warning "SSL и TLS — взаимоисключающие"
-    Одновременно `EMAIL_USE_SSL=True` и `EMAIL_USE_TLS=True` нельзя — Django
-    откажется стартовать. Для Яндекса: SSL=True, TLS=False, порт 465.
+!!! warning "SSL and TLS are mutually exclusive"
+    `EMAIL_USE_SSL=True` and `EMAIL_USE_TLS=True` cannot be set at the same time — Django
+    refuses to start. For Yandex Mail: SSL=True, TLS=False, port 465.
 
-Локально SMTP не нужен: настройки `dev` печатают письма в консоль. Подробности
-настройки — [Каналы уведомлений](../how-to/enable-notification-channels.md).
+SMTP is not needed locally: the `dev` settings print emails to the console. Setup
+details — [Notification channels](../how-to/enable-notification-channels.md).
 
 ## Telegram
 
-| Переменная | Окружение | По умолчанию | Описание |
+| Variable | Environment | Default | Description |
 |---|---|---|---|
-| `TELEGRAM_BOT_TOKEN` | prod | пусто | Токен бота от @BotFather. `chat_id` — в админке. |
+| `TELEGRAM_BOT_TOKEN` | prod | empty | The bot token from @BotFather. The `chat_id` lives in the admin. |
 
 ## amoCRM
 
-| Переменная | Окружение | По умолчанию | Описание |
+| Variable | Environment | Default | Description |
 |---|---|---|---|
-| `AMOCRM_BASE_URL` | prod | пусто | `https://<поддомен>.amocrm.ru`. |
-| `AMOCRM_CLIENT_ID` | prod | пусто | Из карточки интеграции. |
-| `AMOCRM_CLIENT_SECRET` | prod | пусто | Из карточки интеграции. |
-| `AMOCRM_REDIRECT_URI` | prod | пусто | Из карточки интеграции. |
-| `AMOCRM_PIPELINE_ID` | prod | `0` | ID воронки. `0` = первый этап главной воронки. |
-| `AMOCRM_STATUS_ID` | prod | `0` | ID этапа. `0` = по умолчанию. |
+| `AMOCRM_BASE_URL` | prod | empty | `https://<subdomain>.amocrm.ru`. |
+| `AMOCRM_CLIENT_ID` | prod | empty | From the integration card. |
+| `AMOCRM_CLIENT_SECRET` | prod | empty | From the integration card. |
+| `AMOCRM_REDIRECT_URI` | prod | empty | From the integration card. |
+| `AMOCRM_PIPELINE_ID` | prod | `0` | The pipeline ID. `0` = the first stage of the main pipeline. |
+| `AMOCRM_STATUS_ID` | prod | `0` | The stage ID. `0` = the default. |
 
-!!! warning "ID amoCRM должны быть числом"
-    `AMOCRM_PIPELINE_ID` и `AMOCRM_STATUS_ID` нельзя оставлять пустыми —
-    ставьте `0`, иначе контейнер `web` не стартует.
+!!! warning "The amoCRM IDs must be numbers"
+    `AMOCRM_PIPELINE_ID` and `AMOCRM_STATUS_ID` must not be left empty —
+    set `0`, otherwise the `web` container will not start.
 
 ## Traefik (`deploy/infra/.env`)
 
-Отдельный файл для стека Traefik (только одна переменная).
+A separate file for the Traefik stack (a single variable).
 
-| Переменная | Окружение | По умолчанию | Описание |
+| Variable | Environment | Default | Description |
 |---|---|---|---|
-| `ACME_EMAIL` | prod | — | E-mail для регистрации сертификатов Let's Encrypt. |
-| `COMPOSE_PROJECT_NAME` | prod | `infra` | Имя проекта Compose — фиксирует отдельное имя для инфраструктуры Traefik. |
+| `ACME_EMAIL` | prod | — | The e-mail used to register Let's Encrypt certificates. |
+| `COMPOSE_PROJECT_NAME` | prod | `infra` | The Compose project name — pins a separate name for the Traefik infrastructure. |

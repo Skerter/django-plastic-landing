@@ -1,32 +1,33 @@
-# 0001 — Монолит, не микросервисы
+# 0001 — Monolith, not microservices
 
-- **Статус:** accepted
-- **Дата:** 2026-05-01
+- **Status:** accepted
+- **Date:** 2026-05-01
 
-## Контекст
+## Context
 
-Проект — сайт-каталог с лидогенерацией: несколько страниц, каталог и формы
-заявок. Объём бизнес-логики невелик. Нужно выбрать общую структуру приложения.
+The project is a catalog site with lead generation: a handful of pages, a catalog and
+lead forms. The amount of business logic is small. The overall application structure
+has to be chosen.
 
-## Решение
+## Decision
 
-Строим **единый Django-монолит**. Не разбиваем на микросервисы, не выделяем
-отдельный фронтенд-сервис.
+We build **a single Django monolith**. No splitting into microservices, no separate
+frontend service.
 
-## Последствия
+## Consequences
 
-**Плюсы:**
+**Upsides:**
 
-- Проще разрабатывать и понимать — весь код в одном месте, один деплой.
-- Дешевле в эксплуатации: нет сетевого взаимодействия между сервисами, нет
-  оркестрации, меньше точек отказа.
-- Транзакции и связи между данными работают «из коробки» (одна БД).
+- Easier to develop and to understand — all the code in one place, one deployment.
+- Cheaper to operate: no network calls between services, no orchestration,
+  fewer points of failure.
+- Transactions and relations between data work out of the box (a single database).
 
-**Минусы / плата:**
+**Downsides / the cost:**
 
-- Масштабировать можно только целиком (для текущей нагрузки не проблема).
-- При сильном росте функционала монолит пришлось бы разделять — но для шести
-  страниц и форм это не предвидится.
+- It can only be scaled as a whole (not a problem for the current load).
+- Under heavy feature growth the monolith would have to be split — but for six
+  pages and some forms that is not on the horizon.
 
-Дробить на микросервисы нечем оправдать: сложность оркестрации превысила бы
-сложность самого приложения.
+There is nothing to justify splitting into microservices: the complexity of the
+orchestration would exceed the complexity of the application itself.

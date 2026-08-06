@@ -1,119 +1,119 @@
-# API и endpoints
+# API and endpoints
 
-Справочник всех URL-маршрутов проекта. Это серверный сайт (не REST API):
-большинство адресов отдают готовые HTML-страницы. Исключение — форма заявки,
-которая работает через HTMX и возвращает HTML-фрагменты.
+A reference of every URL route in the project. This is a server-rendered site (not a
+REST API): most addresses return ready-made HTML pages. The exception is the lead form,
+which works over HTMX and returns HTML fragments.
 
-Маршруты собираются в [`config/urls.py`](https://github.com/Skerter/django-plastic-landing/blob/main/config/urls.py)
-и подключённых `urls.py` приложений.
+The routes are assembled in [`config/urls.py`](https://github.com/Skerter/django-plastic-landing/blob/main/config/urls.py)
+and the `urls.py` files of the included apps.
 
 ---
 
-## Страницы (`apps.pages`)
+## Pages (`apps.pages`)
 
-| Путь | Имя | Метод | Описание |
+| Path | Name | Method | Description |
 |---|---|---|---|
-| `/` | `home` | GET | Главная страница. |
-| `/dostavka/` | `dostavka` | GET | Доставка. |
-| `/o-kompanii/` | `o_kompanii` | GET | О компании (+ галерея сертификатов). |
-| `/kontakty/` | `kontakty` | GET | Контакты и реквизиты. |
-| `/politika-konfidencialnosti/` | `politika` | GET | Политика конфиденциальности. |
-| `/soglasie-na-obrabotku-pdn/` | `soglasie` | GET | Согласие на обработку ПДн. |
+| `/` | `home` | GET | The home page. |
+| `/dostavka/` | `dostavka` | GET | Delivery. |
+| `/o-kompanii/` | `o_kompanii` | GET | About the company (+ the certificate gallery). |
+| `/kontakty/` | `kontakty` | GET | Contacts and legal details. |
+| `/politika-konfidencialnosti/` | `politika` | GET | Privacy policy. |
+| `/soglasie-na-obrabotku-pdn/` | `soglasie` | GET | Personal data processing consent. |
 
-!!! note "Два отдельных юридических документа"
-    Политика конфиденциальности и согласие на обработку ПДн — **разные**
-    страницы по требованию 152-ФЗ. См.
-    [Соответствие 152-ФЗ](../explanation/compliance-152fz.md).
+!!! note "Two separate legal documents"
+    The privacy policy and the personal data processing consent are **different**
+    pages, as 152-FZ requires. See
+    [152-FZ compliance](../explanation/compliance-152fz.md).
 
-## Каталог (`apps.catalog`)
+## Catalog (`apps.catalog`)
 
-Подключён с префиксом `/catalog/`.
+Included under the `/catalog/` prefix.
 
-| Путь | Имя | Метод | Описание |
+| Path | Name | Method | Description |
 |---|---|---|---|
-| `/catalog/` | `category_list` | GET | Список категорий (хаб каталога). |
-| `/catalog/<category_slug>/` | `category_detail` | GET | Категория со списком товаров. |
-| `/catalog/<category_slug>/<slug>/` | `product_detail` | GET | Карточка товара (характеристики + галерея + форма). |
+| `/catalog/` | `category_list` | GET | The category list (the catalog hub). |
+| `/catalog/<category_slug>/` | `category_detail` | GET | A category with its product list. |
+| `/catalog/<category_slug>/<slug>/` | `product_detail` | GET | A product page (specs + gallery + form). |
 
-Параметры пути — это `slug` категории и товара. Показываются только записи
-с `is_active=True`; для отсутствующих или скрытых — **404**.
+The path parameters are the category and product `slug`. Only records with
+`is_active=True` are shown; missing or hidden ones return **404**.
 
-Запросы оптимизированы: `product_detail` использует `select_related('category')`
-и `prefetch_related('specs', 'images')`, чтобы не плодить SQL-запросы.
+The queries are optimized: `product_detail` uses `select_related('category')`
+and `prefetch_related('specs', 'images')` to avoid multiplying SQL queries.
 
-## Форма заявки (`apps.leads`)
+## Lead form (`apps.leads`)
 
-| Путь | Имя | Метод | Описание |
+| Path | Name | Method | Description |
 |---|---|---|---|
-| `/lead/` | `lead_form` | GET / POST | Отправка заявки. Работает через HTMX. |
+| `/lead/` | `lead_form` | GET / POST | Lead submission. Works over HTMX. |
 
-### Поведение
+### Behaviour
 
-- **GET** — рендерит пустую форму (используется как include на страницах).
-- **POST, форма валидна** — сохраняет заявку, ставит в очередь уведомления,
-  возвращает фрагмент `leads/success.html` («спасибо»). Статус **200**.
-- **POST, ошибки валидации** — возвращает фрагмент полей с подсветкой ошибок
-  (`leads/form_fields.html`). Статус **200** (HTMX подставляет фрагмент на место).
-- **Превышен лимит** — фрагмент `leads/ratelimit.html`. Статус **429**.
+- **GET** — renders an empty form (used as an include on the pages).
+- **POST, form valid** — saves the lead, queues the notifications and
+  returns the `leads/success.html` fragment ("thank you"). Status **200**.
+- **POST, validation errors** — returns the fields fragment with the errors highlighted
+  (`leads/form_fields.html`). Status **200** (HTMX swaps the fragment into place).
+- **Rate limit exceeded** — the `leads/ratelimit.html` fragment. Status **429**.
 
-### Поля формы
+### Form fields
 
-| Поле | Обязательное | Примечание |
+| Field | Required | Note |
 |---|---|---|
-| `name` | да | Имя. |
-| `phone` | да | Телефон. |
-| `email` | нет | Если заполнен — проверяется формат. |
-| `comment` | нет | Комментарий. |
-| `type` | — | Тип заявки (`callback` / `order`). |
-| `product` | нет | Скрытое поле — pk товара (на карточке товара). |
-| `consent` | **да** | Согласие на обработку ПДн. Без галочки форма не отправляется. |
-| `website` | — | Honeypot. Невидимое поле-ловушка; если заполнено — заявка отклоняется как спам. |
+| `name` | yes | The name. |
+| `phone` | yes | The phone number. |
+| `email` | no | If filled in, the format is validated. |
+| `comment` | no | A comment. |
+| `type` | — | The lead type (`callback` / `order`). |
+| `product` | no | A hidden field — the product pk (on a product page). |
+| `consent` | **yes** | Personal data processing consent. Without the checkbox the form is not submitted. |
+| `website` | — | Honeypot. An invisible trap field; if filled in, the lead is rejected as spam. |
 
-### Защита
+### Protection
 
-- **CSRF** — на всех POST-запросах (стандарт Django).
-- **Honeypot** — скрытое поле `website`; боты его заполняют, люди нет.
-- **Rate limit** — 5 заявок в час с одного IP. При превышении — **429**.
-  В разработке лимит отключён (`RATELIMIT_ENABLE=False` в `dev`).
+- **CSRF** — on every POST request (the Django standard).
+- **Honeypot** — the hidden `website` field; bots fill it in, humans do not.
+- **Rate limit** — 5 leads per hour from one IP. Exceeding it returns **429**.
+  In development the limit is disabled (`RATELIMIT_ENABLE=False` in `dev`).
 
-## Служебные (`apps.core`)
+## Utility (`apps.core`)
 
-| Путь | Имя | Метод | Описание |
+| Path | Name | Method | Description |
 |---|---|---|---|
-| `/cookie-consent/` | `cookie_consent` | POST | Сохраняет выбор пользователя по cookie. |
+| `/cookie-consent/` | `cookie_consent` | POST | Stores the user's cookie choice. |
 
 ## SEO
 
-| Путь | Метод | Описание |
+| Path | Method | Description |
 |---|---|---|
-| `/sitemap.xml` | GET | Карта сайта (категории + товары), Django sitemaps. |
-| `/robots.txt` | GET | Файл для поисковых роботов. |
+| `/sitemap.xml` | GET | The sitemap (categories + products), Django sitemaps. |
+| `/robots.txt` | GET | The file for search engine crawlers. |
 
-## Админка
+## Admin
 
-| Путь | Метод | Описание |
+| Path | Method | Description |
 |---|---|---|
-| `/admin/` | GET / POST | Панель управления Django. Требует входа администратора. |
+| `/admin/` | GET / POST | The Django admin panel. Requires an administrator login. |
 
-Работа в админке описана в разделе
-[Добавить контент через админку](../how-to/add-product-via-admin.md).
+Working in the admin is described in
+[Manage content through the admin](../how-to/add-product-via-admin.md).
 
-## Media (загруженные файлы)
+## Media (uploaded files)
 
-| Путь | Описание |
+| Path | Description |
 |---|---|
-| `/media/...` | Загруженные через админку файлы (фото товаров, сертификаты). |
+| `/media/...` | Files uploaded through the admin (product photos, certificates). |
 
-В разработке раздаётся самим Django (только при `DEBUG=True`). На проде — через
-отдельный сервис nginx (`media`).
+In development they are served by Django itself (only when `DEBUG=True`). In production —
+through a dedicated nginx service (`media`).
 
 ---
 
-## Сводка кодов ответов
+## Response code summary
 
-| Код | Когда |
+| Code | When |
 |---|---|
-| **200** | Успех; а также фрагменты формы (успех и ошибки валидации). |
-| **403** | Нет/невалидный CSRF-токен. |
-| **404** | Несуществующая или скрытая (`is_active=False`) категория/товар. |
-| **429** | Превышен лимит заявок (5/час с IP). |
+| **200** | Success; also the form fragments (both success and validation errors). |
+| **403** | A missing or invalid CSRF token. |
+| **404** | A non-existent or hidden (`is_active=False`) category/product. |
+| **429** | The lead rate limit is exceeded (5/hour per IP). |

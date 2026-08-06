@@ -1,34 +1,33 @@
-# 0004 — Tailwind собирается, не CDN
+# 0004 — Tailwind is compiled, not from a CDN
 
-- **Статус:** accepted
-- **Дата:** 2026-05-01
+- **Status:** accepted
+- **Date:** 2026-05-01
 
-## Контекст
+## Context
 
-Вёрстка использует Tailwind CSS. Его можно подключить двумя способами: скриптом
-с CDN (генерация классов в браузере) или собирать готовый CSS-файл на этапе
-сборки.
+The markup uses Tailwind CSS. It can be included in two ways: as a script from a CDN
+(generating the classes in the browser) or by compiling a ready CSS file at build
+time.
 
-## Решение
+## Decision
 
-Tailwind **собирается** через `django-tailwind` (CLI). CDN-подключение в
-продакшене не используем.
+Tailwind is **compiled** through `django-tailwind` (the CLI). The CDN include is not
+used in production.
 
-## Последствия
+## Consequences
 
-**Плюсы:**
+**Upsides:**
 
-- В прод уходит маленький CSS — только реально используемые классы (purge),
-  а не вся библиотека.
-- Нет зависимости от внешнего CDN: сайт не сломается, если CDN недоступен,
-  и не тянет данные со стороннего домена.
-- Стабильная производительность — стили не генерируются в браузере на каждом
-  заходе.
+- A small CSS file ships to production — only the classes actually used (purge),
+  not the whole library.
+- No dependency on an external CDN: the site does not break if the CDN is unavailable,
+  and it does not pull data from a third-party domain.
+- Stable performance — the styles are not generated in the browser on every visit.
 
-**Минусы / плата:**
+**Downsides / the cost:**
 
-- Нужен шаг сборки CSS (`tailwind build`) при изменении классов в шаблонах.
-  Это разовая команда, в dev есть режим watch.
+- A CSS build step (`tailwind build`) is needed whenever the classes in the templates
+  change. It is a one-off command, and dev has a watch mode.
 
-CDN-подключение Tailwind в продакшене — известный антипаттерн (медленнее,
-тяжелее, внешняя зависимость), поэтому собираем.
+Including Tailwind from a CDN in production is a well-known anti-pattern (slower,
+heavier, an external dependency), so we compile it.

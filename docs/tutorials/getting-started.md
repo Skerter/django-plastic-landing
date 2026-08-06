@@ -1,95 +1,94 @@
-# Запуск проекта локально
+# Run the project locally
 
-Этот урок проведёт вас от чистого клона репозитория до работающего сайта
-в браузере. Просто выполняйте шаги по порядку — в конце вы увидите главную
-страницу на `http://127.0.0.1:8000`.
+This tutorial takes you from a fresh clone of the repository to a working site
+in your browser. Just follow the steps in order — at the end you will see the
+home page at `http://127.0.0.1:8000`.
 
-В локальной разработке проект использует SQLite (файл `db.sqlite3`),
-поэтому отдельная база данных и Docker **не нужны** — всё работает из коробки.
+For local development the project uses SQLite (the `db.sqlite3` file), so a
+separate database and Docker are **not needed** — everything works out of the box.
 
-## Что нужно заранее
+## Prerequisites
 
-- Python 3.12 или 3.13
-- [uv](https://docs.astral.sh/uv/) — менеджер зависимостей и виртуального окружения
+- Python 3.12 or 3.13
+- [uv](https://docs.astral.sh/uv/) — dependency and virtual environment manager
 - Git
 
-## Шаг 1. Клонировать репозиторий
+## Step 1. Clone the repository
 
 ```bash
 git clone https://github.com/Skerter/django-plastic-landing.git
 cd django-plastic-landing
 ```
 
-## Шаг 2. Установить зависимости
+## Step 2. Install the dependencies
 
 ```bash
 uv sync --extra dev
 ```
 
-Команда создаст виртуальное окружение `.venv` и поставит Django вместе
-с dev-инструментами (pytest, playwright).
+The command creates the `.venv` virtual environment and installs Django together
+with the dev tools (pytest, playwright).
 
-## Шаг 3. Создать файл `.env`
+## Step 3. Create the `.env` file
 
-Скопируйте шаблон:
+Copy the template:
 
 ```bash
 cp .env.example .env
 ```
 
-Откройте `.env` и замените `SECRET_KEY=change-me` на любую случайную строку —
-для локального запуска этого достаточно. Остальные значения (SMTP, Telegram,
-amoCRM) нужны только на проде, локально их можно не трогать.
+Open `.env` and replace `SECRET_KEY=change-me` with any random string — that is
+enough for a local run. The remaining values (SMTP, Telegram, amoCRM) are only
+needed in production and can be left alone locally.
 
-!!! important "Почему дальше команды без `DJANGO_SETTINGS_MODULE`"
-    Если запускать `manage.py` **без** `.env` (или вне `uv run`), Django
-    возьмёт несуществующий модуль `config.settings` и упадёт. Тогда укажите
-    настройки явно:
+!!! important "Why the commands below omit `DJANGO_SETTINGS_MODULE`"
+    If you run `manage.py` **without** `.env` (or outside `uv run`), Django will
+    pick the non-existent `config.settings` module and fail. In that case pass
+    the settings explicitly:
     ```bash
-    DJANGO_SETTINGS_MODULE=config.settings.dev uv run python manage.py <команда>
+    DJANGO_SETTINGS_MODULE=config.settings.dev uv run python manage.py <command>
     ```
 
-    Полное описание всех переменных — в справочнике
-    [Переменные окружения](../reference/environment.md).
+    A full description of every variable is in the
+    [Environment variables](../reference/environment.md) reference.
 
-## Шаг 4. Применить миграции
+## Step 4. Apply the migrations
 
 ```bash
 uv run python manage.py migrate
 ```
 
-Команда создаст файл `db.sqlite3` со всеми таблицами.
+The command creates the `db.sqlite3` file with all the tables.
 
-## Шаг 5. Создать администратора
+## Step 5. Create an administrator
 
 ```bash
 uv run python manage.py createsuperuser
 ```
 
-Учётка нужна, чтобы зайти в админку `/admin/` и наполнить каталог.
+The account is needed to sign in to the `/admin/` panel and fill the catalog.
 
-## Шаг 6. Собрать CSS (Tailwind)
+## Step 6. Build the CSS (Tailwind)
 
 ```bash
 uv run python manage.py tailwind build
 ```
 
-Без этого шага страницы откроются без стилей. После правок шаблонов CSS
-пересобирают этой же командой (или держат запущенным `tailwind start` —
-режим watch).
+Without this step the pages open unstyled. After editing templates the CSS is
+rebuilt with the same command (or keep `tailwind start` running — watch mode).
 
-## Шаг 7. Запустить сервер
+## Step 7. Start the server
 
 ```bash
 uv run python manage.py runserver
 ```
 
-Откройте [http://127.0.0.1:8000](http://127.0.0.1:8000) — увидите главную
-страницу. Админка — на
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and you will see the home
+page. The admin panel is at
 [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/).
 
-## Что дальше
+## What next
 
-- Каталог пуст — [наполните его через админку](../how-to/add-product-via-admin.md).
-- Хотите понять, как всё устроено внутри —
-  [архитектура проекта](../explanation/architecture.md).
+- The catalog is empty — [fill it through the admin](../how-to/add-product-via-admin.md).
+- To understand how it all works inside, read the
+  [project architecture](../explanation/architecture.md).

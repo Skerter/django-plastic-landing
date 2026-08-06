@@ -14,7 +14,7 @@ permissions:
   pages: write
   id-token: write
 
-# Один деплой за раз; не отменять уже идущий, чтобы Pages не остался в полупустом состоянии.
+# One deploy at a time; never cancel a running one, or Pages is left half-published.
 concurrency:
   group: pages
   cancel-in-progress: false

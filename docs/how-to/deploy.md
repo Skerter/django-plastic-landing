@@ -1,40 +1,40 @@
-# Деплой на сервер
+# Deploy to a server
 
-Как развернуть проект на сервере и как выкатывать обновления.
-Этот документ — основной источник по деплою.
+How to deploy the project to a server and how to ship updates.
+This document is the primary source on deployment.
 
-Живое демо проекта: **<https://demoplast.skerter.dev>**.
+Live demo of the project: **<https://demoplast.skerter.dev>**.
 
-## Как устроен прод
+## How production is built
 
-Один VPS (Selectel VDS, Ubuntu 24.04), Docker Compose. Стек проекта
+A single VPS (Selectel VDS, Ubuntu 24.04) running Docker Compose. The project stack
 ([`deploy/selectel/compose.yaml`](https://github.com/Skerter/django-plastic-landing/blob/main/deploy/selectel/compose.yaml)):
 
-- `web` — Django + gunicorn (внутри прогоняет миграции, `collectstatic` и demo-seed),
+- `web` — Django + gunicorn (runs migrations, `collectstatic` and the demo seed on startup),
 - `db` — PostgreSQL 16,
-- `media` — nginx, отдаёт только `/media/` (загрузки админки).
+- `media` — nginx, serves `/media/` only (admin uploads).
 
-Входной reverse-proxy — **общий Traefik** на `:80/:443`, который сам выдаёт и
-продлевает TLS-сертификаты Let's Encrypt (resolver `le`). Traefik живёт отдельным
-стеком и подключается к проекту через внешнюю docker-сеть `proxy`; CI его не
-трогает. Подробнее об устройстве — [Архитектура](../explanation/architecture.md).
+The entry reverse proxy is a **shared Traefik** on `:80/:443`, which issues and
+renews Let's Encrypt TLS certificates itself (resolver `le`). Traefik lives in its
+own stack and connects to the project through the external docker network `proxy`;
+CI never touches it. More on the design — [Architecture](../explanation/architecture.md).
 
-Перед сервером стоит **Cloudflare** в режиме proxy: DNS-запись домена оранжевая,
-поэтому посетитель соединяется с edge-узлом Cloudflare, а тот уже идёт на VPS.
-Это скрывает
-IP сервера и даёт CDN. Сертификат на origin всё равно выпускает Traefik — Cloudflare
-не заменяет Let's Encrypt, а работает поверх него.
+**Cloudflare** sits in front of the server in proxy mode: the domain's DNS record is
+orange, so a visitor connects to a Cloudflare edge node, which in turn reaches the VPS.
+This hides the
+server IP and adds a CDN. The origin certificate is still issued by Traefik — Cloudflare
+does not replace Let's Encrypt, it works on top of it.
 
-Образ собирается в **GitHub Actions** и пушится в **GHCR**
-(`ghcr.io/skerter/django-plastic-landing`); сервер только тянет готовый образ —
-на VPS ничего не собирается (избегаем нагрузки/OOM).
+The image is built in **GitHub Actions** and pushed to **GHCR**
+(`ghcr.io/skerter/django-plastic-landing`); the server only pulls the ready image —
+nothing is built on the VPS (avoiding load and OOM).
 
 ```
 Internet
       │
       ▼
   ┌────────────┐
-  │ Cloudflare │  proxied, режим шифрования Full
+  │ Cloudflare │  proxied, encryption mode Full
   └────────────┘
       │ :80/:443
       ▼
@@ -44,29 +44,29 @@ Internet
                   │   web    │   │   media    │
                   │ gunicorn │   │ nginx      │
                   └─────┬────┘   └────────────┘
-            network "demoplast_internal" (приватная)
+            network "demoplast_internal" (private)
                   ┌─────▼──────┐
                   │     db     │
                   └────────────┘
 ```
 
-`web` и `media` — в сети `proxy` (их видит Traefik по docker-labels);
-`db` — только во внутренней `demoplast_internal`. Статика —
-WhiteNoise внутри `web`; загрузки админки (`/media/`) — сервис `media`.
+`web` and `media` are on the `proxy` network (Traefik discovers them by docker labels);
+`db` is only on the internal `demoplast_internal`. Static files are served by
+WhiteNoise inside `web`; admin uploads (`/media/`) by the `media` service.
 
 ---
 
-## Первый деплой на новый сервер
+## First deploy to a new server
 
-Делается один раз вручную: секретов, `.env` и docker-сети `proxy` на сервере
-ещё нет. Дальнейшие деплои — автоматические (см. [ниже](#обновить-прод)).
+Done once by hand: the secrets, the `.env` and the `proxy` docker network do not exist
+on the server yet. Subsequent deploys are automatic (see [below](#update-production)).
 
-Предполагается, что сервер уже подготовлен: пользователь `deploy` с sudo и
-доступом по SSH-ключу, открыт firewall (22/80/443), установлен Docker + Compose,
-поднят общий Traefik с внешней сетью `proxy`. Подключение и базовые команды —
-[Эксплуатация](operations.md).
+This assumes the server is already prepared: a `deploy` user with sudo and SSH key
+access, an open firewall (22/80/443), Docker + Compose installed, and the shared
+Traefik running with the external `proxy` network. Connecting and the basic commands —
+[Operations](operations.md).
 
-### 1. Клонировать репозиторий
+### 1. Clone the repository
 
 ```bash
 sudo mkdir -p /opt/django-plastic-landing
@@ -75,84 +75,85 @@ git clone https://github.com/Skerter/django-plastic-landing.git /opt/django-plas
 cd /opt/django-plastic-landing
 ```
 
-### 2. Войти в реестр образов (GHCR)
+### 2. Log in to the image registry (GHCR)
 
 ```bash
-echo "<GHCR_TOKEN>" | docker login ghcr.io -u <github-пользователь> --password-stdin
+echo "<GHCR_TOKEN>" | docker login ghcr.io -u <github-user> --password-stdin
 ```
 
-`GHCR_TOKEN` — Personal Access Token (classic) с правом `read:packages`
+`GHCR_TOKEN` is a Personal Access Token (classic) with the `read:packages` scope
 (GitHub → Settings → Developer settings → Tokens (classic)).
 
-### 3. Создать `.env` проекта
+### 3. Create the project `.env`
 
 ```bash
 cp deploy/selectel/.env.example deploy/selectel/.env
 nano deploy/selectel/.env
 ```
 
-`.env` лежит **рядом с** `compose.yaml` — Compose читает его и для интерполяции
-`${...}`, и как `env_file:` контейнеров. Заполнить минимум:
+The `.env` sits **next to** `compose.yaml` — Compose reads it both for `${...}`
+interpolation and as the containers' `env_file:`. Fill in at least:
 
 - `SECRET_KEY` — `python3 -c "import secrets; print(secrets.token_urlsafe(50))"`
-- `POSTGRES_PASSWORD` — сильный пароль; **тот же** в `DATABASE_URL`
-- `ALLOWED_HOSTS` и `SITE_DOMAIN` — домен сайта
+- `POSTGRES_PASSWORD` — a strong password; **the same one** in `DATABASE_URL`
+- `ALLOWED_HOSTS` and `SITE_DOMAIN` — the site domain
 - `DJANGO_SETTINGS_MODULE=config.settings.prod`, `DEBUG=False`
 
-Полный список переменных — [Переменные окружения](../reference/environment.md).
-Каналы уведомлений (SMTP/Telegram) можно заполнить позже —
-[Каналы уведомлений](enable-notification-channels.md).
+The full list of variables — [Environment variables](../reference/environment.md).
+Notification channels (SMTP/Telegram) can be filled in later —
+[Notification channels](enable-notification-channels.md).
 
-### 4. Убедиться, что есть внешняя docker-сеть
+### 4. Make sure the external docker network exists
 
 ```bash
-docker network create proxy   # если ещё не создана общим Traefik-стеком
+docker network create proxy   # if the shared Traefik stack has not created it yet
 ```
 
-Сеть `proxy` (`external: true`) общая с Traefik. Без неё `up -d` проекта упадёт.
+The `proxy` network (`external: true`) is shared with Traefik. Without it the
+project's `up -d` fails.
 
-### 5. Поднять проект
+### 5. Bring the project up
 
 ```bash
 docker compose -f deploy/selectel/compose.yaml pull
 docker compose -f deploy/selectel/compose.yaml up -d
 ```
 
-`web` при старте сам прогонит миграции, demo-seed и `collectstatic`. Traefik по
-домену из `SITE_DOMAIN` автоматически запросит боевой сертификат Let's Encrypt —
-как только сайт поднимется, в браузере будет валидный замок.
+On startup `web` runs the migrations, the demo seed and `collectstatic` itself. For the
+domain from `SITE_DOMAIN`, Traefik automatically requests a production Let's Encrypt
+certificate — as soon as the site is up, the browser shows a valid padlock.
 
-!!! warning "Лимит боевого Let's Encrypt"
-    5 сертификатов в неделю на домен. Не пересоздавайте том сертификатов
-    Traefik без нужды — иначе можно упереться в лимит.
+!!! warning "Production Let's Encrypt rate limit"
+    5 certificates per week per domain. Do not recreate the Traefik certificate
+    volume without a reason — you may hit the limit.
 
-### 6. Создать администратора
+### 6. Create an administrator
 
 ```bash
 docker compose -f deploy/selectel/compose.yaml exec web \
   python manage.py createsuperuser
 ```
 
-Дальше — [наполнить каталог через админку](add-product-via-admin.md) и
-[включить каналы уведомлений](enable-notification-channels.md).
+Next — [fill the catalog through the admin](add-product-via-admin.md) and
+[enable the notification channels](enable-notification-channels.md).
 
 ---
 
-## Обновить прод
+## Update production
 
-Деплой автоматический: push в `main` запускает
+Deployment is automatic: a push to `main` triggers
 [GitHub Actions](https://github.com/Skerter/django-plastic-landing/blob/main/.github/workflows/deploy.yaml),
-который собирает образ, пушит в GHCR и по SSH обновляет контейнеры на сервере.
+which builds the image, pushes it to GHCR and updates the containers on the server over SSH.
 
 ```bash
-git push origin main      # ← запускает сборку и деплой
+git push origin main      # ← triggers the build and the deploy
 ```
 
-Прогресс — на вкладке **Actions** в GitHub. CI делает `git pull` + `docker
-compose pull` + `up -d` проекта; миграции, demo-seed и `collectstatic` выполняет
-сам контейнер `web` при старте.
+Progress is on the **Actions** tab in GitHub. CI runs `git pull` + `docker
+compose pull` + `up -d` for the project; migrations, the demo seed and `collectstatic`
+are performed by the `web` container itself on startup.
 
-**Ручной деплой** (если CI недоступен):
+**Manual deploy** (if CI is unavailable):
 
 ```bash
 cd /opt/django-plastic-landing
@@ -163,41 +164,41 @@ docker compose -f deploy/selectel/compose.yaml up -d
 
 ---
 
-## Go-live: переезд на боевой домен
+## Go-live: moving to the production domain
 
-Порядок ниже проверен на переезде демо с временного nip.io-адреса на
-`demoplast.skerter.dev`. Он же годится для боевого домена заказчика.
+The procedure below was verified while moving the demo from a temporary nip.io address
+to `demoplast.skerter.dev`. It works the same way for a client's production domain.
 
-Домен задан **одной** переменной `SITE_DOMAIN`, которую Compose подставляет в
-Traefik-labels — `compose.yaml` править не нужно.
+The domain is set by a **single** variable `SITE_DOMAIN`, which Compose interpolates into
+the Traefik labels — `compose.yaml` needs no edits.
 
-1. **DNS:** A-запись домена → IP сервера. Если домен в Cloudflare, на время
-   выпуска сертификата поставить запись в **DNS only** (серое облако) — см.
-   предупреждение ниже. TTL заранее снизить до 300.
-2. **`.env` на сервере:** `SITE_DOMAIN=<домен>`, `ALLOWED_HOSTS=<домен>`,
-   `CSRF_TRUSTED_ORIGINS=https://<домен>`. Если хостов несколько — перечислить
-   через запятую (`<домен>,www.<домен>`).
-3. **Применить:** `docker compose -f deploy/selectel/compose.yaml up -d`.
-   Compose увидит изменившиеся labels и пересоздаст `web` и `media`, Traefik
-   построит роутер на новый `Host` и запросит сертификат.
-4. **Проверить:** `curl -sI https://<домен>/` → `HTTP/2 200`. Ответ `400` с
-   `server: gunicorn` означает, что контейнер не видит домен в `ALLOWED_HOSTS`
-   (частая причина — дубль переменной в `.env`, побеждает последняя строка).
-5. **Вернуть прокси Cloudflare** (оранжевое облако), если снимали на шаге 1,
-   и убедиться, что сайт по-прежнему отдаёт `200`.
-6. **Открыть индексацию** в `robots_txt` ([`apps/pages/views.py`](https://github.com/Skerter/django-plastic-landing/blob/main/apps/pages/views.py)):
-   на демо стоит `Disallow: /`, боевому сайту нужен `Allow: /`.
+1. **DNS:** an A record for the domain → the server IP. If the domain is on Cloudflare,
+   set the record to **DNS only** (grey cloud) while the certificate is issued — see
+   the warning below. Lower the TTL to 300 in advance.
+2. **`.env` on the server:** `SITE_DOMAIN=<domain>`, `ALLOWED_HOSTS=<domain>`,
+   `CSRF_TRUSTED_ORIGINS=https://<domain>`. For several hosts, list them
+   comma-separated (`<domain>,www.<domain>`).
+3. **Apply:** `docker compose -f deploy/selectel/compose.yaml up -d`.
+   Compose sees the changed labels and recreates `web` and `media`, Traefik
+   builds a router for the new `Host` and requests a certificate.
+4. **Check:** `curl -sI https://<domain>/` → `HTTP/2 200`. A `400` response with
+   `server: gunicorn` means the container does not see the domain in `ALLOWED_HOSTS`
+   (a common cause is a duplicate variable in `.env` — the last line wins).
+5. **Turn the Cloudflare proxy back on** (orange cloud) if you disabled it in step 1,
+   and confirm the site still returns `200`.
+6. **Open up indexing** in `robots_txt` ([`apps/pages/views.py`](https://github.com/Skerter/django-plastic-landing/blob/main/apps/pages/views.py)):
+   the demo uses `Disallow: /`, a production site needs `Allow: /`.
 
-!!! warning "Cloudflare: сначала сертификат, потом прокси"
-    В режимах `Full` и `Full (Strict)` Cloudflare идёт на origin по HTTPS и ждёт
-    там рабочий сертификат. Пока Traefik его не выпустил, получается замкнутый
-    круг, и посетитель видит **526 Invalid SSL certificate**. Поэтому запись
-    сначала переводится в DNS only, сертификат выпускается напрямую, и только
-    потом включается прокси. Продлению сертификата прокси уже не мешает:
-    Cloudflare не редиректит путь `/.well-known/acme-challenge/`.
+!!! warning "Cloudflare: certificate first, proxy second"
+    In `Full` and `Full (Strict)` modes Cloudflare reaches the origin over HTTPS and
+    expects a working certificate there. Until Traefik has issued one you get a
+    deadlock, and the visitor sees **526 Invalid SSL certificate**. That is why the
+    record is switched to DNS only first, the certificate is issued directly, and only
+    then the proxy is enabled. The proxy does not interfere with renewals afterwards:
+    Cloudflare does not redirect the `/.well-known/acme-challenge/` path.
 
-!!! danger "Режим Flexible несовместим с проектом"
-    При `Flexible` Cloudflare ходит на origin по HTTP, а `SECURE_SSL_REDIRECT`
-    в [`config/settings/prod.py`](https://github.com/Skerter/django-plastic-landing/blob/main/config/settings/prod.py)
-    отправляет обратно на HTTPS — получается бесконечный цикл редиректов.
-    Допустимы только `Full` и `Full (Strict)`.
+!!! danger "Flexible mode is incompatible with the project"
+    In `Flexible` mode Cloudflare reaches the origin over HTTP, while `SECURE_SSL_REDIRECT`
+    in [`config/settings/prod.py`](https://github.com/Skerter/django-plastic-landing/blob/main/config/settings/prod.py)
+    sends it back to HTTPS — an infinite redirect loop.
+    Only `Full` and `Full (Strict)` are acceptable.

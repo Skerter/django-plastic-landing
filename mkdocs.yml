@@ -1,5 +1,5 @@
-site_name: DemoPlast — Документация
-site_description: Сайт-каталог производителя пластиковой тары (Django)
+site_name: DemoPlast Documentation
+site_description: Catalog site for a plastic packaging manufacturer (Django)
 site_url: https://skerter.github.io/django-plastic-landing/
 repo_url: https://github.com/Skerter/django-plastic-landing
 repo_name: Skerter/django-plastic-landing
@@ -9,18 +9,18 @@ strict: true
 
 theme:
   name: material
-  language: ru
+  language: en
   palette:
     - scheme: default
       primary: indigo
       toggle:
         icon: material/weather-night
-        name: Тёмная тема
+        name: Dark theme
     - scheme: slate
       primary: indigo
       toggle:
         icon: material/weather-sunny
-        name: Светлая тема
+        name: Light theme
   features:
     - navigation.sections
     - navigation.top
@@ -30,6 +30,59 @@ theme:
 plugins:
   - search
   - mermaid2
+  # English is the source of truth, Russian is a translation living next to it as
+  # page.ru.md (ADR-0006). English is served at /, Russian at /ru/.
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+        - locale: ru
+          name: Русский
+          build: true
+          site_name: DemoPlast — Документация
+          site_description: Сайт-каталог производителя пластиковой тары (Django)
+          theme:
+            palette:
+              - scheme: default
+                primary: indigo
+                toggle:
+                  icon: material/weather-night
+                  name: Тёмная тема
+              - scheme: slate
+                primary: indigo
+                toggle:
+                  icon: material/weather-sunny
+                  name: Светлая тема
+          nav_translations:
+            Home: Главная
+            Tutorials: Уроки
+            Run the project locally: Запуск проекта локально
+            How-to guides: Инструкции
+            Deploy: Деплой
+            Operations: Эксплуатация
+            Content through the admin: Контент через админку
+            Notification channels: Каналы уведомлений
+            Reference: Справочник
+            Environment variables: Переменные окружения
+            API and endpoints: API и endpoints
+            Data model: Модель данных
+            Explanation: Объяснения
+            Architecture: Архитектура
+            152-FZ compliance: Соответствие 152-ФЗ
+            Decisions (ADR): Решения (ADR)
+            Overview: Обзор
+            0001 Monolith, not microservices: 0001 Монолит, не микросервисы
+            0002 Compose, not k8s: 0002 Compose, не k8s
+            0003 SSR, not SPA: 0003 SSR, не SPA
+            0004 Tailwind compiled, not CDN: 0004 Tailwind сборка, не CDN
+            0005 Lead is written to the database first: 0005 Заявка пишется в БД первой
+            0006 Language policy: 0006 Языковая политика
 
 markdown_extensions:
   - admonition
@@ -39,34 +92,35 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:mermaid2.fence_mermaid_custom
-  # Unicode-совместимые якоря: кириллические заголовки → читаемые кириллические id
-  # (дефолтный slugify выбрасывает не-ASCII и ломает ссылки вида #обновить-прод).
+  # Unicode-compatible anchors: Cyrillic headings become readable Cyrillic ids
+  # (the default slugify drops non-ASCII and breaks links like #обновить-прод
+  # on the Russian pages).
   - toc:
       slugify: !!python/object/apply:pymdownx.slugs.slugify
         kwds:
           case: lower
 
 nav:
-  - Главная: index.md
-  - Уроки:
-      - Запуск проекта локально: tutorials/getting-started.md
-  - Инструкции:
-      - Деплой: how-to/deploy.md
-      - Эксплуатация: how-to/operations.md
-      - Контент через админку: how-to/add-product-via-admin.md
-      - Каналы уведомлений: how-to/enable-notification-channels.md
-  - Справочник:
-      - Переменные окружения: reference/environment.md
-      - API и endpoints: reference/api-endpoints.md
-      - Модель данных: reference/data-model.md
-  - Объяснения:
-      - Архитектура: explanation/architecture.md
-      - Соответствие 152-ФЗ: explanation/compliance-152fz.md
-  - Решения (ADR):
-      - Обзор: adr/README.md
-      - 0001 Монолит, не микросервисы: adr/0001-monolith-not-microservices.md
-      - 0002 Compose, не k8s: adr/0002-compose-not-k8s.md
-      - 0003 SSR, не SPA: adr/0003-ssr-not-spa.md
-      - 0004 Tailwind сборка, не CDN: adr/0004-tailwind-compiled-not-cdn.md
-      - 0005 Заявка пишется в БД первой: adr/0005-write-lead-to-db-first.md
-      - 0006 Языковая политика — разделение по аудитории: adr/0006-language-policy.md
+  - Home: index.md
+  - Tutorials:
+      - Run the project locally: tutorials/getting-started.md
+  - How-to guides:
+      - Deploy: how-to/deploy.md
+      - Operations: how-to/operations.md
+      - Content through the admin: how-to/add-product-via-admin.md
+      - Notification channels: how-to/enable-notification-channels.md
+  - Reference:
+      - Environment variables: reference/environment.md
+      - API and endpoints: reference/api-endpoints.md
+      - Data model: reference/data-model.md
+  - Explanation:
+      - Architecture: explanation/architecture.md
+      - 152-FZ compliance: explanation/compliance-152fz.md
+  - Decisions (ADR):
+      - Overview: adr/index.md
+      - 0001 Monolith, not microservices: adr/0001-monolith-not-microservices.md
+      - 0002 Compose, not k8s: adr/0002-compose-not-k8s.md
+      - 0003 SSR, not SPA: adr/0003-ssr-not-spa.md
+      - 0004 Tailwind compiled, not CDN: adr/0004-tailwind-compiled-not-cdn.md
+      - 0005 Lead is written to the database first: adr/0005-write-lead-to-db-first.md
+      - 0006 Language policy: adr/0006-language-policy.md

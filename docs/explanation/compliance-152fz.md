@@ -1,84 +1,84 @@
-# Соответствие 152-ФЗ
+# 152-FZ compliance
 
-152-ФЗ — российский закон о персональных данных. Сайт собирает имя, телефон и
-(опционально) email, поэтому обязан ему соответствовать. Этот раздел объясняет,
-**как требования закона реализованы в коде** — чтобы при доработках случайно их
-не нарушить.
+152-FZ is the Russian personal data law. The site collects a name, a phone number and
+(optionally) an email, so it has to comply. This section explains
+**how the requirements of the law are implemented in the code** — so that future changes
+do not break them by accident.
 
-!!! warning "Это не юридическая консультация"
-    Здесь описана только механика в коде. Финальные тексты согласия и политики
-    конфиденциальности готовит и проверяет юрист компании — мы закладываем
-    механизм, а не сочиняем юридические формулировки.
+!!! warning "This is not legal advice"
+    Only the mechanics in the code are described here. The final texts of the consent and
+    the privacy policy are prepared and reviewed by the company's lawyer — we build the
+    mechanism, we do not compose legal wording.
 
-## Согласие — отдельный документ
+## Consent is a separate document
 
-Согласие на обработку персональных данных и политику конфиденциальности
-**нельзя объединять** — это два разных документа по требованию закона. На сайте
-им соответствуют две отдельные страницы:
+The personal data processing consent and the privacy policy
+**must not be merged** — the law requires two different documents. On the site they
+correspond to two separate pages:
 
-- `/soglasie-na-obrabotku-pdn/` — согласие на обработку ПДн;
-- `/politika-konfidencialnosti/` — политика конфиденциальности.
+- `/soglasie-na-obrabotku-pdn/` — the personal data processing consent;
+- `/politika-konfidencialnosti/` — the privacy policy.
 
-При изменении не сливайте их в одну страницу.
+When making changes, do not merge them into a single page.
 
-## Чекбокс согласия
+## The consent checkbox
 
-Три правила, все проверяются на бэкенде:
+Three rules, all enforced on the backend:
 
-- **Чекбокс не предзаполнен.** Пользователь ставит галочку сам.
-- **Без галочки форма не отправляется** — `consent` объявлен как обязательное
-  поле формы (`required=True` в
+- **The checkbox is not pre-checked.** The user ticks it themselves.
+- **Without the tick the form is not submitted** — `consent` is declared as a required
+  form field (`required=True` in
   [`apps/leads/forms.py`](https://github.com/Skerter/django-plastic-landing/blob/main/apps/leads/forms.py)).
-  Валидация на сервере, а не только на фронте: даже если обойти JS, заявка без
-  согласия не пройдёт.
-- **Факт согласия фиксируется.** В заявке (`Lead`) сохраняется `consent=True`
-  вместе с `created_at` — остаётся отметка, что согласие было дано и когда.
+  Validation happens on the server, not just on the frontend: even if the JS is bypassed,
+  a lead without consent does not go through.
+- **The fact of consent is recorded.** The lead (`Lead`) stores `consent=True`
+  together with `created_at` — leaving a record that consent was given and when.
 
-## Минимизация данных
+## Data minimisation
 
-Собираем только необходимое: имя и телефон обязательны, email — нет.
-Лишних полей в форме нет — это тоже требование закона (минимизация). При
-доработке формы не добавляйте поля «про запас».
+We collect only what is necessary: the name and the phone number are required, the email
+is not. There are no extra fields in the form — that too is a requirement of the law
+(minimisation). When extending the form, do not add fields "just in case".
 
-## Локализация: данные остаются в России
+## Localisation: the data stays in Russia
 
-Закон требует, чтобы персональные данные граждан РФ хранились на территории
-России. Отсюда:
+The law requires the personal data of Russian citizens to be stored on Russian territory.
+Hence:
 
-- **VPS — в российском дата-центре**, база данных там же.
-- **Никаких зарубежных аналитических сервисов.** Google Analytics запрещён —
-  используется только Яндекс.Метрика (российский сервис).
-- **Персональные данные не уходят за рубеж даже в служебных целях.** Например,
-  перед отправкой ошибок в Sentry имена, телефоны и email вырезаются
-  (`config/sentry.py`, `before_send`) — наружу уходит только трассировка без ПДн.
+- **The VPS is in a Russian data centre**, and the database is there too.
+- **No foreign analytics services.** Google Analytics is prohibited — only
+  Yandex.Metrica (a Russian service) is used.
+- **Personal data does not leave the country even for internal purposes.** For example,
+  names, phone numbers and emails are stripped before errors are sent to Sentry
+  (`config/sentry.py`, `before_send`) — only a traceback without personal data leaves.
 
-Это объясняет и осторожность с внешними каналами уведомлений: канал, который
-гонит данные через зарубежный сервис, требует, чтобы персональные данные при
-этом за границу не попадали.
+This also explains the caution around external notification channels: a channel that
+pushes data through a foreign service must not let personal data cross the border in
+the process.
 
-## Cookie и Яндекс.Метрика
+## Cookies and Yandex.Metrica
 
-Метрика — аналитический cookie, поэтому подключается **только после явного
-согласия** пользователя:
+Metrica is an analytics cookie, so it is loaded **only after the user's explicit
+consent**:
 
-- Баннер cookie-согласия делит cookie на **необходимые** (сессия, CSRF —
-  работают всегда) и **аналитические** (Метрика).
-- Выбор пользователя сохраняется в отдельной cookie `cookie_consent`
+- The cookie consent banner splits cookies into **necessary** (session, CSRF —
+  always active) and **analytics** (Metrica).
+- The user's choice is stored in a dedicated `cookie_consent` cookie
   ([`apps/core/views.py`](https://github.com/Skerter/django-plastic-landing/blob/main/apps/core/views.py)).
-- Скрипт Метрики **инжектится в шаблон только при согласии**. В `base.html`
-  блок Метрики выводится при условии
-  `request.COOKIES.cookie_consent == 'accepted'` (и непустом ID счётчика).
-  Если согласия нет — `tag.js` не загружается вовсе.
+- The Metrica script is **injected into the template only with consent**. In `base.html`
+  the Metrica block is rendered under the condition
+  `request.COOKIES.cookie_consent == 'accepted'` (and a non-empty counter ID).
+  Without consent, `tag.js` is not loaded at all.
 
-Решение принимается на сервере в шаблоне по значению cookie — это надёжнее,
-чем полагаться на клиентский код.
+The decision is made on the server, in the template, from the cookie value — which is
+more reliable than trusting client-side code.
 
-## Чек-лист для заказчика (вне кода)
+## A checklist for the client (outside the code)
 
-Эти пункты — зона ответственности компании, не разработки, но о них стоит
-напомнить:
+These items are the company's responsibility rather than the developers', but they are
+worth a reminder:
 
-- подать в Роскомнадзор уведомление оператора персональных данных;
-- финальные тексты согласия и политики должен проверить юрист;
-- если данные передаются третьим лицам (например, в amoCRM) — это должно быть
-  указано в согласии (цели обработки и перечень данных).
+- file the personal data operator notification with Roskomnadzor;
+- have a lawyer review the final consent and policy texts;
+- if the data is passed to third parties (amoCRM, for example), that has to be stated
+  in the consent (the processing purposes and the list of data).

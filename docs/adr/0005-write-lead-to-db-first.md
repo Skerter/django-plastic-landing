@@ -1,37 +1,37 @@
-# 0005 — Заявка пишется в БД первой
+# 0005 — The lead is written to the database first
 
-- **Статус:** accepted
-- **Дата:** 2026-05-01
+- **Status:** accepted
+- **Date:** 2026-05-01
 
-## Контекст
+## Context
 
-Каждая заявка с сайта должна попасть к менеджеру и (по возможности) в amoCRM.
-Внешние системы ненадёжны: amoCRM может быть недоступна, токен — протухнуть,
-сеть — отказать. Заявка при этом теряться не должна, а пользователь не должен
-ждать ответа CRM.
+Every lead from the site has to reach a sales manager and (where possible) amoCRM.
+External systems are unreliable: amoCRM can be unavailable, a token can expire, the
+network can fail. The lead must not be lost in the process, and the user must not
+wait for the CRM's response.
 
-## Решение
+## Decision
 
-Заявка **сначала сохраняется в локальную БД** (источник истины), и только
-потом уходит во внешние каналы (email/Telegram/amoCRM) — **асинхронно**, через
-фоновый воркер. HTTP-ответ формы не ждёт внешние системы.
+The lead is **saved to the local database first** (the source of truth), and only
+then sent to the external channels (email/Telegram/amoCRM) — **asynchronously**, through
+a background worker. The form's HTTP response does not wait for the external systems.
 
-## Последствия
+## Consequences
 
-**Плюсы:**
+**Upsides:**
 
-- Заявка не теряется при сбое любого внешнего канала — она уже в БД и видна в
-  админке.
-- Форма отвечает «спасибо» мгновенно, не завися от скорости/доступности CRM.
-- Сбой одного канала не ломает форму и не мешает остальным каналам; неудачные
-  отправки ретраятся.
+- The lead is not lost when any external channel fails — it is already in the database
+  and visible in the admin.
+- The form answers "thank you" instantly, independent of the CRM's speed or availability.
+- One channel failing neither breaks the form nor affects the other channels; failed
+  sends are retried.
 
-**Минусы / плата:**
+**Downsides / the cost:**
 
-- Нужен фоновый воркер (`qcluster`) и очередь задач — лишний движущийся
-  компонент в проде.
-- Доставка во внешние системы становится «eventually» (не мгновенной), но для
-  уведомлений о заявках это допустимо.
+- A background worker (`qcluster`) and a task queue are required — an extra moving
+  part in production.
+- Delivery to the external systems becomes "eventual" rather than instant, which is
+  acceptable for lead notifications.
 
-Детали реализации потока — [Архитектура](../explanation/architecture.md);
-настройка каналов — [Каналы уведомлений](../how-to/enable-notification-channels.md).
+The implementation details of the flow — [Architecture](../explanation/architecture.md);
+the channel setup — [Notification channels](../how-to/enable-notification-channels.md).

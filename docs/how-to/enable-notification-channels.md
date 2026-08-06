@@ -1,157 +1,157 @@
-# Включить каналы уведомлений
+# Enable notification channels
 
-О каждой новой заявке сайт может уведомлять по трём независимым каналам:
-**Email**, **Telegram**, **amoCRM**. Они включаются по отдельности — можно
-один, можно все три.
+For every new lead the site can notify three independent channels:
+**Email**, **Telegram**, **amoCRM**. They are enabled separately — one of them,
+or all three.
 
-## Как это работает
+## How it works
 
-1. Заявка сначала **сохраняется в базу** — это происходит всегда, независимо
-   от каналов. Заявка не теряется, даже если все уведомления упадут.
-2. Затем сайт ставит в очередь задачи только для **включённых** каналов
-   (фоновый воркер `qcluster`). Форма не ждёт их выполнения — пользователь
-   сразу видит «спасибо».
-3. Если канал настроен неполностью — он просто пропускается с записью в лог,
-   остальные продолжают работать.
+1. The lead is **saved to the database first** — this always happens, regardless
+   of the channels. The lead is never lost, even if every notification fails.
+2. The site then queues tasks only for the **enabled** channels
+   (the background worker `qcluster`). The form does not wait for them — the user
+   sees the "thank you" immediately.
+3. If a channel is only partially configured, it is simply skipped with a log entry;
+   the others keep working.
 
-Подробнее о потоке — в разделе [Архитектура](../explanation/architecture.md).
+More on the flow — in the [Architecture](../explanation/architecture.md) section.
 
-## Двухуровневая настройка
+## Two-level configuration
 
-Каждый канал требует **две вещи**:
+Every channel needs **two things**:
 
-| Уровень | Где задаётся | Что задаёт |
+| Level | Where it is set | What it sets |
 |---|---|---|
-| **Включатель** | Админка → Настройки сайта → «Уведомления и аналитика» | галочка «включить канал» + адресат (email / chat_id) |
-| **Учётные данные** | Файл `.env` на сервере | токены и пароли (на сайте не видны) |
+| **Switch** | Admin → Site settings → "Notifications and analytics" | the "enable channel" checkbox + the recipient (email / chat_id) |
+| **Credentials** | The `.env` file on the server | tokens and passwords (never visible on the site) |
 
-Галочка в админке только разрешает попытку; без кредов в `.env` канал
-всё равно пропустится. Это разделение умышленное: секреты не хранятся в БД
-и не показываются в интерфейсе.
+The admin checkbox only permits the attempt; without credentials in `.env` the channel
+is skipped anyway. This split is deliberate: secrets are not stored in the database
+and are not shown in the interface.
 
-После правки `.env` на сервере нужно перезапустить контейнеры — см.
-[Эксплуатация](operations.md).
+After editing `.env` on the server the containers have to be restarted — see
+[Operations](operations.md).
 
 ---
 
 ## Email
 
-**Рекомендуемый канал** (включён по умолчанию). Письмо о заявке уходит
-на указанный адрес.
+**The recommended channel** (enabled by default). An email about the lead is sent
+to the configured address.
 
-**В админке** (Настройки сайта → Уведомления и аналитика):
+**In the admin** (Site settings → Notifications and analytics):
 
-- ✅ **Отправлять заявки на email**
-- **E-mail для уведомлений** — адрес-получатель. Если пусто, канал
-  пропускается.
+- ✅ **Отправлять заявки на email** (send leads by email)
+- **E-mail для уведомлений** (notification e-mail) — the recipient address. If empty,
+  the channel is skipped.
 
-!!! warning "Это не e-mail продаж"
-    «E-mail для уведомлений» и «E-mail отдела продаж» — **разные поля**. Первое
-    скрыто и служит только для писем о заявках; второе показывается на странице
-    «Контакты». Не путайте их.
+!!! warning "This is not the sales e-mail"
+    "E-mail для уведомлений" (notification e-mail) and "E-mail отдела продаж" (sales
+    e-mail) are **different fields**. The first is hidden and only serves lead
+    notifications; the second is shown on the "Contacts" page. Do not mix them up.
 
-**В `.env`** (SMTP-доступ отправителя):
+**In `.env`** (the sender's SMTP access):
 
 ```bash
 DEFAULT_FROM_EMAIL=noreply@example.com
 EMAIL_HOST=smtp.example.com
 EMAIL_PORT=465
 EMAIL_HOST_USER=noreply@example.com
-EMAIL_HOST_PASSWORD=<пароль приложения>
+EMAIL_HOST_PASSWORD=<app password>
 EMAIL_USE_SSL=True
 EMAIL_USE_TLS=False
 ```
 
-Важные моменты при настройке SMTP:
+Things that matter when configuring SMTP:
 
-- **`EMAIL_HOST_USER` и `DEFAULT_FROM_EMAIL` должны совпадать** — почтовые
-  провайдеры не дают отправлять от чужого имени.
-- `EMAIL_HOST_PASSWORD` — обычно **пароль приложения**, а не основной пароль от
-  почты (создаётся в настройках безопасности почтового аккаунта).
-- **SSL или TLS, но не оба сразу.** Для порта 465 — `EMAIL_USE_SSL=True`,
-  `EMAIL_USE_TLS=False`. Оба флага `True` — Django не стартует.
+- **`EMAIL_HOST_USER` and `DEFAULT_FROM_EMAIL` must match** — mail
+  providers do not allow sending on someone else's behalf.
+- `EMAIL_HOST_PASSWORD` is usually an **app password**, not the main mailbox
+  password (it is created in the mail account's security settings).
+- **SSL or TLS, not both.** For port 465 — `EMAIL_USE_SSL=True`,
+  `EMAIL_USE_TLS=False`. With both flags `True` Django refuses to start.
 
-Пример выше — для типового SMTP-провайдера (порт 465, SSL). Полное описание полей —
-[Переменные окружения](../reference/environment.md).
+The example above is for a typical SMTP provider (port 465, SSL). A full field reference —
+[Environment variables](../reference/environment.md).
 
-!!! note "В разработке письма не уходят"
-    Локально (`dev`) письма печатаются в консоль `runserver` — реальный SMTP
-    не нужен. Настоящая отправка — только на проде.
+!!! note "No mail is sent in development"
+    Locally (`dev`) emails are printed to the `runserver` console — no real SMTP
+    is needed. Actual delivery happens in production only.
 
 ---
 
 ## Telegram
 
-Уведомление приходит сообщением в чат через бота.
+The notification arrives as a chat message from a bot.
 
-**В админке:**
+**In the admin:**
 
-- ✅ **Отправлять уведомления в Telegram**
-- **Telegram chat_id** — числовой ID чата (не `@username`).
+- ✅ **Отправлять уведомления в Telegram** (send notifications to Telegram)
+- **Telegram chat_id** — the numeric chat ID (not a `@username`).
 
-**В `.env`:**
+**In `.env`:**
 
 ```bash
-TELEGRAM_BOT_TOKEN=<токен бота от @BotFather>
+TELEGRAM_BOT_TOKEN=<bot token from @BotFather>
 ```
 
-Если токен или chat_id пусты — канал пропускается.
+If the token or the chat_id is empty, the channel is skipped.
 
-!!! warning "Доступность Telegram API зависит от сети сервера"
-    Telegram должен быть доступен с сервера. Если API недоступно, канал штатно
-    падает (заявка при этом сохранена, форма отвечает «спасибо»), а в логах
-    `qcluster` будет ошибка сети.
+!!! warning "Telegram API reachability depends on the server's network"
+    Telegram has to be reachable from the server. If the API is unavailable, the channel
+    fails gracefully (the lead is still saved and the form answers "thank you"), and a
+    network error appears in the `qcluster` logs.
 
 ---
 
 ## amoCRM
 
-Заявка выгружается в CRM: создаётся контакт и сделка.
+The lead is pushed to the CRM: a contact and a deal are created.
 
-**В админке:**
+**In the admin:**
 
-- ✅ **Отправлять заявки в amoCRM**
+- ✅ **Отправлять заявки в amoCRM** (send leads to amoCRM)
 
-**В `.env`:**
+**In `.env`:**
 
 ```bash
-AMOCRM_BASE_URL=https://<поддомен>.amocrm.ru
-AMOCRM_CLIENT_ID=<из карточки интеграции>
-AMOCRM_CLIENT_SECRET=<из карточки интеграции>
-AMOCRM_REDIRECT_URI=<из карточки интеграции>
-AMOCRM_PIPELINE_ID=0      # 0 = первый этап главной воронки
+AMOCRM_BASE_URL=https://<subdomain>.amocrm.ru
+AMOCRM_CLIENT_ID=<from the integration card>
+AMOCRM_CLIENT_SECRET=<from the integration card>
+AMOCRM_REDIRECT_URI=<from the integration card>
+AMOCRM_PIPELINE_ID=0      # 0 = the first stage of the main pipeline
 AMOCRM_STATUS_ID=0
 ```
 
-!!! warning "Пустые ID ломают запуск на проде"
-    `AMOCRM_PIPELINE_ID` и `AMOCRM_STATUS_ID` должны быть числами. Если воронку
-    не выбираете — ставьте `0`, а не оставляйте пустыми, иначе контейнер `web`
-    не стартует.
+!!! warning "Empty IDs break the production start-up"
+    `AMOCRM_PIPELINE_ID` and `AMOCRM_STATUS_ID` must be numbers. If you are not choosing
+    a pipeline, set `0` instead of leaving them empty, otherwise the `web` container
+    will not start.
 
-**Разовая авторизация.** Интеграция работает по OAuth 2.0 — кроме кредов нужна
-первичная авторизация (обмен кода на токены). На сервере:
+**One-time authorization.** The integration uses OAuth 2.0 — on top of the credentials it
+needs an initial authorization (exchanging the code for tokens). On the server:
 
 ```bash
 docker compose -f deploy/selectel/compose.prod.yaml exec web \
   python manage.py amocrm_auth <code>
 ```
 
-`<code>` — код авторизации из карточки интеграции amoCRM. После этого токены
-сохранятся в БД и будут обновляться автоматически. Без этого шага канал
-пропускается с записью «нет авторизации» в лог.
+`<code>` is the authorization code from the amoCRM integration card. After that the tokens
+are stored in the database and refreshed automatically. Without this step the channel
+is skipped with a "not authorized" log entry.
 
 ---
 
-## Проверка
+## Verification
 
-После настройки оставьте тестовую заявку через форму на сайте и проверьте:
+Once configured, submit a test lead through a form on the site and check that:
 
-- запись появилась в админке (**Заявки**);
-- уведомление дошло по включённым каналам;
-- при проблемах — логи воркера:
+- the record appeared in the admin (**Заявки**, Leads);
+- the notification arrived through the enabled channels;
+- if something is wrong — the worker logs:
 
 `docker compose -f deploy/selectel/compose.prod.yaml logs -f qcluster`.
 
-!!! note "Изменения `.env` применяются после перезапуска"
-    Контейнеры читают `.env` при старте. После правки переменных перезапустите
-    стек (`up -d`) — см. [Эксплуатация](operations.md).
+!!! note "`.env` changes apply after a restart"
+    Containers read `.env` at startup. After editing variables, restart the
+    stack (`up -d`) — see [Operations](operations.md).

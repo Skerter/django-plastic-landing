@@ -30,7 +30,7 @@
 | [0003](0003-ssr-not-spa.md) | Серверный рендеринг, не SPA | accepted |
 | [0004](0004-tailwind-compiled-not-cdn.md) | Tailwind собирается, не CDN | accepted |
 | [0005](0005-write-lead-to-db-first.md) | Заявка пишется в БД первой | accepted |
-| [0006](0006-language-policy.md) | Языковая политика: разделение по аудитории | accepted |
+| [0006](0006-language-policy.md) | Языковая политика: английский первый, русский как перевод | accepted |
 
 ## Шаблон новой записи
 
