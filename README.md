@@ -8,7 +8,8 @@
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 **Live demo:** [demoplast.skerter.dev](https://demoplast.skerter.dev) ·
-**Docs:** [skerter.github.io/django-plastic-landing](https://skerter.github.io/django-plastic-landing/)
+**Docs:** [skerter.github.io/django-plastic-landing](https://skerter.github.io/django-plastic-landing/) ·
+**Language:** English · [Русский](README.ru.md)
 
 A six-page product catalog with HTMX-driven lead forms, a fan-out notification pipeline
 (email, Telegram, amoCRM), and Russian personal-data law (152-FZ) compliance built into the
