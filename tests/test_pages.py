@@ -31,6 +31,16 @@ def test_lead_form_post_without_consent_returns_200_with_errors(client):
     assert "consent" in response.content.decode().lower()
 
 
+def test_robots_closes_site_from_indexing(client):
+    body = client.get("/robots.txt").content.decode()
+    assert "Disallow: /" in body
+
+
+def test_robots_builds_sitemap_url_from_request_host(client):
+    body = client.get("/robots.txt").content.decode()
+    assert "Sitemap: http://testserver/sitemap.xml" in body
+
+
 def test_certificate_str_returns_title():
     cert = Certificate(title="ГОСТ 12345")
     assert str(cert) == "ГОСТ 12345"

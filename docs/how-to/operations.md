@@ -17,7 +17,8 @@
 | Compose проекта | `deploy/selectel/compose.yaml` |
 | Reverse-proxy | общий Traefik (внешняя сеть `proxy`) |
 | Образ | `ghcr.io/skerter/django-plastic-landing:latest` |
-| Демо | <https://demo.135.106.161.48.nip.io> |
+| DNS и CDN | Cloudflare (запись proxied) |
+| Демо | <https://demoplast.skerter.dev> |
 
 !!! note "Traefik — отдельный стек"
     Входной Traefik (точка входа :80/:443 + TLS) живёт сам по себе и подключается
@@ -148,9 +149,36 @@ TLS полностью на Traefik (Let's Encrypt, HTTP-01) — никаког�
 сертификат запрашивается автоматически при первом запуске для домена из
 `SITE_DOMAIN` (resolver `le`); дальше Traefik сам его продлевает.
 
+Поверх этого стоит Cloudflare: браузер завершает TLS на его edge-узле, а Cloudflare
+отдельным TLS-соединением идёт на origin, где его встречает сертификат Traefik.
+Проверить, что именно лежит на origin, можно в обход Cloudflare — по IP, подставив
+имя хоста через SNI:
+
+```bash
+echo | openssl s_client -connect <IP-сервера>:443 -servername demoplast.skerter.dev 2>/dev/null \
+  | openssl x509 -noout -issuer -subject -dates
+```
+
+`issuer` с `Let's Encrypt` — всё в порядке; `CN=TRAEFIK DEFAULT CERT` означает, что
+под этот Host у Traefik нет роутера и отдаётся самоподписанная заглушка.
+
 !!! warning "Лимит боевого Let's Encrypt"
     5 сертификатов в неделю на домен. Не удаляйте том сертификатов Traefik
     без нужды — пересоздание серта расходует лимит.
+
+!!! note "TODO: перевести Cloudflare в Full (Strict)"
+    Сейчас зона работает в режиме **Full**: трафик Cloudflare → origin шифруется,
+    но подлинность сертификата origin не проверяется, поэтому теоретический MITM
+    на этом участке остаётся возможен. У `demoplast.skerter.dev` валидный
+    сертификат Let's Encrypt уже есть, так что `Full (Strict)` для него включается
+    без дополнительной подготовки.
+
+    Переключение отложено потому, что режим шифрования задаётся **на всю зону**
+    `skerter.dev` и затронул бы соседние хосты. Аккуратный путь — не менять зону,
+    а завести Configuration Rule с условием `Hostname equals demoplast.skerter.dev`
+    и настройкой SSL → `Full (Strict)`. Перед включением проверить сертификаты
+    остальных проксируемых хостов командой `openssl` выше: тот, у кого окажется
+    `TRAEFIK DEFAULT CERT`, под Strict начнёт отдавать 526.
 
 ## 8. Деплой кода
 
@@ -170,9 +198,18 @@ TLS полностью на Traefik (Let's Encrypt, HTTP-01) — никаког�
    ошибка в `.env` (см. [Переменные окружения](../reference/environment.md)).
 4. **Сертификат не выдаётся** → проверь, что `SITE_DOMAIN` резолвится в IP
    сервера и открыт :80 (HTTP-01 идёт по :80); смотри ACME-логи Traefik.
-5. **`/media/` не отдаётся (404)** → проверь сервис `media` и что том
+   Если домен проксируется Cloudflare — временно переведи запись в DNS only,
+   выпусти сертификат напрямую и верни прокси
+   ([Go-live](deploy.md#go-live-переезд-на-боевой-домен)).
+5. **400 Bad Request с `server: gunicorn`** → Django отвергает `Host`. Домена нет
+   в `ALLOWED_HOSTS`: сверь `.env` и то, что реально видит контейнер
+   (`docker compose -f deploy/selectel/compose.yaml exec web env | grep ALLOWED_HOSTS`) —
+   при дубле переменной в `.env` побеждает последняя строка.
+6. **526 / 525 от Cloudflare** → сертификата на origin нет или он невалиден для
+   выбранного режима шифрования (см. §7).
+7. **`/media/` не отдаётся (404)** → проверь сервис `media` и что том
    `media_volume` смонтирован.
-6. **Сайт не грузится вообще** → порты снаружи + firewall (`sudo ufw status`),
+8. **Сайт не грузится вообще** → порты снаружи + firewall (`sudo ufw status`),
    Traefik занял :80/:443 (`sudo ss -tlnp | grep -E ':80|:443'`).
 
 ## Удобный алиас

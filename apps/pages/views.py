@@ -1,15 +1,21 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.urls import reverse
 
 from .models import Certificate
 
 
 def robots_txt(request):
-    content = """User-agent: *
-Allow: /
-Disallow: /admin/
+    # Витрина закрыта от индексации целиком: она не должна попадать в выдачу и
+    # конкурировать там с сайтом заказчика. Sitemap остаётся корректным, чтобы
+    # при go-live хватило заменить одну директиву на `Allow: /`.
+    sitemap_url = request.build_absolute_uri(
+        reverse("django.contrib.sitemaps.views.sitemap")
+    )
+    content = f"""User-agent: *
+Disallow: /
 
-Sitemap: https://demoplast.example/sitemap.xml"""
+Sitemap: {sitemap_url}"""
     return HttpResponse(content, content_type="text/plain")
 
 

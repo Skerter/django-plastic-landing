@@ -6,7 +6,7 @@
 SSR-каталог, формы заявок на HTMX, фоновые интеграции (email · Telegram · amoCRM),
 требования 152-ФЗ, Docker + Traefik + CI/CD.
 
-[![Live demo](https://img.shields.io/badge/demo-online-22C55E?logo=firefox&logoColor=white)](https://demo.135.106.161.48.nip.io)
+[![Live demo](https://img.shields.io/badge/demo-online-22C55E?logo=firefox&logoColor=white)](https://demoplast.skerter.dev)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
 ![Django](https://img.shields.io/badge/Django-5.x-092E20?logo=django&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
@@ -15,7 +15,7 @@ SSR-каталог, формы заявок на HTMX, фоновые интег
 ![Docker](https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-**🌐 Живое демо: [demo.135.106.161.48.nip.io](https://demo.135.106.161.48.nip.io)** ·
+**🌐 Живое демо: [demoplast.skerter.dev](https://demoplast.skerter.dev)** ·
 📚 [Документация](docs/index.md)
 
 </div>

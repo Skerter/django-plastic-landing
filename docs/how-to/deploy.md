@@ -3,7 +3,7 @@
 Как развернуть проект на сервере и как выкатывать обновления.
 Этот документ — основной источник по деплою.
 
-Живое демо проекта: **<https://demo.135.106.161.48.nip.io>**.
+Живое демо проекта: **<https://demoplast.skerter.dev>**.
 
 ## Как устроен прод
 
@@ -19,13 +19,24 @@
 стеком и подключается к проекту через внешнюю docker-сеть `proxy`; CI его не
 трогает. Подробнее об устройстве — [Архитектура](../explanation/architecture.md).
 
+Перед сервером стоит **Cloudflare** в режиме proxy: DNS-запись домена оранжевая,
+поэтому посетитель соединяется с edge-узлом Cloudflare, а тот уже идёт на VPS.
+Это скрывает
+IP сервера и даёт CDN. Сертификат на origin всё равно выпускает Traefik — Cloudflare
+не заменяет Let's Encrypt, а работает поверх него.
+
 Образ собирается в **GitHub Actions** и пушится в **GHCR**
 (`ghcr.io/skerter/django-plastic-landing`); сервер только тянет готовый образ —
 на VPS ничего не собирается (избегаем нагрузки/OOM).
 
 ```
-Internet :80/:443
+Internet
       │
+      ▼
+  ┌────────────┐
+  │ Cloudflare │  proxied, режим шифрования Full
+  └────────────┘
+      │ :80/:443
       ▼
   ┌──────────┐   docker network "proxy" (external)
   │ Traefik  │◄────────┬──────────────┐
@@ -154,12 +165,39 @@ docker compose -f deploy/selectel/compose.yaml up -d
 
 ## Go-live: переезд на боевой домен
 
-Когда понадобится заменить демо-адрес на собственный домен:
+Порядок ниже проверен на переезде демо с временного nip.io-адреса на
+`demoplast.skerter.dev`. Он же годится для боевого домена заказчика.
 
-1. **DNS** (в панели регистратора домена): A-записи `@` и `www` →
-   IP сервера. Заранее снизить TTL до 300.
-2. **`.env`:** `ALLOWED_HOSTS=<домен>,www.<домен>`, `SITE_DOMAIN=<домен>`,
-   `CSRF_TRUSTED_ORIGINS=https://<домен>`. Traefik по новому `SITE_DOMAIN` сам
-   запросит сертификат на боевой домен — `compose.yaml` править не нужно.
-3. Перезапустить: `docker compose -f deploy/selectel/compose.yaml up -d`.
-4. Снять `noindex`, если стоял для демо, чтобы сайт индексировался.
+Домен задан **одной** переменной `SITE_DOMAIN`, которую Compose подставляет в
+Traefik-labels — `compose.yaml` править не нужно.
+
+1. **DNS:** A-запись домена → IP сервера. Если домен в Cloudflare, на время
+   выпуска сертификата поставить запись в **DNS only** (серое облако) — см.
+   предупреждение ниже. TTL заранее снизить до 300.
+2. **`.env` на сервере:** `SITE_DOMAIN=<домен>`, `ALLOWED_HOSTS=<домен>`,
+   `CSRF_TRUSTED_ORIGINS=https://<домен>`. Если хостов несколько — перечислить
+   через запятую (`<домен>,www.<домен>`).
+3. **Применить:** `docker compose -f deploy/selectel/compose.yaml up -d`.
+   Compose увидит изменившиеся labels и пересоздаст `web` и `media`, Traefik
+   построит роутер на новый `Host` и запросит сертификат.
+4. **Проверить:** `curl -sI https://<домен>/` → `HTTP/2 200`. Ответ `400` с
+   `server: gunicorn` означает, что контейнер не видит домен в `ALLOWED_HOSTS`
+   (частая причина — дубль переменной в `.env`, побеждает последняя строка).
+5. **Вернуть прокси Cloudflare** (оранжевое облако), если снимали на шаге 1,
+   и убедиться, что сайт по-прежнему отдаёт `200`.
+6. **Открыть индексацию** в `robots_txt` ([`apps/pages/views.py`](https://github.com/Skerter/django-plastic-landing/blob/main/apps/pages/views.py)):
+   на демо стоит `Disallow: /`, боевому сайту нужен `Allow: /`.
+
+!!! warning "Cloudflare: сначала сертификат, потом прокси"
+    В режимах `Full` и `Full (Strict)` Cloudflare идёт на origin по HTTPS и ждёт
+    там рабочий сертификат. Пока Traefik его не выпустил, получается замкнутый
+    круг, и посетитель видит **526 Invalid SSL certificate**. Поэтому запись
+    сначала переводится в DNS only, сертификат выпускается напрямую, и только
+    потом включается прокси. Продлению сертификата прокси уже не мешает:
+    Cloudflare не редиректит путь `/.well-known/acme-challenge/`.
+
+!!! danger "Режим Flexible несовместим с проектом"
+    При `Flexible` Cloudflare ходит на origin по HTTP, а `SECURE_SSL_REDIRECT`
+    в [`config/settings/prod.py`](https://github.com/Skerter/django-plastic-landing/blob/main/config/settings/prod.py)
+    отправляет обратно на HTTPS — получается бесконечный цикл редиректов.
+    Допустимы только `Full` и `Full (Strict)`.
