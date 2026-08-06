@@ -20,7 +20,11 @@ dependencies = [
 ]
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "config.settings.dev"
+# Через --ds, а не через ключ DJANGO_SETTINGS_MODULE: у pytest-django переменная
+# окружения приоритетнее ini, а VS Code подставляет в терминал корневой .env
+# (python.terminal.useEnvFile), где стоит config.settings.docker — тесты уходили
+# на Postgres по хосту `db`, который вне docker-сети не резолвится.
+addopts = ["--ds=config.settings.dev"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
