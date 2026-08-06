@@ -40,6 +40,7 @@ dev = [
 docs = [
     "mkdocs-material>=9.5",
     "mkdocs-mermaid2-plugin>=1.1",
+    "mkdocs-static-i18n>=1.2",
 ]
 
 [tool.ruff.lint.per-file-ignores]
