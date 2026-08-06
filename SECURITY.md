@@ -1,55 +1,59 @@
-# Политика безопасности
+# Security policy
 
-## Поддерживаемые версии
+**Language:** English · [Русский](SECURITY.ru.md)
 
-Это showcase-проект, разрабатываемый по rolling-release: единственная поддерживаемая
-ветка — `main`. Исправления безопасности выходят только в ней, отдельные мажорные/минорные
-релизы не сопровождаются. Перед сообщением об уязвимости убедитесь, что воспроизводите её
-на актуальном `main`.
+## Supported versions
 
-| Версия            | Поддержка          |
+This is a showcase project developed as a rolling release: the only supported branch is
+`main`. Security fixes land there only; individual major/minor releases are not
+maintained. Before reporting a vulnerability, make sure you can reproduce it on current
+`main`.
+
+| Version           | Supported          |
 | ----------------- | ------------------ |
-| `main` (последняя)| :white_check_mark: |
-| Старые коммиты    | :x:                |
+| `main` (latest)   | :white_check_mark: |
+| Older commits     | :x:                |
 
-## Сообщение об уязвимости
+## Reporting a vulnerability
 
-**Пожалуйста, не сообщайте об уязвимостях через публичные GitHub Issues или Pull Requests** —
-это раскрывает проблему до того, как её можно будет исправить.
+**Please do not report vulnerabilities through public GitHub Issues or Pull Requests** —
+that discloses the problem before it can be fixed.
 
-Сообщайте приватно одним из способов:
+Report privately through one of these channels:
 
-- **GitHub Security Advisories** — вкладка *Security → Report a vulnerability* репозитория
-  ([приватный отчёт](https://github.com/Skerter/django-plastic-landing/security/advisories/new)).
-  Предпочтительный канал.
-- **Email** — [geopank55@gmail.com](mailto:geopank55@gmail.com) с темой `[SECURITY] django-plastic-landing`.
+- **GitHub Security Advisories** — the repository's *Security → Report a vulnerability* tab
+  ([private report](https://github.com/Skerter/django-plastic-landing/security/advisories/new)).
+  The preferred channel.
+- **Email** — [geopank55@gmail.com](mailto:geopank55@gmail.com) with the subject `[SECURITY] django-plastic-landing`.
 
-В отчёт по возможности включите:
+Where possible, include in the report:
 
-- описание уязвимости и её потенциального влияния;
-- шаги для воспроизведения или PoC;
-- затронутый коммит/файл и, если есть, предлагаемое исправление.
+- a description of the vulnerability and its potential impact;
+- reproduction steps or a PoC;
+- the affected commit/file and, if you have one, a suggested fix.
 
-### Чего ожидать
+### What to expect
 
-- **Подтверждение получения** — в течение 5 рабочих дней.
-- **Первичная оценка** — в течение 14 дней: принята уязвимость или отклонена, с обоснованием.
-- **Если принята** — мы согласуем сроки исправления, выпустим фикс в `main` и упомянем вас в
-  благодарностях (если вы не против). Координированное раскрытие приветствуется.
-- **Если отклонена** — объясним, почему (например, ожидаемое поведение или вне модели угроз).
+- **Acknowledgement of receipt** — within 5 business days.
+- **Initial assessment** — within 14 days: accepted or rejected, with the reasoning.
+- **If accepted** — we agree on a fix timeline, ship the fix in `main` and credit you in the
+  acknowledgements (if you are happy with that). Coordinated disclosure is welcome.
+- **If rejected** — we explain why (for example, expected behaviour or out of the threat model).
 
-## Область
+## Scope
 
-Это **обезличенная витрина** реального коммерческого проекта. Демо работает в `DEMO_MODE`
-без настоящих ключей, а данные заказчика заменены вымышленной компанией. Соответственно:
+This is an **anonymized showcase** of a real commercial project. The demo runs in
+`DEMO_MODE` without real credentials, and the client's data is replaced by a fictional
+company. Accordingly:
 
-- Публичная демо-инсталляция и её инфраструктура **вне** области security-отчётов — она
-  намеренно содержит фиктивные данные.
-- Интересны уязвимости в **коде** этого репозитория: обработка лид-форм, фоновые задачи,
-  скрубберы ПДн, настройки безопасности Django.
+- The public demo deployment and its infrastructure are **out of scope** for security
+  reports — it deliberately contains fictional data.
+- What is of interest are vulnerabilities in the **code** of this repository: lead form
+  handling, background tasks, personal-data scrubbers, Django security settings.
 
-Учтите уже встроенные меры — это не уязвимости: CSRF на всех формах, honeypot и
-`django-ratelimit` на лид-форме, `SECURE_SSL_REDIRECT`/HSTS/`*_COOKIE_SECURE` в проде,
-скруббер ПДн для Sentry (`config/sentry.py`).
+Please account for the measures already built in — these are not vulnerabilities: CSRF on
+every form, a honeypot and `django-ratelimit` on the lead form,
+`SECURE_SSL_REDIRECT`/HSTS/`*_COOKIE_SECURE` in production, and the personal-data scrubber
+for Sentry (`config/sentry.py`).
 
-Спасибо, что помогаете сохранять проект в безопасности.
+Thank you for helping keep the project secure.
