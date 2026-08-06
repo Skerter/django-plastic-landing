@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 **Живое демо:** [demoplast.skerter.dev](https://demoplast.skerter.dev) ·
-**Документация:** [skerter.github.io/django-plastic-landing](https://skerter.github.io/django-plastic-landing/) ·
+**Документация:** [skerter.github.io/django-plastic-landing/ru](https://skerter.github.io/django-plastic-landing/ru/) ·
 **Язык:** [English](README.md) · Русский
 
 Каталог на шесть страниц с формами заявок на HTMX, веером фоновых уведомлений
@@ -39,7 +39,7 @@
 **Лид сначала в БД, потом в CRM.** Локальная база — source of truth: заявка сохраняется
 до любого внешнего вызова, пуш в amoCRM идёт асинхронно после. Падение CRM или протухший
 OAuth-токен не теряют заявку и не блокируют ответ пользователю.
-([ADR-0005](docs/adr/0005-write-lead-to-db-first.md),
+([ADR-0005](docs/adr/0005-write-lead-to-db-first.ru.md),
 [apps/leads/views.py](apps/leads/views.py), [apps/leads/tasks.py](apps/leads/tasks.py))
 
 **Изолированные каналы уведомлений.** Email, Telegram и amoCRM — три независимые задачи
@@ -52,7 +52,7 @@ django-q2 с нативными ретраями; падение одного к
 на бэкенде, факт согласия фиксируется с меткой времени. Аналитика не грузится до согласия
 на cookie (решение принимается на сервере в шаблоне), собираются только имя и телефон.
 Скруббер Sentry `before_send` вырезает имена, телефоны и тела форм до отправки события.
-([config/sentry.py](config/sentry.py), [объяснение](docs/explanation/compliance-152fz.md))
+([config/sentry.py](config/sentry.py), [объяснение](docs/explanation/compliance-152fz.ru.md))
 
 **Защита форм.** Honeypot-поле, `django-ratelimit` на 5 заявок в час с IP с честным `429`,
 который HTMX корректно свапает, CSRF на всех формах, в проде — `SECURE_SSL_REDIRECT`,
@@ -71,10 +71,10 @@ HSTS и secure-куки.
 
 | Технология | Обоснование |
 |---|---|
-| Django 5, монолит | Шесть страниц и форма не требуют микросервисов; SSR держит каталог индексируемым. ([ADR-0001](docs/adr/0001-monolith-not-microservices.md), [ADR-0003](docs/adr/0003-ssr-not-spa.md)) |
+| Django 5, монолит | Шесть страниц и форма не требуют микросервисов; SSR держит каталог индексируемым. ([ADR-0001](docs/adr/0001-monolith-not-microservices.ru.md), [ADR-0003](docs/adr/0003-ssr-not-spa.ru.md)) |
 | PostgreSQL 16 | Основное хранилище и ORM-брокер очереди задач — без отдельного Redis. |
 | HTMX | Отправка форм, вывод ошибок и реакция на лимит — HTML-фрагментами, без JS-фреймворка. |
-| Tailwind v4 (`django-tailwind` + standalone-бинарь) | Дизайн-система собирается на этапе сборки, а не тянется с CDN; Node на сервере не нужен. ([ADR-0004](docs/adr/0004-tailwind-compiled-not-cdn.md)) |
+| Tailwind v4 (`django-tailwind` + standalone-бинарь) | Дизайн-система собирается на этапе сборки, а не тянется с CDN; Node на сервере не нужен. ([ADR-0004](docs/adr/0004-tailwind-compiled-not-cdn.ru.md)) |
 | django-q2 | Фоновые задачи уведомлений и пуша в CRM на ORM-брокере. |
 | django-solo | Синглтон `SiteSettings` — контакты и реквизиты правятся в админке, а не в коде. |
 | Sentry | Мониторинг ошибок в проде со скруббером персональных данных. |
@@ -133,7 +133,7 @@ uv run python manage.py runserver --settings=config.settings.dev
 
 Вся конфигурация — через переменные окружения. [.env.example](.env.example) — шаблон,
 реальный `.env` в `.gitignore`. Полный справочник переменных:
-[docs/reference/environment.md](docs/reference/environment.md).
+[docs/reference/environment.ru.md](docs/reference/environment.ru.md).
 
 | Переменная | Назначение |
 |---|---|
@@ -174,7 +174,7 @@ Push в `main` запускает [.github/workflows/deploy.yaml](.github/workfl
 сборка образа, пуш в GHCR как `ghcr.io/skerter/django-plastic-landing`, затем деплой по SSH
 через `git reset --hard`, `compose pull` и `up -d`. Секреты хранятся в GitHub Secrets.
 
-Рунбуки: [деплой](docs/how-to/deploy.md) · [эксплуатация](docs/how-to/operations.md).
+Рунбуки: [деплой](docs/how-to/deploy.ru.md) · [эксплуатация](docs/how-to/operations.ru.md).
 
 ---
 
@@ -192,7 +192,7 @@ django-plastic-landing/
 ├── pyproject.toml, uv.lock   # зависимости и конфиг инструментов (uv)
 ├── mkdocs.yml                # конфиг сайта документации
 ├── .env.example              # шаблон локального окружения (DEMO_MODE=True)
-├── LICENSE, SECURITY.md
+├── LICENSE, SECURITY.md      # + SECURITY.ru.md (перевод)
 ├── .github/workflows/        # CI: test.yaml, deploy.yaml, docs.yaml
 ├── config/
 │   ├── settings/             # base, dev, docker, prod
@@ -208,7 +208,7 @@ django-plastic-landing/
 ├── static/                   # demoplast.css, site.js, htmx.min.js, стили админки, img/
 ├── scripts/                  # скриншоты, подготовка фото и сертификатов
 ├── deploy/selectel/          # прод-стек: compose.yaml, nginx-media.conf, .env.example
-├── docs/                     # Diátaxis-документация, ADR, скриншоты
+├── docs/                     # Diátaxis-документация (EN + *.ru.md), ADR, скриншоты
 └── tests/                    # pytest: catalog, core, leads, pages, sentry
 ```
 
@@ -223,23 +223,29 @@ django-plastic-landing/
 решений. Собирается через MkDocs Material и публикуется на GitHub Pages из CI при каждом
 push в `main`.
 
+Сайт двуязычный: английская версия в корне, русская — на
+[`/ru/`](https://skerter.github.io/django-plastic-landing/ru/), переключатель языка в
+шапке. Источник правды — английская версия, русские страницы (`*.ru.md`) являются
+переводом: при расхождении права английская
+([ADR-0006](docs/adr/0006-language-policy.ru.md)).
+
 ```bash
 uv run --extra docs mkdocs serve
 ```
 
-Точка входа: [docs/index.md](docs/index.md). Ключевые страницы:
-[запуск локально](docs/tutorials/getting-started.md),
-[деплой](docs/how-to/deploy.md), [эксплуатация](docs/how-to/operations.md),
-[архитектура](docs/explanation/architecture.md),
-[модель данных](docs/reference/data-model.md),
-[переменные окружения](docs/reference/environment.md),
-[ADR](docs/adr/README.md).
+Точка входа: [docs/index.ru.md](docs/index.ru.md). Ключевые страницы:
+[запуск локально](docs/tutorials/getting-started.ru.md),
+[деплой](docs/how-to/deploy.ru.md), [эксплуатация](docs/how-to/operations.ru.md),
+[архитектура](docs/explanation/architecture.ru.md),
+[модель данных](docs/reference/data-model.ru.md),
+[переменные окружения](docs/reference/environment.ru.md),
+[ADR](docs/adr/index.ru.md).
 
 ---
 
 ## Безопасность
 
-Как сообщать об уязвимостях и какие версии поддерживаются: [SECURITY.md](SECURITY.md).
+Как сообщать об уязвимостях и какие версии поддерживаются: [SECURITY.ru.md](SECURITY.ru.md).
 
 ---
 

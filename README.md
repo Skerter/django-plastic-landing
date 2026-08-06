@@ -193,7 +193,7 @@ django-plastic-landing/
 ├── pyproject.toml, uv.lock   # dependencies and tool config (uv)
 ├── mkdocs.yml                # documentation site config
 ├── .env.example              # local environment template (DEMO_MODE=True)
-├── LICENSE, SECURITY.md
+├── LICENSE, SECURITY.md      # + SECURITY.ru.md (translation)
 ├── .github/workflows/        # CI: test.yaml, deploy.yaml, docs.yaml
 ├── config/
 │   ├── settings/             # base, dev, docker, prod
@@ -209,7 +209,7 @@ django-plastic-landing/
 ├── static/                   # demoplast.css, site.js, htmx.min.js, admin overrides, img/
 ├── scripts/                  # screenshots, photo and certificate preparation
 ├── deploy/selectel/          # production stack: compose.yaml, nginx-media.conf, .env.example
-├── docs/                     # Diátaxis documentation, ADRs, screenshots
+├── docs/                     # Diátaxis documentation (EN + *.ru.md), ADRs, screenshots
 └── tests/                    # pytest: catalog, core, leads, pages, sentry
 ```
 
@@ -224,6 +224,12 @@ how-to guides, reference and explanation — plus six ADRs recording the reasoni
 decisions. It is built with MkDocs Material and published to GitHub Pages from CI on every
 push to `main`.
 
+The site is bilingual: English at the root, Russian under
+[`/ru/`](https://skerter.github.io/django-plastic-landing/ru/), with a language switcher in
+the header. English is the source of truth and the Russian pages (`*.ru.md`) are a
+translation — where they disagree, English is correct
+([ADR-0006](docs/adr/0006-language-policy.md)).
+
 ```bash
 uv run --extra docs mkdocs serve
 ```
@@ -234,7 +240,7 @@ Entry point: [docs/index.md](docs/index.md). Notable pages:
 [architecture](docs/explanation/architecture.md),
 [data model](docs/reference/data-model.md),
 [environment variables](docs/reference/environment.md),
-[ADRs](docs/adr/README.md).
+[ADRs](docs/adr/index.md).
 
 ---
 
