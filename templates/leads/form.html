@@ -1,10 +1,10 @@
 {% comment %}
-  Форма заявки (callback/order). Работает через htmx → вьюха lead_form.
-  Параметры include:
-    form_type   — "callback" | "order" (тип заявки)
-    product     — pk товара (необязательно, для заказа с карточки)
-  Контекст из вьюхи: form (LeadForm). При GET-include form может отсутствовать —
-  тогда рендерим пустую форму через одноимённую переменную из контекста страницы.
+  The lead form (callback/order). Runs through htmx → the lead_form view.
+  Include parameters:
+    form_type   — "callback" | "order" (the lead type)
+    product     — the product pk (optional, for an order from a product page)
+  Context from the view: form (LeadForm). On a GET include form may be missing —
+  then an empty form is rendered from the same-named variable in the page context.
 {% endcomment %}
 <form hx-post="{% url 'lead_form' %}" hx-target="find .form-wrap" hx-swap="innerHTML"
       class="mt-8" novalidate>

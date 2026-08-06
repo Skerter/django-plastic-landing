@@ -7,18 +7,18 @@ logger = logging.getLogger(__name__)
 
 
 def notify_email(lead_id: int) -> None:
-    """Отправить уведомление о новой заявке на email.
+    """Send an email notification about a new lead.
 
-    Получатель берётся из ``SiteSettings.email_notifications`` (задаётся в
-    админке). Тело письма — ``Lead.as_message()``, отправитель —
+    The recipient comes from ``SiteSettings.email_notifications`` (set in the
+    admin). The body is ``Lead.as_message()``, the sender is
     ``settings.DEFAULT_FROM_EMAIL``.
 
-    Запускается как фоновая задача django-q2. Если получатель не задан —
-    логирует предупреждение и тихо выходит (ретраить нечего). Ошибки SMTP
-    пробрасываются, чтобы воркер повторил задачу.
+    Runs as a django-q2 background task. If no recipient is set, logs a warning
+    and exits quietly (there is nothing to retry). SMTP errors propagate, so the
+    worker retries the task.
 
     Args:
-        lead_id: PK заявки (:class:`~apps.leads.models.Lead`).
+        lead_id: PK of the lead (:class:`~apps.leads.models.Lead`).
     """
     from apps.core.models import SiteSettings
     from apps.leads.models import Lead
@@ -26,7 +26,7 @@ def notify_email(lead_id: int) -> None:
     recipient = SiteSettings.get_solo().email_notifications
     if not recipient:
         logger.warning(
-            "Email пропущен: не задан email для уведомлений (заявка %s)", lead_id
+            "Email skipped: no notification address is set (lead %s)", lead_id
         )
         return
 
@@ -37,4 +37,4 @@ def notify_email(lead_id: int) -> None:
         settings.DEFAULT_FROM_EMAIL,
         [recipient],
     )
-    logger.info("Email отправлен для заявки %s", lead_id)
+    logger.info("Email sent for lead %s", lead_id)

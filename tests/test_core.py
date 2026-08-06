@@ -6,10 +6,10 @@ from apps.core.models import SiteSettings
 @pytest.mark.django_db
 def test_seed_migration_populated_settings():
     site_settings = SiteSettings.get_solo()
-    # по одному полю из каждой группы — миграция засеяла все категории
-    assert site_settings.phone_sales  # контакты
-    assert site_settings.address  # адрес
-    assert site_settings.inn  # реквизиты
+    # one field per group — the migration seeded every category
+    assert site_settings.phone_sales  # contacts
+    assert site_settings.address  # address
+    assert site_settings.inn  # legal details
 
 
 def test_tel_property_strips_formatting():

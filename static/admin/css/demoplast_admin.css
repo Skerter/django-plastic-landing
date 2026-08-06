@@ -1,36 +1,36 @@
-/* Брендирование Django-админки под фирменный стиль DemoPlast.
-   Переопределяем CSS-переменные палитры (admin/css/base.css), без правки исходников Django.
+/* Branding the Django admin in the DemoPlast style.
+   Overrides the palette CSS variables (admin/css/base.css) without touching Django's sources.
 
-   Переменные дублируем для светлой и тёмной темы: Django переопределяет их
-   в @media (prefers-color-scheme: dark) и в :root[data-theme="dark"], иначе
-   наши значения перебиваются обратно на дефолтные тёмные. */
+   The variables are duplicated for the light and the dark theme: Django redefines
+   them in @media (prefers-color-scheme: dark) and in :root[data-theme="dark"],
+   otherwise our values get overridden back to the default dark ones. */
 
 :root,
 :root[data-theme="light"],
 :root[data-theme="dark"] {
-    --primary: #2B5CB4;            /* основной цвет: шапка, активные элементы */
-    --secondary: #2B5CB4;          /* модульные заголовки */
-    --accent: #1E4486;             /* акцент (наведение/выделение) — чуть темнее основного */
+    --primary: #2B5CB4;            /* the main colour: header, active elements */
+    --secondary: #2B5CB4;          /* module headings */
+    --accent: #1E4486;             /* accent (hover/selection) — slightly darker than the main colour */
 
-    --header-bg: #2B5CB4;          /* фон верхней шапки */
+    --header-bg: #2B5CB4;          /* the top header background */
     --header-color: #ffffff;
     --header-link-color: #ffffff;
     --header-branding-color: #ffffff;
 
-    --link-fg: #2B5CB4;            /* ссылки в контенте */
+    --link-fg: #2B5CB4;            /* links in the content */
     --link-hover-color: #1E4486;
 
-    --button-bg: #2B5CB4;          /* обычные кнопки */
+    --button-bg: #2B5CB4;          /* ordinary buttons */
     --button-hover-bg: #1E4486;
-    --default-button-bg: #1E4486;  /* основная кнопка (Сохранить) — темнее, чтобы выделялась */
+    --default-button-bg: #1E4486;  /* the primary button (Save) — darker so it stands out */
     --default-button-hover-bg: #163566;
 
-    --breadcrumbs-bg: #1E4486;     /* «хлебные крошки» под шапкой */
+    --breadcrumbs-bg: #1E4486;     /* the breadcrumbs under the header */
     --breadcrumbs-fg: #d6e2f5;
     --breadcrumbs-link-fg: #ffffff;
 }
 
-/* Авто-тёмная тема (по системной): тот же бренд на шапке. */
+/* Auto dark theme (following the system): the same brand on the header. */
 @media (prefers-color-scheme: dark) {
     :root,
     :root[data-theme="auto"] {
@@ -54,12 +54,12 @@
     }
 }
 
-/* Текст приветствия в шапке («Добро пожаловать, …») в тёмной теме был бледным. */
+/* The greeting in the header ("Welcome, …") was washed out in the dark theme. */
 #user-tools {
     color: #ffffff;
 }
 
-/* Логотип в шапке */
+/* The logo in the header */
 #site-name img {
     height: 28px;
     vertical-align: middle;
@@ -71,7 +71,7 @@
     gap: 10px;
 }
 
-/* Текст site_header рядом с логотипом — белый на синей шапке. */
+/* The site_header text next to the logo — white on the blue header. */
 #site-name,
 #site-name a,
 #site-name a span {

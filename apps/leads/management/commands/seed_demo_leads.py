@@ -1,7 +1,7 @@
-"""Наполняет БД демо-заявками, чтобы админка (/admin/leads/lead/) не была пустой.
+"""Fills the database with demo leads so the admin (/admin/leads/lead/) is not empty.
 
-Идемпотентна: повторный запуск удаляет ранее созданные демо-заявки
-(по фиктивным телефонам из диапазона +7 495 000-7X-XX) и создаёт их заново.
+Idempotent: a repeated run deletes the previously created demo leads (matched by
+the fake phone numbers in the +7 495 000-7X-XX range) and creates them again.
 
     python manage.py seed_demo_leads
 """
@@ -14,7 +14,7 @@ from django.utils import timezone
 from apps.catalog.models import Product
 from apps.leads.models import Lead
 
-# Все телефоны — вымышленные, диапазон 495 000-7X-XX зарезервирован под демо-заявки.
+# Every phone number is fictional; the 495 000-7X-XX range is reserved for demo leads.
 DEMO_LEADS = [
     {
         "name": "Алексей Смирнов",
@@ -60,13 +60,13 @@ DEMO_LEADS = [
 
 
 class Command(BaseCommand):
-    help = "Создаёт демонстрационные заявки (Lead) для непустой админки."
+    help = "Creates demonstration leads so the admin is not empty."
 
     def handle(self, *args, **options):
         demo_phones = [d["phone"] for d in DEMO_LEADS]
         deleted, _ = Lead.objects.filter(phone__in=demo_phones).delete()
         if deleted:
-            self.stdout.write(f"Удалено прежних демо-заявок: {deleted}")
+            self.stdout.write(f"Previous demo leads deleted: {deleted}")
 
         created = 0
         for data in DEMO_LEADS:
@@ -84,11 +84,11 @@ class Command(BaseCommand):
                 consent=True,
                 product=product,
             )
-            # created_at — auto_now_add, поэтому правим отдельным update, чтобы
-            # заявки имели разные даты и выглядели реалистично в списке админки.
+            # created_at is auto_now_add, so it takes a separate update to give the
+            # leads different dates and make the admin list look realistic.
             Lead.objects.filter(pk=lead.pk).update(
                 created_at=timezone.now() - timedelta(days=data["days_ago"])
             )
             created += 1
 
-        self.stdout.write(self.style.SUCCESS(f"Создано демо-заявок: {created}"))
+        self.stdout.write(self.style.SUCCESS(f"Demo leads created: {created}"))

@@ -8,22 +8,22 @@ from .tasks import schedule_lead_notifications
 
 @ratelimit(key="ip", rate="5/h", method="POST", block=False)
 def lead_form(request):
-    """Обработать форму заявки (HTMX), вернуть HTML-фрагмент для свапа.
+    """Handle the lead form (HTMX) and return an HTML fragment to swap in.
 
-    Поведение по методу:
+    Behaviour by method:
 
-    * **GET** — пустая форма (используется как include на страницах).
-    * **POST, валидна** — сохраняет ``Lead``, ставит уведомления в очередь,
-      возвращает фрагмент «спасибо» (200).
-    * **POST, ошибки валидации** — фрагмент полей с подсветкой ошибок (200).
-    * **Превышен лимит** (5/час с IP) — фрагмент с предложением позвонить (429).
+    * **GET** — an empty form (used as an include on pages).
+    * **POST, valid** — saves the ``Lead``, queues the notifications and returns
+      the "thank you" fragment (200).
+    * **POST, validation errors** — the fields fragment with errors highlighted (200).
+    * **Rate limit exceeded** (5/hour per IP) — a fragment offering a phone call (429).
 
-    Заявка всегда пишется в БД первой; рассылка по каналам идёт асинхронно и
-    ответ её не ждёт.
+    The lead is always written to the database first; the channel fan-out is
+    asynchronous and the response does not wait for it.
     """
     if getattr(request, "limited", False):
-        # 429 — корректный статус. htmx настроен свапать 4xx (см. base.html,
-        # htmx-config → responseHandling), поэтому фрагмент покажется.
+        # 429 is the correct status here. htmx is configured to swap 4xx
+        # (see base.html, htmx-config → responseHandling), so the fragment shows up.
         html = render_to_string("leads/ratelimit.html", request=request)
         return HttpResponse(html, status=429)
 
@@ -36,11 +36,11 @@ def lead_form(request):
             schedule_lead_notifications(lead.id)
             html = render_to_string("leads/success.html", request=request)
             return HttpResponse(html)
-        # ошибки валидации — возвращаем только свапаемый фрагмент полей
+        # validation errors — return only the swappable fields fragment
         html = render_to_string(
             "leads/form_fields.html", {"form": form}, request=request
         )
         return HttpResponse(html, status=200)
 
-    # GET — пустая форма (используется как include на страницах)
+    # GET — an empty form (used as an include on pages)
     return render(request, "leads/form.html", {"form": LeadForm()})

@@ -11,9 +11,9 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
-# Демо-режим: при True внешние интеграции (email-SMTP, Telegram, amoCRM) не
-# вызываются — заявка пишется в БД, каналы только логируют «demo, skipped».
-# Позволяет поднять публичное демо без реальных ключей. См. apps/leads/tasks.py.
+# Demo mode: when True the external integrations (SMTP email, Telegram, amoCRM) are
+# never called — the lead is written to the database and the channels only log
+# "demo, skipped". Lets a public demo run without real keys. See apps/leads/tasks.py.
 DEMO_MODE = env.bool("DEMO_MODE", default=False)
 
 TAILWIND_APP_NAME = "theme"
@@ -95,15 +95,15 @@ Q_CLUSTER = {
     "name": "demoplast",
     "workers": 2,
     "timeout": 60,
-    "retry": 300,  # ждать ack 5 мин, потом снова отдать задачу воркеру (обязан быть > timeout)
+    "retry": 300,  # wait 5 min for an ack, then hand the task to a worker again (must be > timeout)
     "max_attempts": 5,
     "ack_failures": False,
-    "sync": True,  # dev/тесты — инлайн, прод — False
+    "sync": True,  # inline in dev/tests, False in production
     "orm": "default",
 }
 
-# Отправитель по умолчанию: его подставит send_mail(), если не передать from_email.
-# TODO: прописать стандартный адрес в .env
+# Default sender: send_mail() falls back to it when from_email is not passed.
+# TODO: set a standard address in .env
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="")
 TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
 
@@ -111,6 +111,6 @@ AMOCRM_BASE_URL = env("AMOCRM_BASE_URL", default="")
 AMOCRM_CLIENT_ID = env("AMOCRM_CLIENT_ID", default="")
 AMOCRM_CLIENT_SECRET = env("AMOCRM_CLIENT_SECRET", default="")
 AMOCRM_REDIRECT_URI = env("AMOCRM_REDIRECT_URI", default="")
-# int(), но пустая строка в .env (AMOCRM_PIPELINE_ID=) трактуется как «не задано».
+# int(), but an empty string in .env (AMOCRM_PIPELINE_ID=) counts as "not set".
 AMOCRM_PIPELINE_ID = int(env("AMOCRM_PIPELINE_ID", default="") or 0)
 AMOCRM_STATUS_ID = int(env("AMOCRM_STATUS_ID", default="") or 0)

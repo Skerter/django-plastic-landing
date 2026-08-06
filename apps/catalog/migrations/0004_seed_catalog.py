@@ -229,7 +229,7 @@ def seed(apps, schema_editor):
                 "order": p["order"],
             },
         )
-        # спеки key-value без своего ключа → пересоздаём, чтобы не плодить дубли
+        # the key-value specs have no key of their own → recreate them to avoid duplicates
         product.specs.all().delete()
         for s in specs:
             ProductSpec.objects.create(product=product, **s)
@@ -239,7 +239,7 @@ def unseed(apps, schema_editor):
     Category = apps.get_model("catalog", "Category")
     Product = apps.get_model("catalog", "Product")
     slugs = [p["slug"] for p in PRODUCTS]
-    Product.objects.filter(slug__in=slugs).delete()  # спеки уйдут каскадом
+    Product.objects.filter(slug__in=slugs).delete()  # the specs go with them by cascade
     Category.objects.filter(slug__in=[c["slug"] for c in CATEGORIES]).delete()
 
 

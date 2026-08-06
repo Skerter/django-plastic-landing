@@ -1,14 +1,14 @@
 """
-Подготовка фото товаров для карточек каталога.
+Prepares product photos for the catalogue cards.
 
-Исходники — студийные packshot: продукт на ровном
-светло-голубом фоне (193,215,254). Скрипт заменяет этот фон на фирменный
-светлый #F4F6F9 (токен surface), вписывает в квадрат с полями, ресайзит и
-сохраняет в WebP. Это chroma-key по ровному фону — НЕ вырезание нейросетью
-(rembg не нужен).
+The sources are studio packshots: the product on a flat light-blue background
+(193,215,254). The script replaces that background with the brand light
+#F4F6F9 (the surface token), fits the product into a square with margins,
+resizes and saves as WebP. This is a chroma key over a flat background, NOT a
+neural-network cutout (rembg is not needed).
 
-Структура: input/ — подпапки по слагам товаров; имена результата совпадают
-со слагами (для загрузки в админку как ProductImage), порядок сохраняется.
+Layout: input/ holds one subdirectory per product slug; the output names match
+the slugs (for uploading into the admin as ProductImage) and the order is kept.
 
     input/
       kanistra-20l/  20-1.png 20-2.png ...
@@ -16,15 +16,15 @@
     output/
       kanistra-20l/  kanistra-20l-1.webp kanistra-20l-2.webp ...
 
-Запуск:
+Usage:
     uv run python scripts/prep_photos.py "C:/photos/input" "C:/photos/output"
 
-Опции:
-    --bg        цвет фона hex (по умолчанию #F4F6F9 — токен surface)
-    --key       цвет голубого фона исходника hex (по умолчанию #C1D7FE)
-    --size      сторона квадрата в px (по умолчанию 1200)
-    --margin    поля вокруг продукта, доля стороны (по умолчанию 0.06)
-    --quality   качество WebP (по умолчанию 82)
+Options:
+    --bg        background colour, hex (default #F4F6F9 — the surface token)
+    --key       source blue background colour, hex (default #C1D7FE)
+    --size      square side in px (default 1200)
+    --margin    margin around the product, as a fraction of the side (default 0.06)
+    --quality   WebP quality (default 82)
 """
 
 import argparse
@@ -43,20 +43,20 @@ def hex_to_rgb(s: str) -> tuple[int, int, int]:
 
 
 def swap_background(src: Path, bg: np.ndarray, key: np.ndarray) -> Image.Image:
-    """Заменить ровный голубой фон исходника на bg, вернуть RGB без каймы."""
+    """Replace the flat blue source background with bg, return RGB without fringing."""
     a = np.asarray(Image.open(src).convert("RGB")).astype(float)
     dist = np.sqrt(((a - key) ** 2).sum(axis=2))
 
-    # маска продукта 0..1 (1 = продукт), мягкий переход по дистанции до фона
+    # product mask 0..1 (1 = product), soft ramp over the distance to the background
     lo, hi = 30, 85
     prod = np.clip((dist - lo) / (hi - lo), 0, 1)
 
-    # съедаем ~2px каймы (erode) и смягчаем край
+    # eat ~2px of fringe (erode) and soften the edge
     m = Image.fromarray((prod * 255).astype("uint8"))
     m = m.filter(ImageFilter.MinFilter(5)).filter(ImageFilter.GaussianBlur(1.2))
     prod = np.asarray(m).astype(float) / 255
 
-    # decontaminate: в краевой зоне убираем синеву (тянем к яркостному серому)
+    # decontaminate: pull the blue out of the edge zone (towards luminance grey)
     edge = ((prod > 0.05) & (prod < 0.95))[..., None]
     neutral = np.repeat(a.mean(axis=2, keepdims=True), 3, axis=2)
     a = np.where(edge, a * 0.5 + neutral * 0.5, a)
@@ -69,13 +69,13 @@ def swap_background(src: Path, bg: np.ndarray, key: np.ndarray) -> Image.Image:
 def fit_square(
     img: Image.Image, bg: np.ndarray, size: int, margin: float
 ) -> Image.Image:
-    """Обрезать по продукту, вписать в квадрат на bg с полями."""
+    """Crop to the product and fit it into a square on bg with margins."""
     arr = np.asarray(img).astype(int)
-    # продукт = пиксели, заметно отличающиеся от фона
+    # the product is the pixels that differ noticeably from the background
     mask = np.abs(arr - bg).sum(axis=2) > 24
     ys, xs = np.where(mask)
     canvas = Image.new("RGB", (size, size), tuple(int(c) for c in bg))
-    if len(xs) == 0:  # пусто — отдать чистый фон
+    if len(xs) == 0:  # nothing found — return a clean background
         return canvas
 
     box = img.crop((int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1))
@@ -89,8 +89,8 @@ def fit_square(
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("input", help="папка с подпапками-слагами сырых фото")
-    ap.add_argument("output", help="папка для результата")
+    ap.add_argument("input", help="directory with slug subdirectories of raw photos")
+    ap.add_argument("output", help="output directory")
     ap.add_argument("--bg", default="#F4F6F9")
     ap.add_argument("--key", default="#C1D7FE")
     ap.add_argument("--size", type=int, default=1200)
@@ -101,7 +101,7 @@ def main() -> int:
     in_root = Path(args.input)
     out_root = Path(args.output)
     if not in_root.is_dir():
-        print(f"нет папки: {in_root}", file=sys.stderr)
+        print(f"no such directory: {in_root}", file=sys.stderr)
         return 1
 
     bg = np.array(hex_to_rgb(args.bg), dtype=float)
@@ -126,7 +126,7 @@ def main() -> int:
             print(f"  {src.name} -> {out_file.name}")
             total += 1
 
-    print(f"\nготово: {total} фото")
+    print(f"\ndone: {total} photos")
     return 0
 
 

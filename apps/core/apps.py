@@ -11,7 +11,7 @@ class CoreConfig(AppConfig):
         from django.contrib.admin.sites import NotRegistered
         from django_q.models import Failure, OrmQ, Schedule, Success
 
-        # Прячем служебные модели django_q из админки — заказчику они не нужны.
+        # Hide the internal django_q models from the admin — the client has no use for them.
         for model in (Failure, OrmQ, Schedule, Success):
             try:
                 admin.site.unregister(model)

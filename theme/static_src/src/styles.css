@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 /**
- * Компонентная дизайн-система DemoPlast (.btn, .fld, .ph, .grid-rule, .nav-lk, …).
- * Кладём в слой components, чтобы утилиты Tailwind (hidden, sm:hidden, bg-*)
- * всегда побеждали компоненты по правилам каскада слоёв — без !important.
+ * The DemoPlast component design system (.btn, .fld, .ph, .grid-rule, .nav-lk, …).
+ * Placed in the components layer so that Tailwind utilities (hidden, sm:hidden,
+ * bg-*) always beat the components by cascade layer order — no !important needed.
  */
 @import "../../../static/css/demoplast.css" layer(components);
 
 /**
- * Tailwind сканирует эти пути на классы.
+ * Tailwind scans these paths for class names.
  */
 @source "../../../templates/**/*.html";
 @source "../../../apps/**/*.py";
 
 /* ============================================================
-   DemoPlast — дизайн-токены (Tailwind v4 @theme)
+   DemoPlast — design tokens (Tailwind v4 @theme)
    Archivo (display) · IBM Plex Sans (text) · IBM Plex Mono (mono)
-   Палитра и радиусы перенесены из дизайн-системы (static/css/demoplast.css).
+   The palette and radii come from the design system (static/css/demoplast.css).
    ============================================================ */
 @theme {
-  /* Шрифты */
+  /* Fonts */
   --font-display: "Archivo", sans-serif;
   --font-sans: "IBM Plex Sans", sans-serif;
   --font-mono: "IBM Plex Mono", monospace;
 
-  /* Фирменная палитра */
+  /* Brand palette */
   --color-brand: #2B5CB4;
   --color-brand-700: #1E4488;
   --color-brand-900: #14213D;
@@ -34,8 +34,8 @@
   --color-surface: #F4F6F9;
   --color-accent: #E8A13A;
 
-  /* Промышленный «квадратный» радиус: всё 4px, включая full.
-     Переопределяем шкалу Tailwind целиком. */
+  /* Industrial "square" radius: 4px everywhere, full included.
+     The whole Tailwind scale is overridden. */
   --radius-none: 0px;
   --radius-sm: 2px;
   --radius-DEFAULT: 4px;
@@ -46,5 +46,5 @@
   --radius-3xl: 4px;
   --radius-full: 4px;
 
-  /* Контейнер 80rem (max-w-7xl уже = 80rem в Tailwind, оставляем дефолт) */
+  /* 80rem container (max-w-7xl is already 80rem in Tailwind, so the default stays) */
 }

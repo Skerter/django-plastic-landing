@@ -1,9 +1,9 @@
 {% comment %}
-  Cookie-баннер с категориями согласия (152-ФЗ §8).
-  Серверная механика: выбор пишется в httponly-cookie cookie_consent
-  через htmx → {% url 'cookie_consent' %}. Яндекс.Метрика инжектится
-  в base.html ТОЛЬКО при cookie_consent == 'accepted'.
-  Кнопка «Настройки cookie» в футере снимает у баннера .hidden (см. site.js).
+  Cookie banner with consent categories (152-FZ §8).
+  Server-side mechanics: the choice is written to the httponly cookie_consent
+  cookie through htmx → {% url 'cookie_consent' %}. Yandex.Metrica is injected
+  in base.html ONLY when cookie_consent == 'accepted'.
+  The "cookie settings" button in the footer drops .hidden from the banner (see site.js).
 {% endcomment %}
 <div id="cookieBanner"
      class="{% if request.COOKIES.cookie_consent %}hidden {% endif %}fixed left-0 right-0 bottom-0 z-[80] bg-brand-900 border-t-2 border-brand shadow-[0_-8px_30px_rgba(0,0,0,.25)]"

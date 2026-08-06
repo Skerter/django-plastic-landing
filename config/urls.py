@@ -6,9 +6,10 @@ from django.contrib.sitemaps.views import sitemap
 from apps.catalog.sitemaps import CategorySitemap, ProductSitemap
 
 
-admin.site.site_header = "Панель управления"  # большой заголовок вверху админки
-admin.site.site_title = "Панель управления"  # текст во вкладке браузера (<title>)
-admin.site.index_title = "Настройка каталога, заявок и контактов сайта"  # подзаголовок на главной странице админки
+admin.site.site_header = "Панель управления"  # large heading at the top of the admin
+admin.site.site_title = "Панель управления"  # the browser tab text (<title>)
+# the subheading on the admin index page
+admin.site.index_title = "Настройка каталога, заявок и контактов сайта"
 
 sitemaps = {
     "categories": CategorySitemap,
@@ -29,6 +30,6 @@ urlpatterns = [
     ),
 ]
 
-# Раздача загруженных media-файлов на dev-сервере (в проде — Nginx/WhiteNoise).
+# Serving uploaded media files from the dev server (Nginx/WhiteNoise in production).
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -2,7 +2,7 @@ from config.sentry import FILTERED, before_send
 
 
 def _event_with_pii():
-    """Синтетическое событие Sentry с ПДн в теле запроса и валидным трейсом."""
+    """A synthetic Sentry event with personal data in the request body and a valid trace."""
     return {
         "request": {
             "url": "https://example.com/zayavka/",
@@ -32,10 +32,10 @@ def _event_with_pii():
 def test_before_send_strips_request_pii():
     event = before_send(_event_with_pii(), hint={})
 
-    # Тело запроса и куки вырезаны целиком — там ПДн.
+    # The request body and the cookies are stripped whole — they hold personal data.
     assert event["request"]["data"] == FILTERED
     assert event["request"]["cookies"] == FILTERED
-    # Значения ПДн не должны встречаться нигде в событии.
+    # No personal-data value may appear anywhere in the event.
     blob = str(event)
     assert "Иван" not in blob
     assert "+74950000000" not in blob
@@ -46,20 +46,20 @@ def test_before_send_strips_request_pii():
 def test_before_send_keeps_diagnostics():
     event = before_send(_event_with_pii(), hint={})
 
-    # URL, метод, тип/значение исключения, стектрейс — сохранены.
+    # URL, method, exception type/value and the stack trace are preserved.
     assert event["request"]["url"] == "https://example.com/zayavka/"
     assert event["request"]["method"] == "POST"
     exc = event["exception"]["values"][0]
     assert exc["type"] == "ValueError"
     assert exc["stacktrace"]["frames"][0]["filename"] == "apps/leads/views.py"
-    # Не-ПДн поля в extra остаются.
+    # Non-personal fields in extra stay.
     assert event["extra"]["order_id"] == 7
-    # ПДн-поле comment в extra затёрто.
+    # The personal-data field comment in extra is wiped.
     assert event["extra"]["comment"] == FILTERED
 
 
 def _event_with_stacktrace_vars():
-    """Событие с ПДн в локальных переменных кадра стектрейса (как реальный traceback)."""
+    """An event with personal data in stack frame locals (as in a real traceback)."""
     return {
         "exception": {
             "values": [
@@ -91,13 +91,13 @@ def test_before_send_strips_stacktrace_vars():
     event = before_send(_event_with_stacktrace_vars(), hint={})
 
     frame_vars = event["exception"]["values"][0]["stacktrace"]["frames"][0]["vars"]
-    # payload — имя из PII_VAR_NAMES → вырезан целиком.
+    # payload is a name from PII_VAR_NAMES → stripped whole.
     assert frame_vars["payload"] == FILTERED
-    # Не-ПДн переменная осталась (диагностика не потеряна).
+    # The non-personal variable stays (the diagnostics are not lost).
     assert frame_vars["price"] == "1000"
-    # Значений ПДн нет нигде в событии.
+    # No personal-data value appears anywhere in the event.
     blob = str(event)
     assert "Иван Тестов" not in blob
     assert "+74950000000" not in blob
-    # Тип/сообщение исключения сохранены.
+    # The exception type and message are preserved.
     assert event["exception"]["values"][0]["type"] == "RuntimeError"

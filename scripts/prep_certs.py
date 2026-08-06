@@ -1,21 +1,21 @@
 """
-Оптимизация сканов сертификатов для галереи на «О компании».
+Optimizes certificate scans for the gallery on the "About" page.
 
-Сертификаты — сканы документов на белом фоне. Замена фона не нужна:
-просто ресайз до разумной ширины и конвертация в WebP.
-Скан A4 на ~800px по ширине читается в сетке-превью и весит ~40-60КБ
-вместо исходных ~400КБ.
+Certificates are document scans on a white background. No background
+replacement is needed: just a resize to a sensible width and a conversion to
+WebP. An A4 scan at ~800px wide is readable in the preview grid and weighs
+~40-60KB instead of the original ~400KB.
 
     input/   certificate1.jpg certificate2.jpg ...
     →
     output/  certificate-1.webp certificate-2.webp ...
 
-Запуск:
+Usage:
     uv run python scripts/prep_certs.py "C:/photos/certificates" "C:/photos/certificates_out"
 
-Опции:
-    --width     ширина в px (по умолчанию 800)
-    --quality   качество WebP (по умолчанию 80)
+Options:
+    --width     width in px (default 800)
+    --quality   WebP quality (default 80)
 """
 
 import argparse
@@ -29,14 +29,14 @@ EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
 
 def natural_key(name: str):
-    """Сортировка с числом: certificate2 < certificate10."""
+    """Number-aware sorting: certificate2 < certificate10."""
     return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", name)]
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("input", help="папка с исходными сканами")
-    ap.add_argument("output", help="папка для результата")
+    ap.add_argument("input", help="directory with the source scans")
+    ap.add_argument("output", help="output directory")
     ap.add_argument("--width", type=int, default=800)
     ap.add_argument("--quality", type=int, default=80)
     args = ap.parse_args()
@@ -44,7 +44,7 @@ def main() -> int:
     in_dir = Path(args.input)
     out_dir = Path(args.output)
     if not in_dir.is_dir():
-        print(f"нет папки: {in_dir}", file=sys.stderr)
+        print(f"no such directory: {in_dir}", file=sys.stderr)
         return 1
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -59,9 +59,9 @@ def main() -> int:
             im = im.resize((args.width, h), Image.LANCZOS)
         out_file = out_dir / f"certificate-{i}.webp"
         im.save(out_file, "WEBP", quality=args.quality, method=6)
-        print(f"  {src.name} -> {out_file.name}  ({out_file.stat().st_size // 1024}КБ)")
+        print(f"  {src.name} -> {out_file.name}  ({out_file.stat().st_size // 1024}KB)")
 
-    print(f"\nготово: {len(files)} файлов")
+    print(f"\ndone: {len(files)} files")
     return 0
 
 

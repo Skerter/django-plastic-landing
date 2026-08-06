@@ -3,8 +3,8 @@
 from django.db import migrations
 
 
-# Демо-данные вымышленной компании «ДемоПласт». Все контакты и реквизиты
-# фиктивны: телефоны из диапазона 495 000-00-XX, ИНН/ОГРН/счета — плейсхолдеры.
+# Demo data for the fictional company "DemoPlast". Every contact and legal detail
+# is made up: phones from the 495 000-00-XX range, INN/OGRN/accounts are placeholders.
 DATA = {
     "company_name": "ООО «ДемоПласт»",
     "phone_sales": "+7 495 000-00-00",

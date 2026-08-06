@@ -21,7 +21,7 @@ VALID_DATA = {
     "phone": "+79001234567",
     "type": "order",
     "consent": True,
-    "website": "",  # honeypot пустой — человек
+    "website": "",  # an empty honeypot means a human
 }
 
 
@@ -247,11 +247,11 @@ def test_lead_form_succeeds_even_if_channel_fails(client):
 
 
 def test_q_cluster_retry_exceeds_timeout():
-    """retry обязан быть строго больше timeout, иначе django-q не стартует."""
+    """retry must be strictly greater than timeout, or django-q refuses to start."""
     q = settings.Q_CLUSTER
     assert q["retry"] > q["timeout"]
 
 
 def test_q_cluster_has_attempt_cap():
-    """max_attempts задан и конечен — иначе упавшая задача повторяется вечно."""
+    """max_attempts is set and finite — otherwise a failing task retries forever."""
     assert settings.Q_CLUSTER.get("max_attempts", 0) > 0

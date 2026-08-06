@@ -1,15 +1,15 @@
 """
-Скриншоты страниц через Playwright (для визуальной проверки вёрстки).
+Page screenshots through Playwright (for visually checking the layout).
 
-Запуск (dev-сервер должен быть поднят отдельно):
+Usage (the dev server must already be running):
     uv run python scripts/shot.py /catalog/ /catalog/kanistry/
 
-Опции:
-    --base   базовый URL (по умолчанию http://127.0.0.1:8009)
-    --out    папка для скриншотов (по умолчанию .screenshots)
-    --only   desktop | mobile (по умолчанию оба)
+Options:
+    --base   base URL (default http://127.0.0.1:8009)
+    --out    screenshot directory (default .screenshots)
+    --only   desktop | mobile (default both)
 
-Имена файлов: <slug>__desktop.png / <slug>__mobile.png
+File names: <slug>__desktop.png / <slug>__mobile.png
 """
 
 import argparse
@@ -31,19 +31,19 @@ def slugify(path: str) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("paths", nargs="+", help="пути страниц, напр. / /catalog/")
+    ap.add_argument("paths", nargs="+", help="page paths, e.g. / /catalog/")
     ap.add_argument("--base", default="http://127.0.0.1:8009")
     ap.add_argument("--out", default=".screenshots")
     ap.add_argument("--only", choices=["desktop", "mobile"], default=None)
     ap.add_argument(
         "--consent",
         action="store_true",
-        help="предустановить cookie_consent=accepted (скрыть баннер)",
+        help="preset cookie_consent=accepted (hides the banner)",
     )
     ap.add_argument(
         "--selector",
         default=None,
-        help="CSS-селектор: снять только этот элемент, а не всю страницу",
+        help="CSS selector: capture only this element instead of the whole page",
     )
     args = ap.parse_args()
 
@@ -75,7 +75,7 @@ def main() -> int:
             for path in args.paths:
                 url = args.base.rstrip("/") + path
                 resp = page.goto(url, wait_until="networkidle", timeout=30000)
-                page.wait_for_timeout(350)  # дать отрисоваться шрифтам/анимации
+                page.wait_for_timeout(350)  # let the fonts/animations paint
                 fname = out / f"{slugify(path)}__{name}.png"
                 if args.selector:
                     page.locator(args.selector).first.screenshot(path=str(fname))

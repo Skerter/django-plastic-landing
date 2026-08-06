@@ -9,13 +9,13 @@ DATABASES = {
     }
 }
 
-# Письма печатаются в консоль runserver — реальный SMTP в dev не нужен
+# Emails are printed to the runserver console — no real SMTP needed in dev
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# В dev отключаем ratelimit — иначе 5/час мешает тестировать форму.
-# На проде (prod.py) лимит остаётся боевым.
+# The rate limit is off in dev — 5/hour gets in the way of testing the form.
+# In production (prod.py) the limit stays live.
 RATELIMIT_ENABLE = False
 
-# Тесты и локальный dev гоняют реальный путь уведомлений (email в консоль),
-# поэтому демо-режим здесь принудительно выключен независимо от .env.
+# Tests and local dev exercise the real notification path (email to the console),
+# so demo mode is forced off here regardless of .env.
 DEMO_MODE = False

@@ -17,7 +17,7 @@ class SiteSettings(SingletonModel):
         help_text="Официальное название. Выводится в подвале, реквизитах и микроразметке.",
     )
 
-    # --- Контакты ---
+    # --- Contacts ---
     phone_sales = models.CharField(
         "Телефон — отдел продаж",
         max_length=32,
@@ -60,15 +60,15 @@ class SiteSettings(SingletonModel):
         help_text="Адрес для счетов и документов. Показывается на «Контактах».",
     )
 
-    # --- Адрес и режим ---
+    # --- Address and opening hours ---
     address = models.CharField(
         "Адрес производства",
         max_length=255,
         blank=True,
         help_text="Например: г. Москва, ул. Промышленная, д. 1. Выводится в подвале и контактах.",
     )
-    # Режим работы делится на две строки, чтобы выводить их раздельно
-    # (будни — крупно в шапке/подвале, выходные — отдельной строкой на «Контактах»).
+    # Opening hours are split into two fields so they can be shown separately
+    # (weekdays large in the header/footer, the weekend on its own line on "Contacts").
     work_hours = models.CharField(
         "Режим работы в будни",
         max_length=128,
@@ -89,7 +89,7 @@ class SiteSettings(SingletonModel):
         "Например: Москва, улица Промышленная, 1",
     )
 
-    # --- Реквизиты ---
+    # --- Legal and banking details ---
     legal_address = models.CharField(
         "Юридический адрес",
         max_length=255,
@@ -122,7 +122,7 @@ class SiteSettings(SingletonModel):
         help_text="20 цифр.",
     )
 
-    # --- Уведомления и аналитика ---
+    # --- Notifications and analytics ---
     metrika_id = models.CharField(
         "ID счётчика Яндекс.Метрики",
         max_length=16,

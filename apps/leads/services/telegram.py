@@ -9,18 +9,18 @@ API_URL = "https://api.telegram.org/bot{token}/sendMessage"
 
 
 def notify_telegram(lead_id: int) -> None:
-    """Отправить уведомление о новой заявке в Telegram.
+    """Send a Telegram notification about a new lead.
 
-    Шлёт ``Lead.as_message()`` через Bot API (``sendMessage``). Токен бота —
-    из ``settings.TELEGRAM_BOT_TOKEN``, чат — ``SiteSettings.telegram_chat_id``
-    (задаётся в админке).
+    Sends ``Lead.as_message()`` through the Bot API (``sendMessage``). The bot
+    token comes from ``settings.TELEGRAM_BOT_TOKEN``, the chat from
+    ``SiteSettings.telegram_chat_id`` (set in the admin).
 
-    Запускается как фоновая задача django-q2. Если токен или chat_id не заданы —
-    логирует предупреждение и тихо выходит (ретраить нечего). Сетевые ошибки и
-    не-2xx ответы пробрасываются, чтобы воркер повторил задачу.
+    Runs as a django-q2 background task. If the token or the chat_id is missing,
+    logs a warning and exits quietly (there is nothing to retry). Network errors
+    and non-2xx responses propagate, so the worker retries the task.
 
     Args:
-        lead_id: PK заявки (:class:`~apps.leads.models.Lead`).
+        lead_id: PK of the lead (:class:`~apps.leads.models.Lead`).
     """
     from apps.core.models import SiteSettings
     from apps.leads.models import Lead
@@ -28,7 +28,7 @@ def notify_telegram(lead_id: int) -> None:
     token = settings.TELEGRAM_BOT_TOKEN
     chat_id = SiteSettings.get_solo().telegram_chat_id
     if not token or not chat_id:
-        logger.warning("Telegram пропущен: нет токена или chat_id (заявка %s)", lead_id)
+        logger.warning("Telegram skipped: no token or chat_id (lead %s)", lead_id)
         return
 
     lead = Lead.objects.get(id=lead_id)
@@ -38,4 +38,4 @@ def notify_telegram(lead_id: int) -> None:
         timeout=10,
     )
     response.raise_for_status()
-    logger.info("Telegram отправлен для заявки %s", lead_id)
+    logger.info("Telegram sent for lead %s", lead_id)

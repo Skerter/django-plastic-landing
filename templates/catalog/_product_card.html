@@ -1,7 +1,7 @@
 {% comment %}
-  Карточка товара в сетке каталога.
-  Крупный «главный показатель» — первая характеристика товара (ProductSpec),
-  обычно объём у канистр / диаметр у крышек. Строка-подпись — следующие спеки.
+  A product card in the catalogue grid.
+  The large "headline figure" is the product's first spec (ProductSpec), usually
+  the volume for canisters / the diameter for caps. The caption line holds the rest.
 {% endcomment %}
 {% with specs=product.specs.all %}
 <a href="{% url 'product_detail' product.category.slug product.slug %}" class="group bg-white hover:bg-surface transition-colors flex flex-col">

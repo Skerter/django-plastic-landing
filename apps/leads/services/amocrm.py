@@ -31,19 +31,19 @@ def _post(path: str, payload: list, token: str) -> dict:
 
 
 def _refresh_tokens(auth) -> str:
-    """Обменять refresh-токен на новую пару токенов и сохранить её.
+    """Exchange the refresh token for a new token pair and store it.
 
-    amoCRM ротирует refresh-токен при каждом обновлении, поэтому новая пара
-    (access + refresh + срок) сразу пишется в синглтон ``auth``.
+    amoCRM rotates the refresh token on every refresh, so the new pair
+    (access + refresh + expiry) is written to the ``auth`` singleton at once.
 
     Args:
-        auth: Синглтон :class:`~apps.leads.models.AmoCRMAuth`; обновляется на месте.
+        auth: The :class:`~apps.leads.models.AmoCRMAuth` singleton; updated in place.
 
     Returns:
-        Новый access-токен.
+        The new access token.
 
     Raises:
-        requests.HTTPError: Если amoCRM отклонил запрос обновления.
+        requests.HTTPError: If amoCRM rejected the refresh request.
     """
     response = requests.post(
         f"{settings.AMOCRM_BASE_URL}/oauth2/access_token",
@@ -62,22 +62,22 @@ def _refresh_tokens(auth) -> str:
     auth.refresh_token = data["refresh_token"]
     auth.expires_at = timezone.now() + timedelta(seconds=data["expires_in"])
     auth.save()
-    logger.info("amoCRM: токены обновлены")
+    logger.info("amoCRM: tokens refreshed")
     return auth.access_token
 
 
 def _get_access_token(auth) -> str:
-    """Вернуть действующий access-токен, обновив его при необходимости.
+    """Return a valid access token, refreshing it if needed.
 
-    Токен считается истёкшим (и обновляется проактивно) за
-    ``TOKEN_REFRESH_MARGIN`` до фактического срока — так запрос не уйдёт с
-    токеном, который протухнет в полёте.
+    The token counts as expired (and is refreshed proactively)
+    ``TOKEN_REFRESH_MARGIN`` before its actual expiry, so a request never goes
+    out with a token that dies in flight.
 
     Args:
-        auth: Синглтон :class:`~apps.leads.models.AmoCRMAuth` с токенами.
+        auth: The :class:`~apps.leads.models.AmoCRMAuth` singleton holding the tokens.
 
     Returns:
-        Действующий access-токен.
+        A valid access token.
     """
     expired = (
         not auth.access_token
@@ -117,29 +117,32 @@ def _create_lead(lead, contact_id: int, token: str) -> int:
 
 
 def push_lead_to_amocrm(lead_id: int) -> None:
-    """Выгрузить заявку в amoCRM: создать контакт и привязанную сделку.
+    """Push a lead to amoCRM: create a contact and a deal linked to it.
 
-    Запускается как фоновая задача django-q2. Использует OAuth 2.0 с
-    автоматическим обновлением токена (см. :func:`_get_access_token`).
+    Runs as a django-q2 background task. Uses OAuth 2.0 with automatic token
+    refresh (see :func:`_get_access_token`).
 
-    Тихо пропускает заявку (warning, без ретрая), если интеграция не настроена
-    (нет ``AMOCRM_*`` в окружении) или ещё не пройдена первичная авторизация
-    (команда ``amocrm_auth``). Ошибки HTTP при создании контакта/сделки
-    пробрасываются, чтобы воркер повторил задачу.
+    Silently skips the lead (warning, no retry) if the integration is not
+    configured (no ``AMOCRM_*`` in the environment) or the initial authorization
+    has not been done yet (the ``amocrm_auth`` command). HTTP errors raised while
+    creating the contact or the deal propagate, so the worker retries the task.
 
     Args:
-        lead_id: PK заявки (:class:`~apps.leads.models.Lead`).
+        lead_id: PK of the lead (:class:`~apps.leads.models.Lead`).
     """
     from apps.leads.models import AmoCRMAuth, Lead
 
     if not _is_configured():
-        logger.warning("amoCRM пропущен: интеграция не настроена (заявка %s)", lead_id)
+        logger.warning(
+            "amoCRM skipped: integration is not configured (lead %s)", lead_id
+        )
         return
 
     auth = AmoCRMAuth.get_solo()
     if not auth.refresh_token:
         logger.warning(
-            "amoCRM пропущен: нет авторизации (команда amocrm_auth), заявка %s", lead_id
+            "amoCRM skipped: not authorized (run the amocrm_auth command), lead %s",
+            lead_id,
         )
         return
 
@@ -147,4 +150,4 @@ def push_lead_to_amocrm(lead_id: int) -> None:
     token = _get_access_token(auth)
     contact_id = _create_contact(lead, token)
     _create_lead(lead, contact_id, token)
-    logger.info("amoCRM: заявка %s выгружена (контакт %s)", lead_id, contact_id)
+    logger.info("amoCRM: lead %s pushed (contact %s)", lead_id, contact_id)

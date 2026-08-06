@@ -12,12 +12,12 @@ services:
 
   web:
     build: .
-    # Демо за одну команду. migrate + collectstatic выполняет entrypoint.sh до
-    # этой команды; здесь — то, что зависит от готовой БД и нужно для демо:
-    #   tailwind build   — dist в .gitignore, host-bind его затирает → собираем
-    #   seed_demo_images — плейсхолдер-картинки товаров (рабочая карусель)
-    #   seed_demo_leads  — фейковые заявки, чтобы админка была не пустой
-    # (категории/товары/контакты уже залиты сид-миграциями при migrate)
+    # The demo in one command. migrate + collectstatic run in entrypoint.sh before
+    # this command; what is left here needs a ready database and matters for the demo:
+    #   tailwind build   — dist is in .gitignore and the host bind wipes it → rebuild
+    #   seed_demo_images — placeholder product images (a working carousel)
+    #   seed_demo_leads  — fake leads, so the admin is not empty
+    # (categories/products/contacts are already seeded by migrations during migrate)
     command: >
       sh -c "python manage.py tailwind build &&
              python manage.py seed_demo_images &&

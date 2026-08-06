@@ -1,8 +1,8 @@
 {% comment %}
-  Инлайн-SVG иконки (lucide), без внешнего JS/CDN.
-  Использование: {% include "partials/icon.html" with name="phone" class="w-5 h-5" %}
-  Доступные имена соответствуют data-lucide из дизайн-референса.
-  stroke-width 1.6 — единый «технический» вес (как в дизайн-системе).
+  Inline SVG icons (lucide), no external JS/CDN.
+  Usage: {% include "partials/icon.html" with name="phone" class="w-5 h-5" %}
+  The available names match the data-lucide values from the design reference.
+  stroke-width 1.6 is the uniform "technical" weight (as in the design system).
 {% endcomment %}<svg class="{{ class|default:'w-5 h-5' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{% spaceless %}
 {% if name == "arrow-right" %}<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
 {% elif name == "chevron-left" %}<polyline points="15 18 9 12 15 6"/>

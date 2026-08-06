@@ -24,11 +24,18 @@ readable in.
 the reader is Russian-speaking by definition.
 
 - **English — the source of truth:** `docs/` (all pages), `README.md`, `SECURITY.md`,
-  code identifiers, inline comments, docstrings, commit messages, CI workflow comments.
+  code identifiers, inline comments, docstrings, commit messages, CI workflow comments,
+  log messages, and the developer-facing output of management commands and scripts.
 - **Russian — a translation and the client-facing UI:** the `*.ru.md` pages of `docs/`
-  published at `/ru/`, `README.ru.md`, `SECURITY.ru.md`, and everything user-facing in
-  the Django admin (`verbose_name`, `help_text`, fieldsets) — the admin is the
-  Russian-speaking client's workplace, a product interface rather than documentation.
+  published at `/ru/`, `README.ru.md`, `SECURITY.ru.md`, everything user-facing in the
+  Django admin (`verbose_name`, `help_text`, choices, fieldsets) — the admin is the
+  Russian-speaking client's workplace, a product interface rather than documentation —
+  the site's own UI copy in the templates, the body of the notifications sent to the
+  client (`Lead.as_message()`, the mail subject, the amoCRM deal name), and the demo
+  data of the seed migrations together with the test fixtures.
+
+The dividing line is the reader: anything a developer reads is English, anything the
+client or a site visitor reads is Russian.
 
 The documentation site is built by `mkdocs-static-i18n` in suffix mode: `deploy.md` is
 the English source, `deploy.ru.md` its translation. English is served at `/`, Russian at
@@ -51,9 +58,9 @@ source may not.
 - Every documentation change has to be made twice, in `page.md` and `page.ru.md`.
   Forgetting the second one leaves a stale translation (mitigated by the rule above:
   English wins).
-- The existing Russian inline comments and docstrings now contradict the policy. They
-  are migrated separately, as a follow-up — this record states the target, not a
-  completed state.
+- The migration of the existing comments and docstrings touched 47 files at once —
+  a large diff with no behavioural change, which makes `git blame` on those lines
+  point at the translation commit rather than at the change that introduced the code.
 
 ## History
 
@@ -62,3 +69,7 @@ source may not.
   working team used (`docs/`, comments, docstrings, the admin).
 - **2026-08-06:** replaced by the current policy. The record was rewritten in place
   rather than superseded by a new one, so this section keeps the trace of the change.
+- **2026-08-06:** the follow-up was closed the same day — the comments, docstrings,
+  log messages, management command and script output, and the comments in the
+  templates, JS/CSS, `.env.example`, `compose.yaml`, `pyproject.toml` and `deploy/`
+  were translated. The repository now matches the policy in full.

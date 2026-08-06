@@ -43,13 +43,13 @@ class Lead(models.Model):
         return f"{self.name} — {self.get_type_display()} ({self.created_at:%d.%m.%Y})"
 
     def as_message(self) -> str:
-        """Собрать текст заявки для уведомлений (email и Telegram).
+        """Build the lead text for notifications (email and Telegram).
 
-        Необязательные поля (email, товар, комментарий) включаются только если
-        заполнены. Дата приводится к локальному времени.
+        Optional fields (email, product, comment) are included only when filled
+        in. The date is converted to local time.
 
         Returns:
-            Многострочный текст заявки.
+            The lead as a multi-line string.
         """
         lines = [
             f"Новая заявка: {self.get_type_display()}",

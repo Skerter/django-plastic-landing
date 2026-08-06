@@ -1,12 +1,12 @@
 /* ============================================================
-   DemoPlast — клиентская логика (ваниль, без фреймворков)
-   Бургер-меню · модалка «Заказать звонок» · кнопка настроек cookie
-   Формы работают через htmx (см. base.html / form.html).
+   DemoPlast — client-side logic (vanilla, no frameworks)
+   Burger menu · "request a call" modal · cookie settings button
+   The forms run through htmx (see base.html / form.html).
    ============================================================ */
 (function () {
   'use strict';
 
-  /* ---------- Бургер-меню ---------- */
+  /* ---------- Burger menu ---------- */
   var burger = document.getElementById('burger');
   var menu = document.getElementById('mobileMenu');
   if (burger && menu) {
@@ -26,7 +26,7 @@
     });
   }
 
-  /* ---------- Модалка «Заказать звонок» ---------- */
+  /* ---------- "Request a call" modal ---------- */
   var modal = document.getElementById('callbackModal');
   var lastFocus = null;
   function openModal() {
@@ -43,7 +43,7 @@
     document.documentElement.style.overflow = '';
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
-  // делегирование: любые ссылки на #callback и [data-modal-open] открывают модалку
+  // delegation: any link to #callback and any [data-modal-open] opens the modal
   document.addEventListener('click', function (e) {
     var open = e.target.closest('a[href$="#callback"], [data-modal-open]');
     if (open) { e.preventDefault(); openModal(); return; }
@@ -53,7 +53,7 @@
     if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) closeModal();
   });
 
-  /* ---------- Кнопка «Настройки cookie» в футере ---------- */
+  /* ---------- "Cookie settings" button in the footer ---------- */
   document.addEventListener('click', function (e) {
     if (e.target.closest('[data-cookie-settings]')) {
       e.preventDefault();
@@ -62,12 +62,12 @@
     }
   });
 
-  /* ---------- Галерея товара (scroll-snap карусель) ---------- */
+  /* ---------- Product gallery (scroll-snap carousel) ---------- */
   document.querySelectorAll('[data-gallery]').forEach(function (gal) {
     var track = gal.querySelector('[data-gallery-track]');
     if (!track) return;
     var slides = track.children;
-    if (slides.length < 2) return;  // нечего листать
+    if (slides.length < 2) return;  // nothing to page through
 
     var dots = gal.querySelectorAll('[data-gallery-dot]');
     var thumbs = gal.querySelectorAll('[data-gallery-thumb]');
@@ -113,7 +113,7 @@
     if (next) next.addEventListener('click', function () { goTo(active + 1); });
   });
 
-  /* ---------- Сертификаты: фильмстрип + lightbox ---------- */
+  /* ---------- Certificates: filmstrip + lightbox ---------- */
   (function () {
     var film = document.querySelector('[data-cert-film]');
     var lb = document.querySelector('[data-cert-lb]');
@@ -122,15 +122,15 @@
     var cards = Array.prototype.slice.call(film.querySelectorAll('[data-cert-idx]'));
     if (!cards.length) return;
 
-    // данные сертификатов берём из карточек ленты (url крупного фото = src превью, title = alt)
+    // certificate data comes from the strip cards (large photo url = preview src, title = alt)
     var items = cards.map(function (c) {
       var img = c.querySelector('img');
       return { src: img ? img.src : '', title: img ? img.alt : '' };
     });
 
-    // листание ленты кнопками (на 2 карточки за шаг)
+    // paging the strip with the buttons (2 cards per step)
     function step(dir) {
-      var w = cards[0].offsetWidth + 16; // ширина карточки + gap
+      var w = cards[0].offsetWidth + 16; // card width + gap
       film.scrollBy({ left: dir * w * 2, behavior: 'smooth' });
     }
     var filmPrev = document.querySelector('[data-cert-prev]');
@@ -167,7 +167,7 @@
       if (lastFocus && lastFocus.focus) lastFocus.focus();
     }
     function move(d) {
-      idx = (idx + d + items.length) % items.length; // зацикленная навигация
+      idx = (idx + d + items.length) % items.length; // wrap-around navigation
       render();
     }
 

@@ -1,6 +1,6 @@
 {% comment %}
-  Поля формы заявки (свапаемый htmx-фрагмент).
-  Рендерит ошибки полей и non-field-ошибки. Классы — из дизайн-системы demoplast.css.
+  The lead form fields (a swappable htmx fragment).
+  Renders field errors and non-field errors. The classes come from demoplast.css.
 {% endcomment %}
 <div class="grid sm:grid-cols-2 gap-5">
   {% if form.non_field_errors %}
@@ -36,7 +36,7 @@
     {% if form.comment.errors %}<p class="text-red-600 text-[13px] mt-1.5">{{ form.comment.errors.0 }}</p>{% endif %}
   </div>
 
-  {% comment %} honeypot — скрытое антиспам-поле, человек его не видит {% endcomment %}
+  {% comment %} honeypot — a hidden anti-spam field, invisible to a human {% endcomment %}
   <div class="hidden" aria-hidden="true">
     <label for="id_website">Не заполняйте это поле</label>
     <input id="id_website" name="website" type="text" tabindex="-1" autocomplete="off" value="">

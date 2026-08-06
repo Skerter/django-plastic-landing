@@ -155,10 +155,10 @@ textarea.fld{ height:auto; padding:14px 16px; resize:vertical; line-height:1.55;
 svg.lucide{ stroke-width:1.6; }
 
 /* ============================================================
-   Сертификаты: горизонтальный фильмстрип + lightbox
+   Certificates: horizontal filmstrip + lightbox
    ============================================================ */
 
-/* ---- лента превью (scroll-snap) ---- */
+/* ---- preview strip (scroll-snap) ---- */
 .cert-film{
   display:flex; gap:16px; overflow-x:auto;
   scroll-snap-type:x mandatory; scroll-behavior:smooth; padding-bottom:4px;
@@ -166,7 +166,7 @@ svg.lucide{ stroke-width:1.6; }
 .cert-film > *{ scroll-snap-align:start; flex:0 0 auto; width:200px; }
 @media (max-width:640px){ .cert-film > *{ width:150px; } }
 
-/* ---- карточка-превью ---- */
+/* ---- preview card ---- */
 .cert-card{
   display:flex; flex-direction:column; text-align:left;
   background:#fff; border:1px solid var(--line);
@@ -176,7 +176,7 @@ svg.lucide{ stroke-width:1.6; }
 .cert-card img{ width:100%; aspect-ratio:3/4; object-fit:cover; display:block; }
 .cert-card__ft{ padding:11px 13px 12px; border-top:1px solid var(--line); }
 
-/* ---- круглые кнопки ←/→ (лента и lightbox) ---- */
+/* ---- round ←/→ buttons (strip and lightbox) ---- */
 .cert-nav{
   display:grid; place-items:center; width:46px; height:46px;
   border:1px solid var(--line); background:#fff; color:var(--ink); transition:.18s;

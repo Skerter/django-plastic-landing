@@ -1,7 +1,7 @@
 {% load static %}<!DOCTYPE html>
-{# Контакты здесь НАМЕРЕННО захардкожены и не берутся из SiteSettings.
-   Страница 500 рендерится Django без контекст-процессоров. 
-   При смене телефонов обновить вручную здесь. #}
+{# The contacts here are hardcoded ON PURPOSE and do not come from SiteSettings:
+   Django renders the 500 page without context processors.
+   When the phone numbers change, update them here by hand. #}
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -13,12 +13,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-{# Собранная статика отдаётся веб-сервером/WhiteNoise и доступна даже при 500. #}
+{# The built static files are served by the web server/WhiteNoise and stay available on a 500. #}
 <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
 <link rel="stylesheet" href="{% static 'css/demoplast.css' %}">
 
-{# Критический брендовый CSS заинлайнен: страница остаётся читабельной и фирменной,
-   даже если внешние стили не загрузятся (особенность 500). #}
+{# The critical brand CSS is inlined: the page stays readable and on-brand even
+   if the external styles fail to load (a quirk of the 500 page). #}
 <style>
   :root{ --brand:#2B5CB4; --brand-700:#1E4488; --brand-900:#14213D; --ink:#15191E; --muted:#5B6573; --line:#E2E6EC; --surface:#F4F6F9; --accent:#E8A13A; }
   *{ -webkit-tap-highlight-color:transparent; }

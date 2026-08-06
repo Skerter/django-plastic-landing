@@ -1,6 +1,6 @@
-"""Скруббер ПДн для событий Sentry (152-ФЗ: имена/телефоны/email не уходят за рубеж)."""
+"""Personal-data scrubber for Sentry events (152-FZ: names/phones/emails never leave the country)."""
 
-# Ключи, значения которых считаем персональными данными и вырезаем из событий.
+# Keys whose values count as personal data and are stripped from events.
 PII_KEYS = frozenset(
     {
         "name",
@@ -12,8 +12,8 @@ PII_KEYS = frozenset(
         "username",
     }
 )
-# Имена локальных переменных в кадрах стектрейса, которые целиком могут нести ПДн
-# (объект Lead, тело формы, payload и т.п.) — затираем значение целиком.
+# Names of stack frame locals that may carry personal data as a whole
+# (a Lead object, a form body, a payload) — the value is wiped entirely.
 PII_VAR_NAMES = frozenset(
     {
         "payload",
@@ -31,7 +31,7 @@ FILTERED = "[Filtered]"
 
 
 def _scrub_mapping(data):
-    """Затереть значения PII-ключей в словаре (рекурсивно по вложенным dict)."""
+    """Wipe the values of PII keys in a mapping (recursively through nested dicts)."""
     if not isinstance(data, dict):
         return data
     for key, value in data.items():
@@ -43,7 +43,7 @@ def _scrub_mapping(data):
 
 
 def _scrub_frames(exception):
-    """Затереть ПДн в локальных переменных кадров стектрейса (chained-исключения тоже)."""
+    """Wipe personal data from stack frame locals (chained exceptions included)."""
     if not isinstance(exception, dict):
         return
     for value in exception.get("values", []):
@@ -56,31 +56,31 @@ def _scrub_frames(exception):
                 continue
             for var_name in frame_vars:
                 if var_name.lower() in PII_VAR_NAMES:
-                    # Переменная-объект целиком (Lead, payload, form) — режем под корень.
+                    # A whole object variable (Lead, payload, form) — cut at the root.
                     frame_vars[var_name] = FILTERED
                 elif isinstance(frame_vars[var_name], dict):
-                    # Вложенный dict — чистим по PII-ключам (name/phone/email/...).
+                    # A nested dict — cleaned by PII keys (name/phone/email/...).
                     _scrub_mapping(frame_vars[var_name])
     return
 
 
 def before_send(event, hint):
-    """Вызывается Sentry перед отправкой. Вырезает ПДн, сохраняя диагностику."""
+    """Called by Sentry before sending. Strips personal data, keeps the diagnostics."""
     request = event.get("request")
     if isinstance(request, dict):
-        # Тело запроса (POST лидформы) и куки целиком — там ПДн.
+        # The request body (the lead form POST) and the cookies as a whole — personal data.
         if "data" in request:
             request["data"] = FILTERED
         if "cookies" in request:
             request["cookies"] = FILTERED
 
-    # На случай, если ПДн попали в extra/contexts.
+    # In case personal data ended up in extra/contexts.
     if isinstance(event.get("extra"), dict):
         _scrub_mapping(event["extra"])
     if isinstance(event.get("contexts"), dict):
         _scrub_mapping(event["contexts"])
 
-    # Локальные переменные в кадрах стектрейса (там объект Lead / тело формы / payload).
+    # Stack frame locals (that is where the Lead object / form body / payload live).
     _scrub_frames(event.get("exception"))
     _scrub_frames(event.get("threads"))
 

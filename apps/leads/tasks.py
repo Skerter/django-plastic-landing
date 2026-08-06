@@ -13,24 +13,24 @@ NOTIFICATION_TASKS = [
 
 
 def schedule_lead_notifications(lead_id: int) -> None:
-    """Поставить в очередь уведомления о заявке по включённым каналам.
+    """Queue lead notifications for every enabled channel.
 
-    Для каждого канала из ``NOTIFICATION_TASKS`` проверяет соответствующий
-    флаг в ``SiteSettings``: выключенный канал не ставится в очередь вовсе.
-    Постановка каждой задачи обёрнута в try/except, поэтому сбой одного канала
-    (например, недоступность брокера) не мешает остальным и не ломает форму.
+    For each channel in ``NOTIFICATION_TASKS`` the matching flag in
+    ``SiteSettings`` is checked: a disabled channel is never queued at all.
+    Queueing is wrapped in try/except per channel, so a failure in one of them
+    (an unreachable broker, say) neither affects the others nor breaks the form.
 
-    Вызывается из вьюхи заявки после сохранения ``Lead`` в БД.
+    Called from the lead view after the ``Lead`` has been written to the database.
 
     Args:
-        lead_id: PK сохранённой заявки (:class:`~apps.leads.models.Lead`).
+        lead_id: PK of the saved lead (:class:`~apps.leads.models.Lead`).
     """
     from apps.core.models import SiteSettings
 
-    # Демо-режим: заявка уже сохранена в БД (source of truth), но наружу ничего
-    # не уходит — публичное демо работает без реальных ключей CRM/Telegram/SMTP.
+    # Demo mode: the lead is already in the database (the source of truth), but
+    # nothing leaves the host — the public demo runs without real CRM/Telegram/SMTP keys.
     if settings.DEMO_MODE:
-        logger.info("DEMO_MODE: уведомления для заявки %s пропущены", lead_id)
+        logger.info("DEMO_MODE: notifications for lead %s skipped", lead_id)
         return
 
     site_settings = SiteSettings.get_solo()
@@ -40,6 +40,4 @@ def schedule_lead_notifications(lead_id: int) -> None:
         try:
             async_task(task, lead_id)
         except Exception:
-            logger.exception(
-                "Не удалось обработать уведомление %s (заявка %s)", task, lead_id
-            )
+            logger.exception("Failed to queue notification %s (lead %s)", task, lead_id)

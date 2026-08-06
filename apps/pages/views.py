@@ -6,9 +6,9 @@ from .models import Certificate
 
 
 def robots_txt(request):
-    # Витрина закрыта от индексации целиком: она не должна попадать в выдачу и
-    # конкурировать там с сайтом заказчика. Sitemap остаётся корректным, чтобы
-    # при go-live хватило заменить одну директиву на `Allow: /`.
+    # The showcase is closed to indexing as a whole: it must not show up in search
+    # results and compete there with the client's own site. The sitemap stays valid,
+    # so going live only takes replacing one directive with `Allow: /`.
     sitemap_url = request.build_absolute_uri(
         reverse("django.contrib.sitemaps.views.sitemap")
     )

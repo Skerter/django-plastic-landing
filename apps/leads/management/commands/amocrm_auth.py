@@ -7,11 +7,11 @@ from django.utils import timezone
 
 
 class Command(BaseCommand):
-    help = "Разовый обмен authorization code amoCRM на пару токенов (сохраняет в БД)."
+    help = "One-off exchange of an amoCRM authorization code for a token pair (stored in the database)."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "code", help="Authorization code из карточки интеграции amoCRM"
+            "code", help="Authorization code from the amoCRM integration card"
         )
 
     def handle(self, *args, **options):
@@ -23,7 +23,7 @@ class Command(BaseCommand):
             and settings.AMOCRM_CLIENT_SECRET
         ):
             raise CommandError(
-                "Не заданы AMOCRM_BASE_URL / CLIENT_ID / CLIENT_SECRET в env."
+                "AMOCRM_BASE_URL / CLIENT_ID / CLIENT_SECRET are not set in the environment."
             )
 
         response = requests.post(
@@ -46,4 +46,4 @@ class Command(BaseCommand):
         auth.expires_at = timezone.now() + timedelta(seconds=data["expires_in"])
         auth.save()
 
-        self.stdout.write(self.style.SUCCESS("amoCRM: токены получены и сохранены."))
+        self.stdout.write(self.style.SUCCESS("amoCRM: tokens received and stored."))
