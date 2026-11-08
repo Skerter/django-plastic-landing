@@ -3,6 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 env:
   IMAGE: ghcr.io/skerter/django-plastic-landing
@@ -40,14 +41,19 @@ jobs:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ secrets.VDS_HOST }}
+          username: ${{ secrets.VDS_USER }}
+          key: ${{ secrets.VDS_SSH_PRIVATE_KEY }}
+          command_timeout: 30m
           script: |
-            set -e
-            cd /opt/django-plastic-landing
-            git pull origin ${{ github.ref_name }}
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USER }} --password-stdin
+            set -eu
+            cd /opt/projects/django-plastic-landing
+            test -f deploy/selectel/.env
+            git pull --ff-only origin ${{ github.ref_name }}
+            export IMAGE_TAG=${{ github.sha }}
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USER }}" --password-stdin
+            docker network inspect proxy > /dev/null
+            docker compose -f deploy/selectel/compose.yaml config --quiet
             docker compose -f deploy/selectel/compose.yaml pull
-            docker compose -f deploy/selectel/compose.yaml up -d
-            docker image prune -f
+            docker compose -f deploy/selectel/compose.yaml up -d --wait --wait-timeout 180
+            docker compose -f deploy/selectel/compose.yaml ps

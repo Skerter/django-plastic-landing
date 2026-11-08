@@ -1,6 +1,8 @@
+name: demo-plast
+
 services:
   web:
-    image: ghcr.io/skerter/django-plastic-landing:latest
+    image: ghcr.io/skerter/django-plastic-landing:${IMAGE_TAG:-latest}
     restart: unless-stopped
     command: >
       sh -c "python manage.py seed_demo_images &&
@@ -14,13 +16,14 @@ services:
       - proxy
       - demoplast_internal
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
       - "traefik.http.routers.demoplast.rule=Host(`${SITE_DOMAIN}`)"
       - "traefik.http.routers.demoplast.entrypoints=websecure"
-      - "traefik.http.routers.demoplast.tls.certresolver=le"
+      - "traefik.http.routers.demoplast.tls.certresolver=letsencrypt"
       - "traefik.http.services.demoplast.loadbalancer.server.port=8000"
 
   media:
@@ -38,12 +41,18 @@ services:
       - "traefik.docker.network=proxy"
       - "traefik.http.routers.demoplast-media.rule=Host(`${SITE_DOMAIN}`) && PathPrefix(`/media`)"
       - "traefik.http.routers.demoplast-media.entrypoints=websecure"
-      - "traefik.http.routers.demoplast-media.tls.certresolver=le"
+      - "traefik.http.routers.demoplast-media.tls.certresolver=letsencrypt"
       - "traefik.http.routers.demoplast-media.priority=100"
       - "traefik.http.services.demoplast-media.loadbalancer.server.port=80"
 
   db:
     image: postgres:16-alpine
+    healthcheck:
+      test: ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
